@@ -1,0 +1,3180 @@
+Halide target: arm-64-osx-arm_dot_prod-arm_fp16-jit-metal
+Using GPU: true
+Compiling Halide pipeline...
+[INFO] Loading image: apriltags.jpg
+[INFO] Image loaded: 1280x951 pixels
+[TIMING] Image load time: 31.147 ms
+[INFO] Creating tag family: tag36h11
+Creating initial loop nests...
+Injecting realization of { halide_threshold_output }
+Injecting realization of { min_px }
+Injecting realization of { neigh_min }
+Injecting realization of { tile_min }
+Injecting realization of { max_px }
+Injecting realization of { neigh_max }
+Injecting realization of { tile_max }
+Inlining repeat_edge
+Inlining lambda_0
+Inlining input_im
+Skipping injecting memoization...
+Injecting tracing...
+Adding checks for parameters
+Computing bounds of each function's value
+Clamping unsafe data-dependent accesses
+Performing computation bounds inference...
+Asserting that all split factors are positive...
+Removing extern loops...
+Performing sliding window optimization...
+Uniquifying variable names...
+Simplifying...
+Simplifying correlated differences...
+Performing allocation bounds inference...
+Adding checks for images
+Removing code that depends on undef values...
+Performing storage folding optimization...
+Injecting debug_to_file calls...
+Injecting prefetches...
+Discarding safe promises...
+Dynamically skipping stages...
+Forking asynchronous producers...
+Destructuring tuple-valued realizations...
+Canonicalizing GPU var names...
+Bounding small realizations...
+Performing storage flattening...
+Adding atomic mutex allocation...
+Unpacking buffer arguments...
+Skipping rewriting memoized allocations...
+Selecting a GPU API for GPU loops...
+Injecting host <-> dev buffer copies...
+Selecting a GPU API for extern stages...
+Simplifying...
+Reduce prefetch dimension...
+Simplifying correlated differences...
+Bounding constant extent loops...
+Unrolling...
+Vectorizing...
+Injecting per-block gpu synchronization...
+Detecting vector interleavings...
+Partitioning loops to simplify boundary conditions...
+Staging strided loads...
+Trimming loops to the region over which they do something...
+Rebasing loops to zero...
+Hoisting loop invariant if statements...
+Injecting early frees...
+Simplifying correlated differences...
+Bounding small allocations...
+Simplifying...
+Lowering unsafe promises...
+Flattening nested ramps...
+Removing dead allocations and moving loop invariant code...
+Finding intrinsics...
+Hoisting prefetches...
+Lowering after final simplification:
+assert(reinterpret<uint64>((struct halide_buffer_t *)input.buffer) != (uint64)0, halide_error_buffer_argument_is_null("input"))
+assert(reinterpret<uint64>((struct halide_buffer_t *)halide_threshold_output.buffer) != (uint64)0, halide_error_buffer_argument_is_null("halide_threshold_output"))
+let halide_threshold_output = (void *)_halide_buffer_get_host((struct halide_buffer_t *)halide_threshold_output.buffer)
+let halide_threshold_output.type = (uint32)_halide_buffer_get_type((struct halide_buffer_t *)halide_threshold_output.buffer)
+let halide_threshold_output.dimensions = _halide_buffer_get_dimensions((struct halide_buffer_t *)halide_threshold_output.buffer)
+let halide_threshold_output.min.0 = _halide_buffer_get_min((struct halide_buffer_t *)halide_threshold_output.buffer, 0)
+let halide_threshold_output.extent.0 = _halide_buffer_get_extent((struct halide_buffer_t *)halide_threshold_output.buffer, 0)
+let halide_threshold_output.stride.0 = _halide_buffer_get_stride((struct halide_buffer_t *)halide_threshold_output.buffer, 0)
+let halide_threshold_output.min.1 = _halide_buffer_get_min((struct halide_buffer_t *)halide_threshold_output.buffer, 1)
+let halide_threshold_output.extent.1 = _halide_buffer_get_extent((struct halide_buffer_t *)halide_threshold_output.buffer, 1)
+let halide_threshold_output.stride.1 = _halide_buffer_get_stride((struct halide_buffer_t *)halide_threshold_output.buffer, 1)
+let input = (void *)_halide_buffer_get_host((struct halide_buffer_t *)input.buffer)
+let input.type = (uint32)_halide_buffer_get_type((struct halide_buffer_t *)input.buffer)
+let input.dimensions = _halide_buffer_get_dimensions((struct halide_buffer_t *)input.buffer)
+let input.min.0 = _halide_buffer_get_min((struct halide_buffer_t *)input.buffer, 0)
+let input.extent.0 = _halide_buffer_get_extent((struct halide_buffer_t *)input.buffer, 0)
+let input.stride.0 = _halide_buffer_get_stride((struct halide_buffer_t *)input.buffer, 0)
+let input.min.1 = _halide_buffer_get_min((struct halide_buffer_t *)input.buffer, 1)
+let input.extent.1 = _halide_buffer_get_extent((struct halide_buffer_t *)input.buffer, 1)
+let input.stride.1 = _halide_buffer_get_stride((struct halide_buffer_t *)input.buffer, 1)
+let neigh_min.s1.ty.max.s = let t698 = (halide_threshold_output.extent.1 + halide_threshold_output.min.1) in (let t699 = max(input.extent.1/4, 1) in min(max(select(t698 < ((t699*4) + 1), (t698 + -1)/4, t699 + -1), select(halide_threshold_output.min.1 < (t699*4), (t698 + -1)/4, t699 + -1)), t699 + -1))
+let neigh_min.s1.ty.min.s = let t700 = max(input.extent.1/4, 1) in min(min(select((halide_threshold_output.extent.1 + halide_threshold_output.min.1) < ((t700*4) + 1), halide_threshold_output.min.1/4, t700 + -1), select(halide_threshold_output.min.1 < (t700*4), halide_threshold_output.min.1/4, t700 + -1)), t700 + -1)
+let neigh_min.s1.tx.max.s = let t701 = (halide_threshold_output.extent.0 + halide_threshold_output.min.0) in (let t702 = max(input.extent.0/4, 1) in min(max(select(t701 < ((t702*4) + 1), (t701 + -1)/4, t702 + -1), select(halide_threshold_output.min.0 < (t702*4), (t701 + -1)/4, t702 + -1)), t702 + -1))
+let neigh_min.s1.tx.min.s = let t703 = max(input.extent.0/4, 1) in min(min(select((halide_threshold_output.extent.0 + halide_threshold_output.min.0) < ((t703*4) + 1), halide_threshold_output.min.0/4, t703 + -1), select(halide_threshold_output.min.0 < (t703*4), halide_threshold_output.min.0/4, t703 + -1)), t703 + -1)
+let tile_min.s1.ty.max.s = min(max(input.extent.1/4, 1), max(neigh_min.s1.ty.max.s, 0) + 2)
+let tile_min.s1.ty.min.s = min(max(neigh_min.s1.ty.min.s, 0), max(input.extent.1/4, 1))
+let tile_min.s1.tx.max.s = min(max(input.extent.0/4, 1), max(neigh_min.s1.tx.max.s, 0) + 2)
+let tile_min.s1.tx.min.s = min(max(neigh_min.s1.tx.min.s, 0), max(input.extent.0/4, 1))
+let input.extent.0.required.s = max(min(max(tile_min.s1.tx.max.s*4, halide_threshold_output.extent.0 + halide_threshold_output.min.0), input.extent.0), 1) - min(max(min(min(halide_threshold_output.extent.0, 16) + halide_threshold_output.min.0, input.extent.0 + 15), 16), max(min(max(tile_min.s1.tx.min.s, 1)*4, input.extent.0 + 3), 4) + 12)
+let input.min.0.required.s = min(max(min(min(halide_threshold_output.extent.0, 16) + halide_threshold_output.min.0, input.extent.0 + 15), 16), max(min(max(tile_min.s1.tx.min.s, 1)*4, input.extent.0 + 3), 4) + 12)
+let input.extent.1.required.s = max(min(max(tile_min.s1.ty.max.s*4, halide_threshold_output.extent.1 + halide_threshold_output.min.1), input.extent.1), 1) - min(max(min(min(halide_threshold_output.extent.1, 16) + halide_threshold_output.min.1, input.extent.1 + 15), 16), max(min(max(tile_min.s1.ty.min.s, 1)*4, input.extent.1 + 3), 4) + 12)
+let input.min.1.required.s = min(max(min(min(halide_threshold_output.extent.1, 16) + halide_threshold_output.min.1, input.extent.1 + 15), 16), max(min(max(tile_min.s1.ty.min.s, 1)*4, input.extent.1 + 3), 4) + 12)
+if ((uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)halide_threshold_output.buffer)) {
+ let t704 = max(halide_threshold_output.extent.0, 16) in (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)halide_threshold_output.buffer, (struct halide_dimension_t *)_halide_buffer_get_shape((struct halide_buffer_t *)halide_threshold_output.buffer), reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, (struct halide_dimension_t *)make_struct((min(halide_threshold_output.extent.0, 16) + halide_threshold_output.min.0) + -16, t704, 1, 0, (min(halide_threshold_output.extent.1, 16) + halide_threshold_output.min.1) + -16, max(halide_threshold_output.extent.1, 16), t704, 0), (uint64)0)
+}
+if ((uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)input.buffer)) {
+ (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)input.buffer, (struct halide_dimension_t *)_halide_buffer_get_shape((struct halide_buffer_t *)input.buffer), reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, (struct halide_dimension_t *)make_struct(input.min.0.required.s + -16, input.extent.0.required.s + 16, 1, 0, input.min.1.required.s + -16, input.extent.1.required.s + 16, input.extent.0.required.s + 16, 0), (uint64)0)
+}
+if (!((uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)halide_threshold_output.buffer) || (uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)input.buffer))) {
+ assert(halide_threshold_output.type == (uint32)67585, halide_error_bad_type("Output buffer halide_threshold_output", halide_threshold_output.type, (uint32)67585))
+ assert(halide_threshold_output.dimensions == 2, halide_error_bad_dimensions("Output buffer halide_threshold_output", halide_threshold_output.dimensions, 2))
+ assert(input.type == (uint32)67585, halide_error_bad_type("Input buffer input", input.type, (uint32)67585))
+ assert(input.dimensions == 2, halide_error_bad_dimensions("Input buffer input", input.dimensions, 2))
+ assert(16 <= halide_threshold_output.extent.0, let t705 = (halide_threshold_output.extent.0 + halide_threshold_output.min.0) in halide_error_access_out_of_bounds("Output buffer halide_threshold_output", 0, (min(halide_threshold_output.extent.0, 16) + halide_threshold_output.min.0) + -16, t705 + -1, halide_threshold_output.min.0, t705 + -1))
+ assert(16 <= halide_threshold_output.extent.1, let t706 = (halide_threshold_output.extent.1 + halide_threshold_output.min.1) in halide_error_access_out_of_bounds("Output buffer halide_threshold_output", 1, (min(halide_threshold_output.extent.1, 16) + halide_threshold_output.min.1) + -16, t706 + -1, halide_threshold_output.min.1, t706 + -1))
+ assert(((input.min.0 + 16) <= input.min.0.required.s) && ((input.extent.0.required.s + input.min.0.required.s) <= (input.extent.0 + input.min.0)), halide_error_access_out_of_bounds("Input buffer input", 0, input.min.0.required.s + -16, (input.extent.0.required.s + input.min.0.required.s) + -1, input.min.0, (input.extent.0 + input.min.0) + -1))
+ assert(0 <= input.extent.0, halide_error_buffer_extents_negative("Input buffer input", 0, input.extent.0))
+ assert(((input.min.1 + 16) <= input.min.1.required.s) && ((input.extent.1.required.s + input.min.1.required.s) <= (input.extent.1 + input.min.1)), halide_error_access_out_of_bounds("Input buffer input", 1, input.min.1.required.s + -16, (input.extent.1.required.s + input.min.1.required.s) + -1, input.min.1, (input.extent.1 + input.min.1) + -1))
+ assert(0 <= input.extent.1, halide_error_buffer_extents_negative("Input buffer input", 1, input.extent.1))
+ assert(halide_threshold_output.stride.0 == 1, halide_error_constraint_violated("halide_threshold_output.stride.0", halide_threshold_output.stride.0, "1", 1))
+ assert(input.stride.0 == 1, halide_error_constraint_violated("input.stride.0", input.stride.0, "1", 1))
+ let halide_threshold_output.total_extent.1 = int64(halide_threshold_output.extent.1)*int64(halide_threshold_output.extent.0)
+ let input.total_extent.1 = int64(input.extent.1)*int64(input.extent.0)
+ assert((uint64)abs(int64(halide_threshold_output.extent.0)) <= (uint64)2147483647, halide_error_buffer_allocation_too_large("halide_threshold_output", (uint64)abs(int64(halide_threshold_output.extent.0)), (uint64)2147483647))
+ assert((uint64)abs(int64(halide_threshold_output.extent.1)*int64(halide_threshold_output.stride.1)) <= (uint64)2147483647, halide_error_buffer_allocation_too_large("halide_threshold_output", (uint64)abs(int64(halide_threshold_output.extent.1)*int64(halide_threshold_output.stride.1)), (uint64)2147483647))
+ assert(halide_threshold_output.total_extent.1 <= (int64)2147483647, halide_error_buffer_extents_too_large("halide_threshold_output", halide_threshold_output.total_extent.1, (int64)2147483647))
+ assert((uint64)abs(int64(input.extent.0)) <= (uint64)2147483647, halide_error_buffer_allocation_too_large("input", (uint64)abs(int64(input.extent.0)), (uint64)2147483647))
+ assert((uint64)abs(int64(input.extent.1)*int64(input.stride.1)) <= (uint64)2147483647, halide_error_buffer_allocation_too_large("input", (uint64)abs(int64(input.extent.1)*int64(input.stride.1)), (uint64)2147483647))
+ assert(input.total_extent.1 <= (int64)2147483647, halide_error_buffer_extents_too_large("input", input.total_extent.1, (int64)2147483647))
+ let tile_max.ty.min_realized.s = min(max(tile_min.s1.ty.min.s, 1) + 7, tile_min.s1.ty.max.s)
+ let tile_max.tx.min_realized.s = min(max(tile_min.s1.tx.min.s, 1) + 7, tile_min.s1.tx.max.s)
+ allocate tile_max[uint8 * ((tile_min.s1.tx.max.s - tile_max.tx.min_realized.s) + 8) * ((tile_min.s1.ty.max.s - tile_max.ty.min_realized.s) + 8)] if (uint1)0
+ let tile_max.buffer = let t707 = (tile_min.s1.tx.max.s - tile_max.tx.min_realized.s) in (let t708 = (struct halide_dimension_t *)make_struct(tile_max.tx.min_realized.s + -8, t707 + 8, 1, 0, tile_max.ty.min_realized.s + -8, (tile_min.s1.ty.max.s - tile_max.ty.min_realized.s) + 8, t707 + 8, 0) in (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)alloca(size_of_halide_buffer_t()), t708, reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, t708, (uint64)0))
+ (void *)register_destructor("halide_device_free_as_destructor", tile_max.buffer)
+ let tile_max.s0.tx.bx.loop_extent.s = tile_min.s1.tx.max.s - max(tile_min.s1.tx.min.s, 1)
+ let tile_max.s0.ty.by.loop_extent.s = tile_min.s1.ty.max.s - max(tile_min.s1.ty.min.s, 1)
+ produce tile_max {
+  let halide_device_malloc_result$5 = halide_device_malloc(tile_max.buffer, (struct halide_device_interface_t const *)halide_metal_device_interface())
+  assert(halide_device_malloc_result$5 == 0, halide_device_malloc_result$5)
+  let t220.s = min((tile_min.s1.tx.max.s - max(tile_min.s1.tx.min.s, 1)) + -7, tile_max.s0.tx.bx.loop_extent.s)
+  let t528 = max(tile_min.s1.ty.min.s, 1)
+  let t530 = max(tile_min.s1.tx.min.s, 1)
+  let t529 = max(t220.s/8, -1)
+  let t526 = tile_max.s0.ty.by.loop_extent.s/8
+  let t527 = tile_max.s0.tx.bx.loop_extent.s/8
+  let t531 = tile_min.s1.tx.max.s - tile_max.tx.min_realized.s
+  gpu_block<Metal> (tile_max.s0.ty.by.block_id_y, 0, t526 + 1) {
+   gpu_block<Metal> (tile_max.s0.tx.bx.block_id_x, 0, t527 + 1) {
+    gpu_thread<Metal> (.thread_id_y, 0, 8) {
+     gpu_thread<Metal> (.thread_id_x, 0, 8) {
+      let tile_max.s0.ty.yi.base.s = min(((tile_max.s0.ty.by.block_id_y*8) + t528) + 7, tile_min.s1.ty.max.s)
+      if (tile_max.s0.tx.bx.block_id_x < (t529 + 1)) {
+       let tile_max.s0.tx.xi.base.s = (tile_max.s0.tx.bx.block_id_x*8) + t530
+       tile_max[(((((tile_max.s0.ty.yi.base.s - tile_max.ty.min_realized.s) + .thread_id_y)*(t531 + 8)) + (tile_max.s0.tx.xi.base.s - tile_max.tx.min_realized.s)) + .thread_id_x) + 7] = (uint8)0
+      } else {
+       tile_max[((((tile_max.s0.ty.yi.base.s - tile_max.ty.min_realized.s) + .thread_id_y)*(t531 + 8)) + t531) + .thread_id_x] = (uint8)0
+      }
+     }
+    }
+   }
+  }
+  _halide_buffer_set_device_dirty(tile_max.buffer, (uint1)1)
+  let halide_copy_to_device_result$1 = halide_copy_to_device((struct halide_buffer_t *)input.buffer, (struct halide_device_interface_t const *)halide_metal_device_interface())
+  assert(halide_copy_to_device_result$1 == 0, halide_copy_to_device_result$1)
+  let t226 = max(tile_min.s1.ty.min.s, 1) + min(tile_max.s0.ty.by.loop_extent.s, -1)
+  let t227 = let t709 = max(tile_min.s1.ty.min.s, 1) in max(min(input.extent.1/4, t709 + tile_max.s0.ty.by.loop_extent.s), t709 + min(tile_max.s0.ty.by.loop_extent.s, -1))
+  let t228 = max(tile_min.s1.tx.min.s, 1) + min(tile_max.s0.tx.bx.loop_extent.s, -1)
+  let t229 = let t710 = max(tile_min.s1.tx.min.s, 1) in max(min(input.extent.0/4, t710 + tile_max.s0.tx.bx.loop_extent.s), t710 + min(tile_max.s0.tx.bx.loop_extent.s, -1))
+  let t548 = max(tile_min.s1.ty.min.s, 1)
+  let t549 = max(tile_min.s1.tx.min.s, 1)
+  let t534 = t548 - tile_max.ty.min_realized.s
+  let t547 = t227 - tile_max.ty.min_realized.s
+  let t541 = t226 - tile_max.ty.min_realized.s
+  let t533 = t549 - tile_max.tx.min_realized.s
+  let t535 = tile_min.s1.tx.max.s - tile_max.tx.min_realized.s
+  let t545 = t229 - tile_max.tx.min_realized.s
+  let t543 = t228 - tile_max.tx.min_realized.s
+  let t544 = (t549 + tile_max.s0.tx.bx.loop_extent.s) - t229
+  let t546 = (t548 + tile_max.s0.ty.by.loop_extent.s) - t227
+  let t537 = (input.min.1*input.stride.1) + input.min.0
+  gpu_block<Metal> (tile_max.s1.__outermost.__outermost.v10.block_id_x, 0, 1) {
+   gpu_thread<Metal> (.thread_id_x, 0, 1) {
+    let t550 = t226 - t548
+    for (tile_max.s1.ty.rebased, 0, t550 + 1) {
+     let t552 = (t548 + tile_max.s1.ty.rebased)*4
+     let t551 = (((t534 + tile_max.s1.ty.rebased) + 7)*(t535 + 8)) + t533
+     for (tile_max.s1.tx.rebased, 0, tile_max.s0.tx.bx.loop_extent.s + 1) {
+      let t554 = (t549 + tile_max.s1.tx.rebased)*4
+      let t553 = t551 + tile_max.s1.tx.rebased
+      for (tile_max.s1.r10$y, 0, 4) {
+       let t555 = ((max(min(t552 + tile_max.s1.r10$y, input.extent.1 + 3), 4) + -4)*input.stride.1) - t537
+       for (tile_max.s1.r10$x, 0, 4) {
+        tile_max[t553 + 7] = max(tile_max[t553 + 7], input[(max(min(t554 + tile_max.s1.r10$x, input.extent.0 + 3), 4) + t555) + -4])
+       }
+      }
+     }
+    }
+    let t556 = t227 - t226
+    for (tile_max.s1.ty.rebased, 0, t556) {
+     let t561 = (t226 + tile_max.s1.ty.rebased)*4
+     let t559 = t228 - t549
+     let t560 = (((t541 + tile_max.s1.ty.rebased) + 8)*(t535 + 8)) + t533
+     for (tile_max.s1.tx.rebased, 0, t559 + 1) {
+      let t563 = (t549 + tile_max.s1.tx.rebased)*4
+      let t562 = t560 + tile_max.s1.tx.rebased
+      for (tile_max.s1.r10$y, 0, 4) {
+       let t564 = (max(min(t561 + tile_max.s1.r10$y, input.extent.1 + -1), 0)*input.stride.1) - t537
+       for (tile_max.s1.r10$x, 0, 4) {
+        tile_max[t562 + 7] = max(tile_max[t562 + 7], input[(max(min(t563 + tile_max.s1.r10$x, input.extent.0 + 3), 4) + t564) + -4])
+       }
+      }
+     }
+     let t567 = (t226 + tile_max.s1.ty.rebased)*4
+     let t565 = t229 - t228
+     let t566 = (((t541 + tile_max.s1.ty.rebased) + 8)*(t535 + 8)) + t543
+     for (tile_max.s1.tx.rebased, 0, t565) {
+      let t569 = (t228 + tile_max.s1.tx.rebased)*4
+      let t568 = t566 + tile_max.s1.tx.rebased
+      for (tile_max.s1.r10$y, 0, 4) {
+       let t570 = (max(min(t567 + tile_max.s1.r10$y, input.extent.1 + -1), 0)*input.stride.1) - t537
+       for (tile_max.s1.r10$x, 0, 4) {
+        tile_max[t568 + 8] = max(tile_max[t568 + 8], input[max(min(t569 + tile_max.s1.r10$x, input.extent.0 + -1), 0) + t570])
+       }
+      }
+     }
+     let t572 = (t226 + tile_max.s1.ty.rebased)*4
+     let t571 = (((t541 + tile_max.s1.ty.rebased) + 8)*(t535 + 8)) + t545
+     for (tile_max.s1.tx.rebased, 0, t544) {
+      let t574 = (t229 + tile_max.s1.tx.rebased)*4
+      let t573 = t571 + tile_max.s1.tx.rebased
+      for (tile_max.s1.r10$y, 0, 4) {
+       let t575 = (max(min(t572 + tile_max.s1.r10$y, input.extent.1 + -1), 0)*input.stride.1) - t537
+       for (tile_max.s1.r10$x, 0, 4) {
+        tile_max[t573 + 8] = max(tile_max[t573 + 8], input[max(min(t574 + tile_max.s1.r10$x, input.extent.0 + -1), 0) + t575])
+       }
+      }
+     }
+    }
+    for (tile_max.s1.ty.rebased, 0, t546) {
+     let t577 = (t227 + tile_max.s1.ty.rebased)*4
+     let t576 = (((t547 + tile_max.s1.ty.rebased) + 8)*(t535 + 8)) + t533
+     for (tile_max.s1.tx.rebased, 0, tile_max.s0.tx.bx.loop_extent.s + 1) {
+      let t579 = (t549 + tile_max.s1.tx.rebased)*4
+      let t578 = t576 + tile_max.s1.tx.rebased
+      for (tile_max.s1.r10$y, 0, 4) {
+       let t580 = (max(min(t577 + tile_max.s1.r10$y, input.extent.1 + -1), 0)*input.stride.1) - t537
+       for (tile_max.s1.r10$x, 0, 4) {
+        tile_max[t578 + 7] = max(tile_max[t578 + 7], input[(max(min(t579 + tile_max.s1.r10$x, input.extent.0 + 3), 4) + t580) + -4])
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+ let neigh_max.ty.min_realized = min(max(neigh_min.s1.ty.min.s, 0), max(neigh_min.s1.ty.max.s, 0) + -7)
+ let neigh_max.ty.extent_realized = let t711 = (halide_threshold_output.extent.1 + halide_threshold_output.min.1) in (let t712 = max(input.extent.1/4, 1) in (let t713 = (t711 < ((t712*4) + 1)) in (let t714 = (halide_threshold_output.min.1 < (t712*4)) in (let t715 = max(neigh_min.s1.ty.min.s, 0) in (let t716 = max(neigh_min.s1.ty.max.s, 0) in ((max(max(max(min(max(select(t713, (t711 + -1)/4, t712 + -1), select(t714, (t711 + -1)/4, t712 + -1)), t712 + -1), min(t715 + (((t716 - t715)/8)*8), -7) + 7), neigh_min.s1.ty.max.s), 0) - min(max(min(min(min(select(t713, halide_threshold_output.min.1/4, t712 + -1), select(t714, halide_threshold_output.min.1/4, t712 + -1)), t712 + -1), neigh_min.s1.ty.min.s), 0), min(t715, t716 + -7))) + 1))))))
+ let neigh_max.tx.min_realized = min(max(neigh_min.s1.tx.min.s, 0), max(neigh_min.s1.tx.max.s, 0) + -7)
+ let neigh_max.tx.extent_realized = let t717 = (halide_threshold_output.extent.0 + halide_threshold_output.min.0) in (let t718 = max(input.extent.0/4, 1) in (let t719 = (t717 < ((t718*4) + 1)) in (let t720 = (halide_threshold_output.min.0 < (t718*4)) in (let t721 = max(neigh_min.s1.tx.min.s, 0) in (let t722 = max(neigh_min.s1.tx.max.s, 0) in ((max(max(max(min(max(select(t719, (t717 + -1)/4, t718 + -1), select(t720, (t717 + -1)/4, t718 + -1)), t718 + -1), min(t721 + (((t722 - t721)/8)*8), -7) + 7), neigh_min.s1.tx.max.s), 0) - min(max(min(min(min(select(t719, halide_threshold_output.min.0/4, t718 + -1), select(t720, halide_threshold_output.min.0/4, t718 + -1)), t718 + -1), neigh_min.s1.tx.min.s), 0), min(t721, t722 + -7))) + 1))))))
+ allocate neigh_max[uint8 * neigh_max.tx.extent_realized * neigh_max.ty.extent_realized] if (uint1)0
+ let neigh_max.buffer = let t723 = (struct halide_dimension_t *)make_struct(neigh_max.tx.min_realized, neigh_max.tx.extent_realized, 1, 0, neigh_max.ty.min_realized, neigh_max.ty.extent_realized, neigh_max.tx.extent_realized, 0) in (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)alloca(size_of_halide_buffer_t()), t723, reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, t723, (uint64)0)
+ (void *)register_destructor("halide_device_free_as_destructor", neigh_max.buffer)
+ let neigh_max.s0.tx.bx.loop_extent.s = max(neigh_min.s1.tx.max.s, 0) - max(neigh_min.s1.tx.min.s, 0)
+ let neigh_max.s0.ty.by.loop_extent.s = max(neigh_min.s1.ty.max.s, 0) - max(neigh_min.s1.ty.min.s, 0)
+ produce neigh_max {
+  let halide_device_malloc_result$4 = halide_device_malloc(neigh_max.buffer, (struct halide_device_interface_t const *)halide_metal_device_interface())
+  assert(halide_device_malloc_result$4 == 0, halide_device_malloc_result$4)
+  let t230.s = min((max(neigh_min.s1.tx.max.s, 0) - max(neigh_min.s1.tx.min.s, 0)) + -7, neigh_max.s0.tx.bx.loop_extent.s)
+  let t583 = max(neigh_min.s1.ty.min.s, 0)
+  let t584 = max(neigh_min.s1.ty.max.s, 0)
+  let t586 = max(neigh_min.s1.tx.min.s, 0)
+  let t585 = max(t230.s/8, -1)
+  let t581 = neigh_max.s0.ty.by.loop_extent.s/8
+  let t582 = neigh_max.s0.tx.bx.loop_extent.s/8
+  let t587 = max(neigh_min.s1.tx.max.s, 0) - neigh_max.tx.min_realized
+  gpu_block<Metal> (neigh_max.s0.ty.by.block_id_y, 0, t581 + 1) {
+   gpu_block<Metal> (neigh_max.s0.tx.bx.block_id_x, 0, t582 + 1) {
+    gpu_thread<Metal> (.thread_id_y, 0, 8) {
+     gpu_thread<Metal> (.thread_id_x, 0, 8) {
+      let neigh_max.s0.ty.yi.base = min((neigh_max.s0.ty.by.block_id_y*8) + t583, t584 + -7)
+      if (neigh_max.s0.tx.bx.block_id_x < (t585 + 1)) {
+       let neigh_max.s0.tx.xi.base = (neigh_max.s0.tx.bx.block_id_x*8) + t586
+       neigh_max[((((neigh_max.s0.ty.yi.base - neigh_max.ty.min_realized) + .thread_id_y)*neigh_max.tx.extent_realized) + (neigh_max.s0.tx.xi.base - neigh_max.tx.min_realized)) + .thread_id_x] = (uint8)0
+      } else {
+       neigh_max[(((((neigh_max.s0.ty.yi.base - neigh_max.ty.min_realized) + .thread_id_y)*neigh_max.tx.extent_realized) + t587) + .thread_id_x) + -7] = (uint8)0
+      }
+     }
+    }
+   }
+  }
+  _halide_buffer_set_device_dirty(neigh_max.buffer, (uint1)1)
+  consume tile_max {
+   let t595 = max(neigh_min.s1.tx.min.s, 0)
+   let t596 = max(neigh_min.s1.ty.min.s, 0)
+   let t590 = input.extent.1/4
+   let t593 = input.extent.0/4
+   let t592 = tile_min.s1.tx.max.s - tile_max.tx.min_realized.s
+   let t589 = t596 - neigh_max.ty.min_realized
+   let t588 = t595 - neigh_max.tx.min_realized
+   gpu_block<Metal> (neigh_max.s1.__outermost.__outermost.v14.block_id_x, 0, 1) {
+    gpu_thread<Metal> (.thread_id_x, 0, 1) {
+     for (neigh_max.s1.ty.rebased, 0, neigh_max.s0.ty.by.loop_extent.s + 1) {
+      let t598 = neigh_max.s1.ty.rebased + t596
+      let t597 = ((neigh_max.s1.ty.rebased + t589)*neigh_max.tx.extent_realized) + t588
+      for (neigh_max.s1.tx.rebased, 0, neigh_max.s0.tx.bx.loop_extent.s + 1) {
+       let t599 = neigh_max.s1.tx.rebased + t597
+       let t600 = neigh_max.s1.tx.rebased + t595
+       for (neigh_max.s1.r23$y.rebased, 0, 3) {
+        let t601 = (((max(min(neigh_max.s1.r23$y.rebased + t598, t590), 1) - tile_max.ty.min_realized.s) + 7)*(t592 + 8)) - tile_max.tx.min_realized.s
+        for (neigh_max.s1.r23$x.rebased, 0, 3) {
+         neigh_max[t599] = max(neigh_max[t599], tile_max[(max(min(neigh_max.s1.r23$x.rebased + t600, t593), 1) + t601) + 7])
+        }
+       }
+      }
+     }
+    }
+   }
+   let halide_device_free_result$5 = halide_device_free(tile_max.buffer)
+   assert(halide_device_free_result$5 == 0, halide_device_free_result$5)
+   free tile_max
+  }
+ }
+ allocate max_px[uint8 * halide_threshold_output.extent.0 * halide_threshold_output.extent.1] if (uint1)0
+ let max_px.buffer = let t724 = (struct halide_dimension_t *)make_struct(halide_threshold_output.min.0, halide_threshold_output.extent.0, 1, 0, halide_threshold_output.min.1, halide_threshold_output.extent.1, halide_threshold_output.extent.0, 0) in (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)alloca(size_of_halide_buffer_t()), t724, reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, t724, (uint64)0)
+ (void *)register_destructor("halide_device_free_as_destructor", max_px.buffer)
+ produce max_px {
+  consume neigh_max {
+   let halide_device_malloc_result$3 = halide_device_malloc(max_px.buffer, (struct halide_device_interface_t const *)halide_metal_device_interface())
+   assert(halide_device_malloc_result$3 == 0, halide_device_malloc_result$3)
+   let t250.s = min((max(input.extent.0/4, 1)*4) - halide_threshold_output.min.0, halide_threshold_output.extent.0)
+   let t608 = max(input.extent.0/4, 1)
+   let t606 = max(input.extent.1/4, 1)
+   let t604 = max(t250.s/16, 0)
+   let t602 = (halide_threshold_output.extent.1 + 15)/16
+   let t603 = (halide_threshold_output.extent.0 + 15)/16
+   let t605 = (t608*4) - halide_threshold_output.min.0
+   gpu_block<Metal> (max_px.s0.y.by.block_id_y, 0, t602) {
+    gpu_block<Metal> (max_px.s0.x.bx.block_id_x, 0, t603) {
+     gpu_thread<Metal> (.thread_id_y, 0, 16) {
+      gpu_thread<Metal> (.thread_id_x, 0, 16) {
+       let max_px.s0.y.yi.base.s = min(max_px.s0.y.by.block_id_y*16, halide_threshold_output.extent.1 + -16)
+       if (max_px.s0.x.bx.block_id_x < t604) {
+        let .thread_id_x.epilogue = max(min(t605 - (max_px.s0.x.bx.block_id_x*16), 16), 0 - max(min((max_px.s0.x.bx.block_id_x*16) + halide_threshold_output.min.0, 0), -16))
+        if ((max(min((max_px.s0.x.bx.block_id_x*16) + halide_threshold_output.min.0, 0), -16) + .thread_id_x) < 0) {
+         let t483 = (halide_threshold_output.min.1 + max_px.s0.y.yi.base.s) + .thread_id_y
+         max_px[((max_px.s0.x.bx.block_id_x*16) + ((.thread_id_y + max_px.s0.y.yi.base.s)*halide_threshold_output.extent.0)) + .thread_id_x] = neigh_max[max(((.thread_id_x + halide_threshold_output.min.0)/4) + (max_px.s0.x.bx.block_id_x*4), 0) + (((max(min(select(t483 < (t606*4), t483/4, t606 + -1), t606 + -1), 0) - neigh_max.ty.min_realized)*neigh_max.tx.extent_realized) - neigh_max.tx.min_realized)]
+        } else if (.thread_id_x < .thread_id_x.epilogue) {
+         let t485 = (halide_threshold_output.min.1 + max_px.s0.y.yi.base.s) + .thread_id_y
+         max_px[((max_px.s0.x.bx.block_id_x*16) + ((.thread_id_y + max_px.s0.y.yi.base.s)*halide_threshold_output.extent.0)) + .thread_id_x] = neigh_max[((.thread_id_x + halide_threshold_output.min.0)/4) + (((max(min(select(t485 < (t606*4), t485/4, t606 + -1), t606 + -1), 0) - neigh_max.ty.min_realized)*neigh_max.tx.extent_realized) + ((max_px.s0.x.bx.block_id_x*4) - neigh_max.tx.min_realized))]
+        } else {
+         let t487 = (halide_threshold_output.min.1 + max_px.s0.y.yi.base.s) + .thread_id_y
+         max_px[((max_px.s0.x.bx.block_id_x*16) + ((.thread_id_y + max_px.s0.y.yi.base.s)*halide_threshold_output.extent.0)) + .thread_id_x] = neigh_max[max(min(((.thread_id_x + halide_threshold_output.min.0)/4) + (max_px.s0.x.bx.block_id_x*4), t608 + -1), 0) + (((max(min(select(t487 < (t606*4), t487/4, t606 + -1), t606 + -1), 0) - neigh_max.ty.min_realized)*neigh_max.tx.extent_realized) - neigh_max.tx.min_realized)]
+        }
+       } else {
+        let max_px.s0.x.xi.base.s = min(max_px.s0.x.bx.block_id_x*16, halide_threshold_output.extent.0 + -16)
+        let t489 = (halide_threshold_output.min.1 + max_px.s0.y.yi.base.s) + .thread_id_y
+        let t491 = (halide_threshold_output.min.0 + max_px.s0.x.xi.base.s) + .thread_id_x
+        max_px[(((.thread_id_y + max_px.s0.y.yi.base.s)*halide_threshold_output.extent.0) + max_px.s0.x.xi.base.s) + .thread_id_x] = neigh_max[max(min(select(t491 < (t608*4), t491/4, t608 + -1), t608 + -1), 0) + (((max(min(select(t489 < (t606*4), t489/4, t606 + -1), t606 + -1), 0) - neigh_max.ty.min_realized)*neigh_max.tx.extent_realized) - neigh_max.tx.min_realized)]
+       }
+      }
+     }
+    }
+   }
+   let halide_device_free_result$4 = halide_device_free(neigh_max.buffer)
+   assert(halide_device_free_result$4 == 0, halide_device_free_result$4)
+   free neigh_max
+   _halide_buffer_set_device_dirty(max_px.buffer, (uint1)1)
+  }
+ }
+ allocate tile_min[uint8 * ((tile_min.s1.tx.max.s - tile_max.tx.min_realized.s) + 8) * ((tile_min.s1.ty.max.s - tile_max.ty.min_realized.s) + 8)] if (uint1)0
+ let tile_min.buffer = let t725 = (tile_min.s1.tx.max.s - tile_max.tx.min_realized.s) in (let t726 = (struct halide_dimension_t *)make_struct(tile_max.tx.min_realized.s + -8, t725 + 8, 1, 0, tile_max.ty.min_realized.s + -8, (tile_min.s1.ty.max.s - tile_max.ty.min_realized.s) + 8, t725 + 8, 0) in (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)alloca(size_of_halide_buffer_t()), t726, reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, t726, (uint64)0))
+ (void *)register_destructor("halide_device_free_as_destructor", tile_min.buffer)
+ let tile_min.s0.tx.bx.loop_extent.s = tile_min.s1.tx.max.s - max(tile_min.s1.tx.min.s, 1)
+ let tile_min.s0.ty.by.loop_extent.s = tile_min.s1.ty.max.s - max(tile_min.s1.ty.min.s, 1)
+ produce tile_min {
+  let halide_device_malloc_result$2 = halide_device_malloc(tile_min.buffer, (struct halide_device_interface_t const *)halide_metal_device_interface())
+  assert(halide_device_malloc_result$2 == 0, halide_device_malloc_result$2)
+  let t251.s = min((tile_min.s1.tx.max.s - max(tile_min.s1.tx.min.s, 1)) + -7, tile_min.s0.tx.bx.loop_extent.s)
+  let t611 = max(tile_min.s1.ty.min.s, 1)
+  let t613 = max(tile_min.s1.tx.min.s, 1)
+  let t612 = max(t251.s/8, -1)
+  let t609 = tile_min.s0.ty.by.loop_extent.s/8
+  let t610 = tile_min.s0.tx.bx.loop_extent.s/8
+  let t614 = tile_min.s1.tx.max.s - tile_max.tx.min_realized.s
+  gpu_block<Metal> (tile_min.s0.ty.by.block_id_y, 0, t609 + 1) {
+   gpu_block<Metal> (tile_min.s0.tx.bx.block_id_x, 0, t610 + 1) {
+    gpu_thread<Metal> (.thread_id_y, 0, 8) {
+     gpu_thread<Metal> (.thread_id_x, 0, 8) {
+      let tile_min.s0.ty.yi.base.s = min(((tile_min.s0.ty.by.block_id_y*8) + t611) + 7, tile_min.s1.ty.max.s)
+      if (tile_min.s0.tx.bx.block_id_x < (t612 + 1)) {
+       let tile_min.s0.tx.xi.base.s = (tile_min.s0.tx.bx.block_id_x*8) + t613
+       tile_min[(((((tile_min.s0.ty.yi.base.s - tile_max.ty.min_realized.s) + .thread_id_y)*(t614 + 8)) + (tile_min.s0.tx.xi.base.s - tile_max.tx.min_realized.s)) + .thread_id_x) + 7] = (uint8)255
+      } else {
+       tile_min[((((tile_min.s0.ty.yi.base.s - tile_max.ty.min_realized.s) + .thread_id_y)*(t614 + 8)) + t614) + .thread_id_x] = (uint8)255
+      }
+     }
+    }
+   }
+  }
+  _halide_buffer_set_device_dirty(tile_min.buffer, (uint1)1)
+  let t257 = max(tile_min.s1.ty.min.s, 1) + min(tile_min.s0.ty.by.loop_extent.s, -1)
+  let t258 = let t727 = max(tile_min.s1.ty.min.s, 1) in max(min(input.extent.1/4, t727 + tile_min.s0.ty.by.loop_extent.s), t727 + min(tile_min.s0.ty.by.loop_extent.s, -1))
+  let t259 = max(tile_min.s1.tx.min.s, 1) + min(tile_min.s0.tx.bx.loop_extent.s, -1)
+  let t260 = let t728 = max(tile_min.s1.tx.min.s, 1) in max(min(input.extent.0/4, t728 + tile_min.s0.tx.bx.loop_extent.s), t728 + min(tile_min.s0.tx.bx.loop_extent.s, -1))
+  let t631 = max(tile_min.s1.ty.min.s, 1)
+  let t632 = max(tile_min.s1.tx.min.s, 1)
+  let t617 = t631 - tile_max.ty.min_realized.s
+  let t630 = t258 - tile_max.ty.min_realized.s
+  let t624 = t257 - tile_max.ty.min_realized.s
+  let t616 = t632 - tile_max.tx.min_realized.s
+  let t618 = tile_min.s1.tx.max.s - tile_max.tx.min_realized.s
+  let t628 = t260 - tile_max.tx.min_realized.s
+  let t626 = t259 - tile_max.tx.min_realized.s
+  let t627 = (t632 + tile_min.s0.tx.bx.loop_extent.s) - t260
+  let t629 = (t631 + tile_min.s0.ty.by.loop_extent.s) - t258
+  let t620 = (input.min.1*input.stride.1) + input.min.0
+  gpu_block<Metal> (tile_min.s1.__outermost.__outermost.v8.block_id_x, 0, 1) {
+   gpu_thread<Metal> (.thread_id_x, 0, 1) {
+    let t633 = t257 - t631
+    for (tile_min.s1.ty.rebased, 0, t633 + 1) {
+     let t635 = (t631 + tile_min.s1.ty.rebased)*4
+     let t634 = (((t617 + tile_min.s1.ty.rebased) + 7)*(t618 + 8)) + t616
+     for (tile_min.s1.tx.rebased, 0, tile_min.s0.tx.bx.loop_extent.s + 1) {
+      let t637 = (t632 + tile_min.s1.tx.rebased)*4
+      let t636 = t634 + tile_min.s1.tx.rebased
+      for (tile_min.s1.r10$y, 0, 4) {
+       let t638 = ((max(min(t635 + tile_min.s1.r10$y, input.extent.1 + 3), 4) + -4)*input.stride.1) - t620
+       for (tile_min.s1.r10$x, 0, 4) {
+        tile_min[t636 + 7] = min(tile_min[t636 + 7], input[(max(min(t637 + tile_min.s1.r10$x, input.extent.0 + 3), 4) + t638) + -4])
+       }
+      }
+     }
+    }
+    let t639 = t258 - t257
+    for (tile_min.s1.ty.rebased, 0, t639) {
+     let t644 = (t257 + tile_min.s1.ty.rebased)*4
+     let t642 = t259 - t632
+     let t643 = (((t624 + tile_min.s1.ty.rebased) + 8)*(t618 + 8)) + t616
+     for (tile_min.s1.tx.rebased, 0, t642 + 1) {
+      let t646 = (t632 + tile_min.s1.tx.rebased)*4
+      let t645 = t643 + tile_min.s1.tx.rebased
+      for (tile_min.s1.r10$y, 0, 4) {
+       let t647 = (max(min(t644 + tile_min.s1.r10$y, input.extent.1 + -1), 0)*input.stride.1) - t620
+       for (tile_min.s1.r10$x, 0, 4) {
+        tile_min[t645 + 7] = min(tile_min[t645 + 7], input[(max(min(t646 + tile_min.s1.r10$x, input.extent.0 + 3), 4) + t647) + -4])
+       }
+      }
+     }
+     let t650 = (t257 + tile_min.s1.ty.rebased)*4
+     let t648 = t260 - t259
+     let t649 = (((t624 + tile_min.s1.ty.rebased) + 8)*(t618 + 8)) + t626
+     for (tile_min.s1.tx.rebased, 0, t648) {
+      let t652 = (t259 + tile_min.s1.tx.rebased)*4
+      let t651 = t649 + tile_min.s1.tx.rebased
+      for (tile_min.s1.r10$y, 0, 4) {
+       let t653 = (max(min(t650 + tile_min.s1.r10$y, input.extent.1 + -1), 0)*input.stride.1) - t620
+       for (tile_min.s1.r10$x, 0, 4) {
+        tile_min[t651 + 8] = min(tile_min[t651 + 8], input[max(min(t652 + tile_min.s1.r10$x, input.extent.0 + -1), 0) + t653])
+       }
+      }
+     }
+     let t655 = (t257 + tile_min.s1.ty.rebased)*4
+     let t654 = (((t624 + tile_min.s1.ty.rebased) + 8)*(t618 + 8)) + t628
+     for (tile_min.s1.tx.rebased, 0, t627) {
+      let t657 = (t260 + tile_min.s1.tx.rebased)*4
+      let t656 = t654 + tile_min.s1.tx.rebased
+      for (tile_min.s1.r10$y, 0, 4) {
+       let t658 = (max(min(t655 + tile_min.s1.r10$y, input.extent.1 + -1), 0)*input.stride.1) - t620
+       for (tile_min.s1.r10$x, 0, 4) {
+        tile_min[t656 + 8] = min(tile_min[t656 + 8], input[max(min(t657 + tile_min.s1.r10$x, input.extent.0 + -1), 0) + t658])
+       }
+      }
+     }
+    }
+    for (tile_min.s1.ty.rebased, 0, t629) {
+     let t660 = (t258 + tile_min.s1.ty.rebased)*4
+     let t659 = (((t630 + tile_min.s1.ty.rebased) + 8)*(t618 + 8)) + t616
+     for (tile_min.s1.tx.rebased, 0, tile_min.s0.tx.bx.loop_extent.s + 1) {
+      let t662 = (t632 + tile_min.s1.tx.rebased)*4
+      let t661 = t659 + tile_min.s1.tx.rebased
+      for (tile_min.s1.r10$y, 0, 4) {
+       let t663 = (max(min(t660 + tile_min.s1.r10$y, input.extent.1 + -1), 0)*input.stride.1) - t620
+       for (tile_min.s1.r10$x, 0, 4) {
+        tile_min[t661 + 7] = min(tile_min[t661 + 7], input[(max(min(t662 + tile_min.s1.r10$x, input.extent.0 + 3), 4) + t663) + -4])
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+ let neigh_min.ty.extent_realized = let t729 = (halide_threshold_output.extent.1 + halide_threshold_output.min.1) in (let t730 = max(input.extent.1/4, 1) in (let t731 = (t729 < ((t730*4) + 1)) in (let t732 = (halide_threshold_output.min.1 < (t730*4)) in (let t733 = max(neigh_min.s1.ty.min.s, 0) in (let t734 = max(neigh_min.s1.ty.max.s, 0) in ((max(max(max(min(max(select(t731, (t729 + -1)/4, t730 + -1), select(t732, (t729 + -1)/4, t730 + -1)), t730 + -1), min(t733 + (((t734 - t733)/8)*8), -7) + 7), neigh_min.s1.ty.max.s), 0) - min(max(min(min(min(select(t731, halide_threshold_output.min.1/4, t730 + -1), select(t732, halide_threshold_output.min.1/4, t730 + -1)), t730 + -1), neigh_min.s1.ty.min.s), 0), min(t733, t734 + -7))) + 1))))))
+ let neigh_min.tx.extent_realized = let t735 = (halide_threshold_output.extent.0 + halide_threshold_output.min.0) in (let t736 = max(input.extent.0/4, 1) in (let t737 = (t735 < ((t736*4) + 1)) in (let t738 = (halide_threshold_output.min.0 < (t736*4)) in (let t739 = max(neigh_min.s1.tx.min.s, 0) in (let t740 = max(neigh_min.s1.tx.max.s, 0) in ((max(max(max(min(max(select(t737, (t735 + -1)/4, t736 + -1), select(t738, (t735 + -1)/4, t736 + -1)), t736 + -1), min(t739 + (((t740 - t739)/8)*8), -7) + 7), neigh_min.s1.tx.max.s), 0) - min(max(min(min(min(select(t737, halide_threshold_output.min.0/4, t736 + -1), select(t738, halide_threshold_output.min.0/4, t736 + -1)), t736 + -1), neigh_min.s1.tx.min.s), 0), min(t739, t740 + -7))) + 1))))))
+ allocate neigh_min[uint8 * neigh_min.tx.extent_realized * neigh_min.ty.extent_realized] if (uint1)0
+ let neigh_min.buffer = let t741 = (struct halide_dimension_t *)make_struct(neigh_max.tx.min_realized, neigh_min.tx.extent_realized, 1, 0, neigh_max.ty.min_realized, neigh_min.ty.extent_realized, neigh_min.tx.extent_realized, 0) in (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)alloca(size_of_halide_buffer_t()), t741, reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, t741, (uint64)0)
+ (void *)register_destructor("halide_device_free_as_destructor", neigh_min.buffer)
+ let neigh_min.s0.tx.bx.loop_extent.s = max(neigh_min.s1.tx.max.s, 0) - max(neigh_min.s1.tx.min.s, 0)
+ let neigh_min.s0.ty.by.loop_extent.s = max(neigh_min.s1.ty.max.s, 0) - max(neigh_min.s1.ty.min.s, 0)
+ produce neigh_min {
+  let halide_device_malloc_result$1 = halide_device_malloc(neigh_min.buffer, (struct halide_device_interface_t const *)halide_metal_device_interface())
+  assert(halide_device_malloc_result$1 == 0, halide_device_malloc_result$1)
+  let t261.s = min((max(neigh_min.s1.tx.max.s, 0) - max(neigh_min.s1.tx.min.s, 0)) + -7, neigh_min.s0.tx.bx.loop_extent.s)
+  let t666 = max(neigh_min.s1.ty.min.s, 0)
+  let t667 = max(neigh_min.s1.ty.max.s, 0)
+  let t669 = max(neigh_min.s1.tx.min.s, 0)
+  let t668 = max(t261.s/8, -1)
+  let t664 = neigh_min.s0.ty.by.loop_extent.s/8
+  let t665 = neigh_min.s0.tx.bx.loop_extent.s/8
+  let t670 = max(neigh_min.s1.tx.max.s, 0) - neigh_max.tx.min_realized
+  gpu_block<Metal> (neigh_min.s0.ty.by.block_id_y, 0, t664 + 1) {
+   gpu_block<Metal> (neigh_min.s0.tx.bx.block_id_x, 0, t665 + 1) {
+    gpu_thread<Metal> (.thread_id_y, 0, 8) {
+     gpu_thread<Metal> (.thread_id_x, 0, 8) {
+      let neigh_min.s0.ty.yi.base = min((neigh_min.s0.ty.by.block_id_y*8) + t666, t667 + -7)
+      if (neigh_min.s0.tx.bx.block_id_x < (t668 + 1)) {
+       let neigh_min.s0.tx.xi.base = (neigh_min.s0.tx.bx.block_id_x*8) + t669
+       neigh_min[((((neigh_min.s0.ty.yi.base - neigh_max.ty.min_realized) + .thread_id_y)*neigh_min.tx.extent_realized) + (neigh_min.s0.tx.xi.base - neigh_max.tx.min_realized)) + .thread_id_x] = (uint8)255
+      } else {
+       neigh_min[(((((neigh_min.s0.ty.yi.base - neigh_max.ty.min_realized) + .thread_id_y)*neigh_min.tx.extent_realized) + t670) + .thread_id_x) + -7] = (uint8)255
+      }
+     }
+    }
+   }
+  }
+  _halide_buffer_set_device_dirty(neigh_min.buffer, (uint1)1)
+  consume tile_min {
+   let t678 = max(neigh_min.s1.tx.min.s, 0)
+   let t679 = max(neigh_min.s1.ty.min.s, 0)
+   let t673 = input.extent.1/4
+   let t676 = input.extent.0/4
+   let t675 = tile_min.s1.tx.max.s - tile_max.tx.min_realized.s
+   let t672 = t679 - neigh_max.ty.min_realized
+   let t671 = t678 - neigh_max.tx.min_realized
+   gpu_block<Metal> (neigh_min.s1.__outermost.__outermost.v12.block_id_x, 0, 1) {
+    gpu_thread<Metal> (.thread_id_x, 0, 1) {
+     for (neigh_min.s1.ty.rebased, 0, neigh_min.s0.ty.by.loop_extent.s + 1) {
+      let t681 = neigh_min.s1.ty.rebased + t679
+      let t680 = ((neigh_min.s1.ty.rebased + t672)*neigh_min.tx.extent_realized) + t671
+      for (neigh_min.s1.tx.rebased, 0, neigh_min.s0.tx.bx.loop_extent.s + 1) {
+       let t682 = neigh_min.s1.tx.rebased + t680
+       let t683 = neigh_min.s1.tx.rebased + t678
+       for (neigh_min.s1.r23$y.rebased, 0, 3) {
+        let t684 = (((max(min(neigh_min.s1.r23$y.rebased + t681, t673), 1) - tile_max.ty.min_realized.s) + 7)*(t675 + 8)) - tile_max.tx.min_realized.s
+        for (neigh_min.s1.r23$x.rebased, 0, 3) {
+         neigh_min[t682] = min(neigh_min[t682], tile_min[(max(min(neigh_min.s1.r23$x.rebased + t683, t676), 1) + t684) + 7])
+        }
+       }
+      }
+     }
+    }
+   }
+   let halide_device_free_result$2 = halide_device_free(tile_min.buffer)
+   assert(halide_device_free_result$2 == 0, halide_device_free_result$2)
+   free tile_min
+  }
+ }
+ allocate min_px[uint8 * halide_threshold_output.extent.0 * halide_threshold_output.extent.1] if (uint1)0
+ let min_px.buffer = let t742 = (struct halide_dimension_t *)make_struct(halide_threshold_output.min.0, halide_threshold_output.extent.0, 1, 0, halide_threshold_output.min.1, halide_threshold_output.extent.1, halide_threshold_output.extent.0, 0) in (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)alloca(size_of_halide_buffer_t()), t742, reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, t742, (uint64)0)
+ (void *)register_destructor("halide_device_free_as_destructor", min_px.buffer)
+ produce min_px {
+  consume neigh_min {
+   let halide_device_malloc_result = halide_device_malloc(min_px.buffer, (struct halide_device_interface_t const *)halide_metal_device_interface())
+   assert(halide_device_malloc_result == 0, halide_device_malloc_result)
+   let t281.s = min((max(input.extent.0/4, 1)*4) - halide_threshold_output.min.0, halide_threshold_output.extent.0)
+   let t691 = max(input.extent.0/4, 1)
+   let t689 = max(input.extent.1/4, 1)
+   let t687 = max(t281.s/16, 0)
+   let t685 = (halide_threshold_output.extent.1 + 15)/16
+   let t686 = (halide_threshold_output.extent.0 + 15)/16
+   let t688 = (t691*4) - halide_threshold_output.min.0
+   gpu_block<Metal> (min_px.s0.y.by.block_id_y, 0, t685) {
+    gpu_block<Metal> (min_px.s0.x.bx.block_id_x, 0, t686) {
+     gpu_thread<Metal> (.thread_id_y, 0, 16) {
+      gpu_thread<Metal> (.thread_id_x, 0, 16) {
+       let min_px.s0.y.yi.base.s = min(min_px.s0.y.by.block_id_y*16, halide_threshold_output.extent.1 + -16)
+       if (min_px.s0.x.bx.block_id_x < t687) {
+        let .thread_id_x.epilogue$1 = max(min(t688 - (min_px.s0.x.bx.block_id_x*16), 16), 0 - max(min((min_px.s0.x.bx.block_id_x*16) + halide_threshold_output.min.0, 0), -16))
+        if ((max(min((min_px.s0.x.bx.block_id_x*16) + halide_threshold_output.min.0, 0), -16) + .thread_id_x) < 0) {
+         let t512 = (halide_threshold_output.min.1 + min_px.s0.y.yi.base.s) + .thread_id_y
+         min_px[((min_px.s0.x.bx.block_id_x*16) + ((.thread_id_y + min_px.s0.y.yi.base.s)*halide_threshold_output.extent.0)) + .thread_id_x] = neigh_min[max(((.thread_id_x + halide_threshold_output.min.0)/4) + (min_px.s0.x.bx.block_id_x*4), 0) + (((max(min(select(t512 < (t689*4), t512/4, t689 + -1), t689 + -1), 0) - neigh_max.ty.min_realized)*neigh_min.tx.extent_realized) - neigh_max.tx.min_realized)]
+        } else if (.thread_id_x < .thread_id_x.epilogue$1) {
+         let t514 = (halide_threshold_output.min.1 + min_px.s0.y.yi.base.s) + .thread_id_y
+         min_px[((min_px.s0.x.bx.block_id_x*16) + ((.thread_id_y + min_px.s0.y.yi.base.s)*halide_threshold_output.extent.0)) + .thread_id_x] = neigh_min[((.thread_id_x + halide_threshold_output.min.0)/4) + (((max(min(select(t514 < (t689*4), t514/4, t689 + -1), t689 + -1), 0) - neigh_max.ty.min_realized)*neigh_min.tx.extent_realized) + ((min_px.s0.x.bx.block_id_x*4) - neigh_max.tx.min_realized))]
+        } else {
+         let t516 = (halide_threshold_output.min.1 + min_px.s0.y.yi.base.s) + .thread_id_y
+         min_px[((min_px.s0.x.bx.block_id_x*16) + ((.thread_id_y + min_px.s0.y.yi.base.s)*halide_threshold_output.extent.0)) + .thread_id_x] = neigh_min[max(min(((.thread_id_x + halide_threshold_output.min.0)/4) + (min_px.s0.x.bx.block_id_x*4), t691 + -1), 0) + (((max(min(select(t516 < (t689*4), t516/4, t689 + -1), t689 + -1), 0) - neigh_max.ty.min_realized)*neigh_min.tx.extent_realized) - neigh_max.tx.min_realized)]
+        }
+       } else {
+        let min_px.s0.x.xi.base.s = min(min_px.s0.x.bx.block_id_x*16, halide_threshold_output.extent.0 + -16)
+        let t518 = (halide_threshold_output.min.1 + min_px.s0.y.yi.base.s) + .thread_id_y
+        let t520 = (halide_threshold_output.min.0 + min_px.s0.x.xi.base.s) + .thread_id_x
+        min_px[(((.thread_id_y + min_px.s0.y.yi.base.s)*halide_threshold_output.extent.0) + min_px.s0.x.xi.base.s) + .thread_id_x] = neigh_min[max(min(select(t520 < (t691*4), t520/4, t691 + -1), t691 + -1), 0) + (((max(min(select(t518 < (t689*4), t518/4, t689 + -1), t689 + -1), 0) - neigh_max.ty.min_realized)*neigh_min.tx.extent_realized) - neigh_max.tx.min_realized)]
+       }
+      }
+     }
+    }
+   }
+   let halide_device_free_result$1 = halide_device_free(neigh_min.buffer)
+   assert(halide_device_free_result$1 == 0, halide_device_free_result$1)
+   free neigh_min
+   _halide_buffer_set_device_dirty(min_px.buffer, (uint1)1)
+  }
+ }
+ produce halide_threshold_output {
+  consume min_px {
+   consume max_px {
+    let halide_copy_to_device_result = halide_copy_to_device((struct halide_buffer_t *)halide_threshold_output.buffer, (struct halide_device_interface_t const *)halide_metal_device_interface())
+    assert(halide_copy_to_device_result == 0, halide_copy_to_device_result)
+    let halide_threshold_output.s0.y.by.block_id_y.prologue = min((halide_threshold_output.extent.1 + 15)/16, 0 - min(halide_threshold_output.min.1/16, 0))
+    let halide_threshold_output.s0.y.by.block_id_y.epilogue = let t743 = (input.extent.1 - halide_threshold_output.min.1) in max(min((halide_threshold_output.extent.1 + 15)/16, 0 - min(halide_threshold_output.min.1/16, 0)), min(min(min(t743 + 15, halide_threshold_output.extent.1), t743), halide_threshold_output.extent.1 + 15)/16)
+    let t288 = min((halide_threshold_output.extent.0 + 15)/16, 0 - min(halide_threshold_output.min.0/16, 0))
+    let t289 = max(min((halide_threshold_output.extent.0 + 15)/16, 0 - min(halide_threshold_output.min.0/16, 0)), min(input.extent.0 - halide_threshold_output.min.0, halide_threshold_output.extent.0)/16)
+    let t697 = input.min.1*input.stride.1
+    let t692 = (halide_threshold_output.extent.1 + 15)/16
+    let t693 = (halide_threshold_output.extent.0 + 15)/16
+    let t695 = 0 - (halide_threshold_output.min.1*halide_threshold_output.stride.1)
+    let t694 = (halide_threshold_output.min.0 - t697) - input.min.0
+    let t696 = input.min.0 + t697
+    gpu_block<Metal> (halide_threshold_output.s0.y.by.block_id_y, 0, t692) {
+     gpu_block<Metal> (halide_threshold_output.s0.x.bx.block_id_x, 0, t693) {
+      gpu_thread<Metal> (.thread_id_y, 0, 16) {
+       gpu_thread<Metal> (.thread_id_x, 0, 16) {
+        if ((halide_threshold_output.s0.y.by.block_id_y.prologue <= halide_threshold_output.s0.y.by.block_id_y) && (halide_threshold_output.s0.y.by.block_id_y < halide_threshold_output.s0.y.by.block_id_y.epilogue)) {
+         let halide_threshold_output.s0.y.yi.base.s = min(halide_threshold_output.s0.y.by.block_id_y*16, halide_threshold_output.extent.1 + -16)
+         if ((t288 <= halide_threshold_output.s0.x.bx.block_id_x) && (halide_threshold_output.s0.x.bx.block_id_x < t289)) {
+          let t440 = ((halide_threshold_output.s0.x.bx.block_id_x*16) + ((.thread_id_y + halide_threshold_output.s0.y.yi.base.s)*halide_threshold_output.extent.0)) + .thread_id_x
+          let t441.s = min_px[t440]
+          let t442 = int32(max_px[t440]) - int32(t441.s)
+          let t523 = (halide_threshold_output.min.1 + halide_threshold_output.s0.y.yi.base.s) + .thread_id_y
+          halide_threshold_output[((halide_threshold_output.stride.1*t523) + ((halide_threshold_output.s0.x.bx.block_id_x*16) + t695)) + .thread_id_x] = uint8(select(t442 < min_white_black_diff, 127, select(uint8((t442/2) + int32(t441.s)) < input[((input.stride.1*t523) + ((halide_threshold_output.s0.x.bx.block_id_x*16) + t694)) + .thread_id_x], 255, 0)))
+         } else {
+          let halide_threshold_output.s0.x.xi.base.s = min(halide_threshold_output.s0.x.bx.block_id_x*16, halide_threshold_output.extent.0 + -16)
+          let t445 = (((.thread_id_y + halide_threshold_output.s0.y.yi.base.s)*halide_threshold_output.extent.0) + halide_threshold_output.s0.x.xi.base.s) + .thread_id_x
+          let t446.s = min_px[t445]
+          let t447 = int32(max_px[t445]) - int32(t446.s)
+          let t524 = (halide_threshold_output.min.1 + halide_threshold_output.s0.y.yi.base.s) + .thread_id_y
+          halide_threshold_output[((halide_threshold_output.stride.1*t524) + (halide_threshold_output.s0.x.xi.base.s + t695)) + .thread_id_x] = uint8(select(t447 < min_white_black_diff, 127, select(uint8((t447/2) + int32(t446.s)) < input[max(min((halide_threshold_output.min.0 + halide_threshold_output.s0.x.xi.base.s) + .thread_id_x, input.extent.0 + -1), 0) + ((input.stride.1*t524) - t696)], 255, 0)))
+         }
+        } else {
+         let halide_threshold_output.s0.y.yi.base.s = min(halide_threshold_output.s0.y.by.block_id_y*16, halide_threshold_output.extent.1 + -16)
+         let halide_threshold_output.s0.x.xi.base.s = min(halide_threshold_output.s0.x.bx.block_id_x*16, halide_threshold_output.extent.0 + -16)
+         let t450 = (((.thread_id_y + halide_threshold_output.s0.y.yi.base.s)*halide_threshold_output.extent.0) + halide_threshold_output.s0.x.xi.base.s) + .thread_id_x
+         let t451.s = min_px[t450]
+         let t452 = int32(max_px[t450]) - int32(t451.s)
+         let t525 = (halide_threshold_output.min.1 + halide_threshold_output.s0.y.yi.base.s) + .thread_id_y
+         halide_threshold_output[((halide_threshold_output.stride.1*t525) + (halide_threshold_output.s0.x.xi.base.s + t695)) + .thread_id_x] = uint8(select(t452 < min_white_black_diff, 127, select(uint8((t452/2) + int32(t451.s)) < input[max(min((halide_threshold_output.min.0 + halide_threshold_output.s0.x.xi.base.s) + .thread_id_x, input.extent.0 + -1), 0) + ((max(min(input.extent.1 + -1, t525), 0)*input.stride.1) - t696)], 255, 0)))
+        }
+       }
+      }
+     }
+    }
+    _halide_buffer_set_device_dirty((struct halide_buffer_t *)halide_threshold_output.buffer, (uint1)1)
+    let halide_device_free_result$3 = halide_device_free(max_px.buffer)
+    assert(halide_device_free_result$3 == 0, halide_device_free_result$3)
+    free max_px
+    let halide_device_free_result = halide_device_free(min_px.buffer)
+    assert(halide_device_free_result == 0, halide_device_free_result)
+    free min_px
+   }
+  }
+ }
+}
+
+
+Skipping Hexagon offload...
+Offloading GPU loops...
+Metal kernel:
+#pragma clang diagnostic ignored "-Wunused-function"
+#include <metal_stdlib>
+using namespace metal;
+namespace {
+constexpr float float_from_bits(unsigned int x) {return as_type<float>(x);}
+constexpr float nan_f32() { return as_type<float>(0x7fc00000); }
+constexpr float neg_inf_f32() { return float_from_bits(0xff800000); }
+constexpr float inf_f32() { return float_from_bits(0x7f800000); }
+float fast_inverse_f32(float x) { return 1.0f / x; }
+constexpr half half_from_bits(unsigned short x) {return as_type<half>(x);}
+constexpr half nan_f16() { return half_from_bits(32767); }
+constexpr half neg_inf_f16() { return half_from_bits(64512); }
+constexpr half inf_f16() { return half_from_bits(31744); }
+half fast_inverse_f16(half x) { return 1.0h / x; }
+#if __METAL_VERSION__ >= 120
+#define _halide_mem_fence_device_and_threadgroup (mem_flags::mem_device | mem_flags::mem_threadgroup)
+#else
+#define _halide_mem_fence_device_and_threadgroup mem_flags::mem_device_and_threadgroup
+#endif
+}
+#define halide_maybe_unused(x) (void)(x)
+
+// Address spaces for _kernel_tile_max_s0_ty_by_block_id_y
+#define __address_space__tile_max device
+struct _kernel_tile_max_s0_ty_by_block_id_y_args {
+int _t528;
+int _t529;
+int _t530;
+int _t531;
+int _tile_max_tx_min_realized_s;
+int _tile_max_ty_min_realized_s;
+int _tile_min_s1_ty_max_s;
+};
+kernel void _kernel_tile_max_s0_ty_by_block_id_y(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_tile_max_s0_ty_by_block_id_y_args *_scalar_args [[ buffer(0) ]],
+ __address_space__tile_max uchar *_tile_max [[ buffer(1) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _t528 = _scalar_args->_t528;
+int _t529 = _scalar_args->_t529;
+int _t530 = _scalar_args->_t530;
+int _t531 = _scalar_args->_t531;
+int _tile_max_tx_min_realized_s = _scalar_args->_tile_max_tx_min_realized_s;
+int _tile_max_ty_min_realized_s = _scalar_args->_tile_max_ty_min_realized_s;
+int _tile_min_s1_ty_max_s = _scalar_args->_tile_min_s1_ty_max_s;
+ int _tile_max_s0_ty_by_block_id_y = tgroup_index.y;
+ int _tile_max_s0_tx_bx_block_id_x = tgroup_index.x;
+ int _thread_id_y = tid_in_tgroup.y;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _1 = _tile_max_s0_ty_by_block_id_y * 8;
+ int _2 = _1 + _t528;
+ int _3 = _2 + 7;
+ int _4 = min(_3, _tile_min_s1_ty_max_s);
+ int _5 = _t529 + 1;
+ bool _6 = _tile_max_s0_tx_bx_block_id_x < _5;
+ if (_6)
+ {
+  int _7 = _tile_max_s0_tx_bx_block_id_x * 8;
+  int _8 = _7 + _t530;
+  uchar _9 = (uchar)(0ull);
+  int _10 = _4 - _tile_max_ty_min_realized_s;
+  int _11 = _10 + _thread_id_y;
+  int _12 = _t531 + 8;
+  int _13 = _11 * _12;
+  int _14 = _8 - _tile_max_tx_min_realized_s;
+  int _15 = _13 + _14;
+  int _16 = _15 + _thread_id_x;
+  int _17 = _16 + 7;
+  _tile_max[_17] = _9;
+ } // if _6
+ else
+ {
+  uchar _18 = (uchar)(0ull);
+  int _19 = _4 - _tile_max_ty_min_realized_s;
+  int _20 = _19 + _thread_id_y;
+  int _21 = _t531 + 8;
+  int _22 = _20 * _21;
+  int _23 = _22 + _t531;
+  int _24 = _23 + _thread_id_x;
+  _tile_max[_24] = _18;
+ } // if _6 else
+} // kernel _kernel_tile_max_s0_ty_by_block_id_y
+#undef __address_space__tile_max
+// Address spaces for _kernel_tile_max_s1___outermost___outermost_v10_block_id_x
+#define __address_space__input device
+#define __address_space__tile_max device
+struct _kernel_tile_max_s1___outermost___outermost_v10_block_id_x_args {
+int _input_extent_0;
+int _input_extent_1;
+int _input_stride_1;
+int _t226;
+int _t227;
+int _t228;
+int _t229;
+int _t533;
+int _t534;
+int _t535;
+int _t537;
+int _t541;
+int _t543;
+int _t544;
+int _t545;
+int _t546;
+int _t547;
+int _t548;
+int _t549;
+int _tile_max_s0_tx_bx_loop_extent_s;
+};
+kernel void _kernel_tile_max_s1___outermost___outermost_v10_block_id_x(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_tile_max_s1___outermost___outermost_v10_block_id_x_args *_scalar_args [[ buffer(0) ]],
+ __address_space__input const uchar *_input [[ buffer(1) ]],
+ __address_space__tile_max uchar *_tile_max [[ buffer(2) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _input_extent_0 = _scalar_args->_input_extent_0;
+int _input_extent_1 = _scalar_args->_input_extent_1;
+int _input_stride_1 = _scalar_args->_input_stride_1;
+int _t226 = _scalar_args->_t226;
+int _t227 = _scalar_args->_t227;
+int _t228 = _scalar_args->_t228;
+int _t229 = _scalar_args->_t229;
+int _t533 = _scalar_args->_t533;
+int _t534 = _scalar_args->_t534;
+int _t535 = _scalar_args->_t535;
+int _t537 = _scalar_args->_t537;
+int _t541 = _scalar_args->_t541;
+int _t543 = _scalar_args->_t543;
+int _t544 = _scalar_args->_t544;
+int _t545 = _scalar_args->_t545;
+int _t546 = _scalar_args->_t546;
+int _t547 = _scalar_args->_t547;
+int _t548 = _scalar_args->_t548;
+int _t549 = _scalar_args->_t549;
+int _tile_max_s0_tx_bx_loop_extent_s = _scalar_args->_tile_max_s0_tx_bx_loop_extent_s;
+ int _tile_max_s1___outermost___outermost_v10_block_id_x = tgroup_index.x;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _25 = _t226 - _t548;
+ int _26 = _25 + 1;
+ for (int _tile_max_s1_ty_rebased = 0; _tile_max_s1_ty_rebased < 0 + _26; _tile_max_s1_ty_rebased++)
+ {
+  int _27 = _t548 + _tile_max_s1_ty_rebased;
+  int _28 = _27 * 4;
+  int _29 = _t534 + _tile_max_s1_ty_rebased;
+  int _30 = _29 + 7;
+  int _31 = _t535 + 8;
+  int _32 = _30 * _31;
+  int _33 = _32 + _t533;
+  int _34 = _tile_max_s0_tx_bx_loop_extent_s + 1;
+  for (int _tile_max_s1_tx_rebased = 0; _tile_max_s1_tx_rebased < 0 + _34; _tile_max_s1_tx_rebased++)
+  {
+   int _35 = _t549 + _tile_max_s1_tx_rebased;
+   int _36 = _35 * 4;
+   int _37 = _33 + _tile_max_s1_tx_rebased;
+   for (int _tile_max_s1_r10__y = 0; _tile_max_s1_r10__y < 0 + 4; _tile_max_s1_r10__y++)
+   {
+    int _38 = _28 + _tile_max_s1_r10__y;
+    int _39 = _input_extent_1 + 3;
+    int _40 = min(_38, _39);
+    int _41 = max(_40, 4);
+    int _42 = _41 + -4;
+    int _43 = _42 * _input_stride_1;
+    int _44 = _43 - _t537;
+    for (int _tile_max_s1_r10__x = 0; _tile_max_s1_r10__x < 0 + 4; _tile_max_s1_r10__x++)
+    {
+     int _45 = _37 + 7;
+     uchar _46 = _tile_max[_45];
+     int _47 = _36 + _tile_max_s1_r10__x;
+     int _48 = _input_extent_0 + 3;
+     int _49 = min(_47, _48);
+     int _50 = max(_49, 4);
+     int _51 = _50 + _44;
+     int _52 = _51 + -4;
+     uchar _53 = _input[_52];
+     uchar _54 = max(_46, _53);
+     _tile_max[_45] = _54;
+    } // for _tile_max_s1_r10__x
+   } // for _tile_max_s1_r10__y
+  } // for _tile_max_s1_tx_rebased
+ } // for _tile_max_s1_ty_rebased
+ int _55 = _t227 - _t226;
+ for (int _tile_max_s1_ty_rebased = 0; _tile_max_s1_ty_rebased < 0 + _55; _tile_max_s1_ty_rebased++)
+ {
+  int _56 = _t226 + _tile_max_s1_ty_rebased;
+  int _57 = _56 * 4;
+  int _58 = _t228 - _t549;
+  int _59 = _t541 + _tile_max_s1_ty_rebased;
+  int _60 = _59 + 8;
+  int _61 = _t535 + 8;
+  int _62 = _60 * _61;
+  int _63 = _62 + _t533;
+  int _64 = _58 + 1;
+  for (int _tile_max_s1_tx_rebased = 0; _tile_max_s1_tx_rebased < 0 + _64; _tile_max_s1_tx_rebased++)
+  {
+   int _65 = _t549 + _tile_max_s1_tx_rebased;
+   int _66 = _65 * 4;
+   int _67 = _63 + _tile_max_s1_tx_rebased;
+   for (int _tile_max_s1_r10__y = 0; _tile_max_s1_r10__y < 0 + 4; _tile_max_s1_r10__y++)
+   {
+    int _68 = _57 + _tile_max_s1_r10__y;
+    int _69 = _input_extent_1 + -1;
+    int _70 = min(_68, _69);
+    int _71 = max(_70, 0);
+    int _72 = _71 * _input_stride_1;
+    int _73 = _72 - _t537;
+    for (int _tile_max_s1_r10__x = 0; _tile_max_s1_r10__x < 0 + 4; _tile_max_s1_r10__x++)
+    {
+     int _74 = _67 + 7;
+     uchar _75 = _tile_max[_74];
+     int _76 = _66 + _tile_max_s1_r10__x;
+     int _77 = _input_extent_0 + 3;
+     int _78 = min(_76, _77);
+     int _79 = max(_78, 4);
+     int _80 = _79 + _73;
+     int _81 = _80 + -4;
+     uchar _82 = _input[_81];
+     uchar _83 = max(_75, _82);
+     _tile_max[_74] = _83;
+    } // for _tile_max_s1_r10__x
+   } // for _tile_max_s1_r10__y
+  } // for _tile_max_s1_tx_rebased
+  int _84 = _t226 + _tile_max_s1_ty_rebased;
+  int _85 = _84 * 4;
+  int _86 = _t229 - _t228;
+  int _87 = _t541 + _tile_max_s1_ty_rebased;
+  int _88 = _87 + 8;
+  int _89 = _t535 + 8;
+  int _90 = _88 * _89;
+  int _91 = _90 + _t543;
+  for (int _tile_max_s1_tx_rebased = 0; _tile_max_s1_tx_rebased < 0 + _86; _tile_max_s1_tx_rebased++)
+  {
+   int _92 = _t228 + _tile_max_s1_tx_rebased;
+   int _93 = _92 * 4;
+   int _94 = _91 + _tile_max_s1_tx_rebased;
+   for (int _tile_max_s1_r10__y = 0; _tile_max_s1_r10__y < 0 + 4; _tile_max_s1_r10__y++)
+   {
+    int _95 = _85 + _tile_max_s1_r10__y;
+    int _96 = _input_extent_1 + -1;
+    int _97 = min(_95, _96);
+    int _98 = max(_97, 0);
+    int _99 = _98 * _input_stride_1;
+    int _100 = _99 - _t537;
+    for (int _tile_max_s1_r10__x = 0; _tile_max_s1_r10__x < 0 + 4; _tile_max_s1_r10__x++)
+    {
+     int _101 = _94 + 8;
+     uchar _102 = _tile_max[_101];
+     int _103 = _93 + _tile_max_s1_r10__x;
+     int _104 = _input_extent_0 + -1;
+     int _105 = min(_103, _104);
+     int _106 = max(_105, 0);
+     int _107 = _106 + _100;
+     uchar _108 = _input[_107];
+     uchar _109 = max(_102, _108);
+     _tile_max[_101] = _109;
+    } // for _tile_max_s1_r10__x
+   } // for _tile_max_s1_r10__y
+  } // for _tile_max_s1_tx_rebased
+  int _110 = _t226 + _tile_max_s1_ty_rebased;
+  int _111 = _110 * 4;
+  int _112 = _t541 + _tile_max_s1_ty_rebased;
+  int _113 = _112 + 8;
+  int _114 = _t535 + 8;
+  int _115 = _113 * _114;
+  int _116 = _115 + _t545;
+  for (int _tile_max_s1_tx_rebased = 0; _tile_max_s1_tx_rebased < 0 + _t544; _tile_max_s1_tx_rebased++)
+  {
+   int _117 = _t229 + _tile_max_s1_tx_rebased;
+   int _118 = _117 * 4;
+   int _119 = _116 + _tile_max_s1_tx_rebased;
+   for (int _tile_max_s1_r10__y = 0; _tile_max_s1_r10__y < 0 + 4; _tile_max_s1_r10__y++)
+   {
+    int _120 = _111 + _tile_max_s1_r10__y;
+    int _121 = _input_extent_1 + -1;
+    int _122 = min(_120, _121);
+    int _123 = max(_122, 0);
+    int _124 = _123 * _input_stride_1;
+    int _125 = _124 - _t537;
+    for (int _tile_max_s1_r10__x = 0; _tile_max_s1_r10__x < 0 + 4; _tile_max_s1_r10__x++)
+    {
+     int _126 = _119 + 8;
+     uchar _127 = _tile_max[_126];
+     int _128 = _118 + _tile_max_s1_r10__x;
+     int _129 = _input_extent_0 + -1;
+     int _130 = min(_128, _129);
+     int _131 = max(_130, 0);
+     int _132 = _131 + _125;
+     uchar _133 = _input[_132];
+     uchar _134 = max(_127, _133);
+     _tile_max[_126] = _134;
+    } // for _tile_max_s1_r10__x
+   } // for _tile_max_s1_r10__y
+  } // for _tile_max_s1_tx_rebased
+ } // for _tile_max_s1_ty_rebased
+ for (int _tile_max_s1_ty_rebased = 0; _tile_max_s1_ty_rebased < 0 + _t546; _tile_max_s1_ty_rebased++)
+ {
+  int _135 = _t227 + _tile_max_s1_ty_rebased;
+  int _136 = _135 * 4;
+  int _137 = _t547 + _tile_max_s1_ty_rebased;
+  int _138 = _137 + 8;
+  int _139 = _t535 + 8;
+  int _140 = _138 * _139;
+  int _141 = _140 + _t533;
+  int _142 = _tile_max_s0_tx_bx_loop_extent_s + 1;
+  for (int _tile_max_s1_tx_rebased = 0; _tile_max_s1_tx_rebased < 0 + _142; _tile_max_s1_tx_rebased++)
+  {
+   int _143 = _t549 + _tile_max_s1_tx_rebased;
+   int _144 = _143 * 4;
+   int _145 = _141 + _tile_max_s1_tx_rebased;
+   for (int _tile_max_s1_r10__y = 0; _tile_max_s1_r10__y < 0 + 4; _tile_max_s1_r10__y++)
+   {
+    int _146 = _136 + _tile_max_s1_r10__y;
+    int _147 = _input_extent_1 + -1;
+    int _148 = min(_146, _147);
+    int _149 = max(_148, 0);
+    int _150 = _149 * _input_stride_1;
+    int _151 = _150 - _t537;
+    for (int _tile_max_s1_r10__x = 0; _tile_max_s1_r10__x < 0 + 4; _tile_max_s1_r10__x++)
+    {
+     int _152 = _145 + 7;
+     uchar _153 = _tile_max[_152];
+     int _154 = _144 + _tile_max_s1_r10__x;
+     int _155 = _input_extent_0 + 3;
+     int _156 = min(_154, _155);
+     int _157 = max(_156, 4);
+     int _158 = _157 + _151;
+     int _159 = _158 + -4;
+     uchar _160 = _input[_159];
+     uchar _161 = max(_153, _160);
+     _tile_max[_152] = _161;
+    } // for _tile_max_s1_r10__x
+   } // for _tile_max_s1_r10__y
+  } // for _tile_max_s1_tx_rebased
+ } // for _tile_max_s1_ty_rebased
+} // kernel _kernel_tile_max_s1___outermost___outermost_v10_block_id_x
+#undef __address_space__input
+#undef __address_space__tile_max
+// Address spaces for _kernel_neigh_max_s0_ty_by_block_id_y
+#define __address_space__neigh_max device
+struct _kernel_neigh_max_s0_ty_by_block_id_y_args {
+int _neigh_max_tx_extent_realized;
+int _neigh_max_tx_min_realized;
+int _neigh_max_ty_min_realized;
+int _t583;
+int _t584;
+int _t585;
+int _t586;
+int _t587;
+};
+kernel void _kernel_neigh_max_s0_ty_by_block_id_y(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_neigh_max_s0_ty_by_block_id_y_args *_scalar_args [[ buffer(0) ]],
+ __address_space__neigh_max uchar *_neigh_max [[ buffer(1) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _neigh_max_tx_extent_realized = _scalar_args->_neigh_max_tx_extent_realized;
+int _neigh_max_tx_min_realized = _scalar_args->_neigh_max_tx_min_realized;
+int _neigh_max_ty_min_realized = _scalar_args->_neigh_max_ty_min_realized;
+int _t583 = _scalar_args->_t583;
+int _t584 = _scalar_args->_t584;
+int _t585 = _scalar_args->_t585;
+int _t586 = _scalar_args->_t586;
+int _t587 = _scalar_args->_t587;
+ int _neigh_max_s0_ty_by_block_id_y = tgroup_index.y;
+ int _neigh_max_s0_tx_bx_block_id_x = tgroup_index.x;
+ int _thread_id_y = tid_in_tgroup.y;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _162 = _neigh_max_s0_ty_by_block_id_y * 8;
+ int _163 = _162 + _t583;
+ int _164 = _t584 + -7;
+ int _165 = min(_163, _164);
+ int _166 = _t585 + 1;
+ bool _167 = _neigh_max_s0_tx_bx_block_id_x < _166;
+ if (_167)
+ {
+  int _168 = _neigh_max_s0_tx_bx_block_id_x * 8;
+  int _169 = _168 + _t586;
+  uchar _170 = (uchar)(0ull);
+  int _171 = _165 - _neigh_max_ty_min_realized;
+  int _172 = _171 + _thread_id_y;
+  int _173 = _172 * _neigh_max_tx_extent_realized;
+  int _174 = _169 - _neigh_max_tx_min_realized;
+  int _175 = _173 + _174;
+  int _176 = _175 + _thread_id_x;
+  _neigh_max[_176] = _170;
+ } // if _167
+ else
+ {
+  uchar _177 = (uchar)(0ull);
+  int _178 = _165 - _neigh_max_ty_min_realized;
+  int _179 = _178 + _thread_id_y;
+  int _180 = _179 * _neigh_max_tx_extent_realized;
+  int _181 = _180 + _t587;
+  int _182 = _181 + _thread_id_x;
+  int _183 = _182 + -7;
+  _neigh_max[_183] = _177;
+ } // if _167 else
+} // kernel _kernel_neigh_max_s0_ty_by_block_id_y
+#undef __address_space__neigh_max
+// Address spaces for _kernel_neigh_max_s1___outermost___outermost_v14_block_id_x
+#define __address_space__neigh_max device
+#define __address_space__tile_max device
+struct _kernel_neigh_max_s1___outermost___outermost_v14_block_id_x_args {
+int _neigh_max_s0_tx_bx_loop_extent_s;
+int _neigh_max_s0_ty_by_loop_extent_s;
+int _neigh_max_tx_extent_realized;
+int _t588;
+int _t589;
+int _t590;
+int _t592;
+int _t593;
+int _t595;
+int _t596;
+int _tile_max_tx_min_realized_s;
+int _tile_max_ty_min_realized_s;
+};
+kernel void _kernel_neigh_max_s1___outermost___outermost_v14_block_id_x(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_neigh_max_s1___outermost___outermost_v14_block_id_x_args *_scalar_args [[ buffer(0) ]],
+ __address_space__neigh_max uchar *_neigh_max [[ buffer(1) ]],
+ __address_space__tile_max const uchar *_tile_max [[ buffer(2) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _neigh_max_s0_tx_bx_loop_extent_s = _scalar_args->_neigh_max_s0_tx_bx_loop_extent_s;
+int _neigh_max_s0_ty_by_loop_extent_s = _scalar_args->_neigh_max_s0_ty_by_loop_extent_s;
+int _neigh_max_tx_extent_realized = _scalar_args->_neigh_max_tx_extent_realized;
+int _t588 = _scalar_args->_t588;
+int _t589 = _scalar_args->_t589;
+int _t590 = _scalar_args->_t590;
+int _t592 = _scalar_args->_t592;
+int _t593 = _scalar_args->_t593;
+int _t595 = _scalar_args->_t595;
+int _t596 = _scalar_args->_t596;
+int _tile_max_tx_min_realized_s = _scalar_args->_tile_max_tx_min_realized_s;
+int _tile_max_ty_min_realized_s = _scalar_args->_tile_max_ty_min_realized_s;
+ int _neigh_max_s1___outermost___outermost_v14_block_id_x = tgroup_index.x;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _184 = _neigh_max_s0_ty_by_loop_extent_s + 1;
+ for (int _neigh_max_s1_ty_rebased = 0; _neigh_max_s1_ty_rebased < 0 + _184; _neigh_max_s1_ty_rebased++)
+ {
+  int _185 = _neigh_max_s1_ty_rebased + _t596;
+  int _186 = _neigh_max_s1_ty_rebased + _t589;
+  int _187 = _186 * _neigh_max_tx_extent_realized;
+  int _188 = _187 + _t588;
+  int _189 = _neigh_max_s0_tx_bx_loop_extent_s + 1;
+  for (int _neigh_max_s1_tx_rebased = 0; _neigh_max_s1_tx_rebased < 0 + _189; _neigh_max_s1_tx_rebased++)
+  {
+   int _190 = _neigh_max_s1_tx_rebased + _188;
+   int _191 = _neigh_max_s1_tx_rebased + _t595;
+   for (int _neigh_max_s1_r23__y_rebased = 0; _neigh_max_s1_r23__y_rebased < 0 + 3; _neigh_max_s1_r23__y_rebased++)
+   {
+    int _192 = _neigh_max_s1_r23__y_rebased + _185;
+    int _193 = min(_192, _t590);
+    int _194 = max(_193, 1);
+    int _195 = _194 - _tile_max_ty_min_realized_s;
+    int _196 = _195 + 7;
+    int _197 = _t592 + 8;
+    int _198 = _196 * _197;
+    int _199 = _198 - _tile_max_tx_min_realized_s;
+    for (int _neigh_max_s1_r23__x_rebased = 0; _neigh_max_s1_r23__x_rebased < 0 + 3; _neigh_max_s1_r23__x_rebased++)
+    {
+     uchar _200 = _neigh_max[_190];
+     int _201 = _neigh_max_s1_r23__x_rebased + _191;
+     int _202 = min(_201, _t593);
+     int _203 = max(_202, 1);
+     int _204 = _203 + _199;
+     int _205 = _204 + 7;
+     uchar _206 = _tile_max[_205];
+     uchar _207 = max(_200, _206);
+     _neigh_max[_190] = _207;
+    } // for _neigh_max_s1_r23__x_rebased
+   } // for _neigh_max_s1_r23__y_rebased
+  } // for _neigh_max_s1_tx_rebased
+ } // for _neigh_max_s1_ty_rebased
+} // kernel _kernel_neigh_max_s1___outermost___outermost_v14_block_id_x
+#undef __address_space__neigh_max
+#undef __address_space__tile_max
+// Address spaces for _kernel_max_px_s0_y_by_block_id_y
+#define __address_space__max_px device
+#define __address_space__neigh_max device
+struct _kernel_max_px_s0_y_by_block_id_y_args {
+int _halide_threshold_output_extent_0;
+int _halide_threshold_output_extent_1;
+int _halide_threshold_output_min_0;
+int _halide_threshold_output_min_1;
+int _neigh_max_tx_extent_realized;
+int _neigh_max_tx_min_realized;
+int _neigh_max_ty_min_realized;
+int _t604;
+int _t605;
+int _t606;
+int _t608;
+};
+kernel void _kernel_max_px_s0_y_by_block_id_y(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_max_px_s0_y_by_block_id_y_args *_scalar_args [[ buffer(0) ]],
+ __address_space__max_px uchar *_max_px [[ buffer(1) ]],
+ __address_space__neigh_max const uchar *_neigh_max [[ buffer(2) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _halide_threshold_output_extent_0 = _scalar_args->_halide_threshold_output_extent_0;
+int _halide_threshold_output_extent_1 = _scalar_args->_halide_threshold_output_extent_1;
+int _halide_threshold_output_min_0 = _scalar_args->_halide_threshold_output_min_0;
+int _halide_threshold_output_min_1 = _scalar_args->_halide_threshold_output_min_1;
+int _neigh_max_tx_extent_realized = _scalar_args->_neigh_max_tx_extent_realized;
+int _neigh_max_tx_min_realized = _scalar_args->_neigh_max_tx_min_realized;
+int _neigh_max_ty_min_realized = _scalar_args->_neigh_max_ty_min_realized;
+int _t604 = _scalar_args->_t604;
+int _t605 = _scalar_args->_t605;
+int _t606 = _scalar_args->_t606;
+int _t608 = _scalar_args->_t608;
+ int _max_px_s0_y_by_block_id_y = tgroup_index.y;
+ int _max_px_s0_x_bx_block_id_x = tgroup_index.x;
+ int _thread_id_y = tid_in_tgroup.y;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _208 = _max_px_s0_y_by_block_id_y * 16;
+ int _209 = _halide_threshold_output_extent_1 + -16;
+ int _210 = min(_208, _209);
+ bool _211 = _max_px_s0_x_bx_block_id_x < _t604;
+ if (_211)
+ {
+  int _212 = _max_px_s0_x_bx_block_id_x * 16;
+  int _213 = _t605 - _212;
+  int _214 = min(_213, 16);
+  int _215 = _212 + _halide_threshold_output_min_0;
+  int _216 = min(_215, 0);
+  int _217 = max(_216, -16);
+  int _218 = 0 - _217;
+  int _219 = max(_214, _218);
+  int _220 = _217 + _thread_id_x;
+  bool _221 = _220 < 0;
+  if (_221)
+  {
+   int _222 = _halide_threshold_output_min_1 + _210;
+   int _223 = _222 + _thread_id_y;
+   int _224 = _thread_id_x + _halide_threshold_output_min_0;
+   int _225 = _224 >> 2;
+   int _226 = _max_px_s0_x_bx_block_id_x * 4;
+   int _227 = _225 + _226;
+   int _228 = max(_227, 0);
+   int _229 = _223 >> 2;
+   int _230 = _t606 + -1;
+   int _231 = _t606 * 4;
+   bool _232 = _223 < _231;
+   int _233 = (int)select(_230, _229, _232);
+   int _234 = min(_233, _230);
+   int _235 = max(_234, 0);
+   int _236 = _235 - _neigh_max_ty_min_realized;
+   int _237 = _236 * _neigh_max_tx_extent_realized;
+   int _238 = _237 - _neigh_max_tx_min_realized;
+   int _239 = _228 + _238;
+   uchar _240 = _neigh_max[_239];
+   int _241 = _max_px_s0_x_bx_block_id_x * 16;
+   int _242 = _thread_id_y + _210;
+   int _243 = _242 * _halide_threshold_output_extent_0;
+   int _244 = _241 + _243;
+   int _245 = _244 + _thread_id_x;
+   _max_px[_245] = _240;
+  } // if _221
+  else
+  {
+   bool _246 = _thread_id_x < _219;
+   if (_246)
+   {
+    int _247 = _halide_threshold_output_min_1 + _210;
+    int _248 = _247 + _thread_id_y;
+    int _249 = _thread_id_x + _halide_threshold_output_min_0;
+    int _250 = _249 >> 2;
+    int _251 = _248 >> 2;
+    int _252 = _t606 + -1;
+    int _253 = _t606 * 4;
+    bool _254 = _248 < _253;
+    int _255 = (int)select(_252, _251, _254);
+    int _256 = min(_255, _252);
+    int _257 = max(_256, 0);
+    int _258 = _257 - _neigh_max_ty_min_realized;
+    int _259 = _258 * _neigh_max_tx_extent_realized;
+    int _260 = _max_px_s0_x_bx_block_id_x * 4;
+    int _261 = _260 - _neigh_max_tx_min_realized;
+    int _262 = _259 + _261;
+    int _263 = _250 + _262;
+    uchar _264 = _neigh_max[_263];
+    int _265 = _max_px_s0_x_bx_block_id_x * 16;
+    int _266 = _thread_id_y + _210;
+    int _267 = _266 * _halide_threshold_output_extent_0;
+    int _268 = _265 + _267;
+    int _269 = _268 + _thread_id_x;
+    _max_px[_269] = _264;
+   } // if _246
+   else
+   {
+    int _270 = _halide_threshold_output_min_1 + _210;
+    int _271 = _270 + _thread_id_y;
+    int _272 = _thread_id_x + _halide_threshold_output_min_0;
+    int _273 = _272 >> 2;
+    int _274 = _max_px_s0_x_bx_block_id_x * 4;
+    int _275 = _273 + _274;
+    int _276 = _t608 + -1;
+    int _277 = min(_275, _276);
+    int _278 = max(_277, 0);
+    int _279 = _271 >> 2;
+    int _280 = _t606 + -1;
+    int _281 = _t606 * 4;
+    bool _282 = _271 < _281;
+    int _283 = (int)select(_280, _279, _282);
+    int _284 = min(_283, _280);
+    int _285 = max(_284, 0);
+    int _286 = _285 - _neigh_max_ty_min_realized;
+    int _287 = _286 * _neigh_max_tx_extent_realized;
+    int _288 = _287 - _neigh_max_tx_min_realized;
+    int _289 = _278 + _288;
+    uchar _290 = _neigh_max[_289];
+    int _291 = _max_px_s0_x_bx_block_id_x * 16;
+    int _292 = _thread_id_y + _210;
+    int _293 = _292 * _halide_threshold_output_extent_0;
+    int _294 = _291 + _293;
+    int _295 = _294 + _thread_id_x;
+    _max_px[_295] = _290;
+   } // if _246 else
+  } // if _221 else
+ } // if _211
+ else
+ {
+  int _296 = _max_px_s0_x_bx_block_id_x * 16;
+  int _297 = _halide_threshold_output_extent_0 + -16;
+  int _298 = min(_296, _297);
+  int _299 = _halide_threshold_output_min_1 + _210;
+  int _300 = _299 + _thread_id_y;
+  int _301 = _halide_threshold_output_min_0 + _298;
+  int _302 = _301 + _thread_id_x;
+  int _303 = _302 >> 2;
+  int _304 = _t608 + -1;
+  int _305 = _t608 * 4;
+  bool _306 = _302 < _305;
+  int _307 = (int)select(_304, _303, _306);
+  int _308 = min(_307, _304);
+  int _309 = max(_308, 0);
+  int _310 = _300 >> 2;
+  int _311 = _t606 + -1;
+  int _312 = _t606 * 4;
+  bool _313 = _300 < _312;
+  int _314 = (int)select(_311, _310, _313);
+  int _315 = min(_314, _311);
+  int _316 = max(_315, 0);
+  int _317 = _316 - _neigh_max_ty_min_realized;
+  int _318 = _317 * _neigh_max_tx_extent_realized;
+  int _319 = _318 - _neigh_max_tx_min_realized;
+  int _320 = _309 + _319;
+  uchar _321 = _neigh_max[_320];
+  int _322 = _thread_id_y + _210;
+  int _323 = _322 * _halide_threshold_output_extent_0;
+  int _324 = _323 + _298;
+  int _325 = _324 + _thread_id_x;
+  _max_px[_325] = _321;
+ } // if _211 else
+} // kernel _kernel_max_px_s0_y_by_block_id_y
+#undef __address_space__max_px
+#undef __address_space__neigh_max
+// Address spaces for _kernel_tile_min_s0_ty_by_block_id_y
+#define __address_space__tile_min device
+struct _kernel_tile_min_s0_ty_by_block_id_y_args {
+int _t611;
+int _t612;
+int _t613;
+int _t614;
+int _tile_max_tx_min_realized_s;
+int _tile_max_ty_min_realized_s;
+int _tile_min_s1_ty_max_s;
+};
+kernel void _kernel_tile_min_s0_ty_by_block_id_y(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_tile_min_s0_ty_by_block_id_y_args *_scalar_args [[ buffer(0) ]],
+ __address_space__tile_min uchar *_tile_min [[ buffer(1) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _t611 = _scalar_args->_t611;
+int _t612 = _scalar_args->_t612;
+int _t613 = _scalar_args->_t613;
+int _t614 = _scalar_args->_t614;
+int _tile_max_tx_min_realized_s = _scalar_args->_tile_max_tx_min_realized_s;
+int _tile_max_ty_min_realized_s = _scalar_args->_tile_max_ty_min_realized_s;
+int _tile_min_s1_ty_max_s = _scalar_args->_tile_min_s1_ty_max_s;
+ int _tile_min_s0_ty_by_block_id_y = tgroup_index.y;
+ int _tile_min_s0_tx_bx_block_id_x = tgroup_index.x;
+ int _thread_id_y = tid_in_tgroup.y;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _326 = _tile_min_s0_ty_by_block_id_y * 8;
+ int _327 = _326 + _t611;
+ int _328 = _327 + 7;
+ int _329 = min(_328, _tile_min_s1_ty_max_s);
+ int _330 = _t612 + 1;
+ bool _331 = _tile_min_s0_tx_bx_block_id_x < _330;
+ if (_331)
+ {
+  int _332 = _tile_min_s0_tx_bx_block_id_x * 8;
+  int _333 = _332 + _t613;
+  uchar _334 = (uchar)(255ull);
+  int _335 = _329 - _tile_max_ty_min_realized_s;
+  int _336 = _335 + _thread_id_y;
+  int _337 = _t614 + 8;
+  int _338 = _336 * _337;
+  int _339 = _333 - _tile_max_tx_min_realized_s;
+  int _340 = _338 + _339;
+  int _341 = _340 + _thread_id_x;
+  int _342 = _341 + 7;
+  _tile_min[_342] = _334;
+ } // if _331
+ else
+ {
+  uchar _343 = (uchar)(255ull);
+  int _344 = _329 - _tile_max_ty_min_realized_s;
+  int _345 = _344 + _thread_id_y;
+  int _346 = _t614 + 8;
+  int _347 = _345 * _346;
+  int _348 = _347 + _t614;
+  int _349 = _348 + _thread_id_x;
+  _tile_min[_349] = _343;
+ } // if _331 else
+} // kernel _kernel_tile_min_s0_ty_by_block_id_y
+#undef __address_space__tile_min
+// Address spaces for _kernel_tile_min_s1___outermost___outermost_v8_block_id_x
+#define __address_space__input device
+#define __address_space__tile_min device
+struct _kernel_tile_min_s1___outermost___outermost_v8_block_id_x_args {
+int _input_extent_0;
+int _input_extent_1;
+int _input_stride_1;
+int _t257;
+int _t258;
+int _t259;
+int _t260;
+int _t616;
+int _t617;
+int _t618;
+int _t620;
+int _t624;
+int _t626;
+int _t627;
+int _t628;
+int _t629;
+int _t630;
+int _t631;
+int _t632;
+int _tile_min_s0_tx_bx_loop_extent_s;
+};
+kernel void _kernel_tile_min_s1___outermost___outermost_v8_block_id_x(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_tile_min_s1___outermost___outermost_v8_block_id_x_args *_scalar_args [[ buffer(0) ]],
+ __address_space__input const uchar *_input [[ buffer(1) ]],
+ __address_space__tile_min uchar *_tile_min [[ buffer(2) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _input_extent_0 = _scalar_args->_input_extent_0;
+int _input_extent_1 = _scalar_args->_input_extent_1;
+int _input_stride_1 = _scalar_args->_input_stride_1;
+int _t257 = _scalar_args->_t257;
+int _t258 = _scalar_args->_t258;
+int _t259 = _scalar_args->_t259;
+int _t260 = _scalar_args->_t260;
+int _t616 = _scalar_args->_t616;
+int _t617 = _scalar_args->_t617;
+int _t618 = _scalar_args->_t618;
+int _t620 = _scalar_args->_t620;
+int _t624 = _scalar_args->_t624;
+int _t626 = _scalar_args->_t626;
+int _t627 = _scalar_args->_t627;
+int _t628 = _scalar_args->_t628;
+int _t629 = _scalar_args->_t629;
+int _t630 = _scalar_args->_t630;
+int _t631 = _scalar_args->_t631;
+int _t632 = _scalar_args->_t632;
+int _tile_min_s0_tx_bx_loop_extent_s = _scalar_args->_tile_min_s0_tx_bx_loop_extent_s;
+ int _tile_min_s1___outermost___outermost_v8_block_id_x = tgroup_index.x;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _350 = _t257 - _t631;
+ int _351 = _350 + 1;
+ for (int _tile_min_s1_ty_rebased = 0; _tile_min_s1_ty_rebased < 0 + _351; _tile_min_s1_ty_rebased++)
+ {
+  int _352 = _t631 + _tile_min_s1_ty_rebased;
+  int _353 = _352 * 4;
+  int _354 = _t617 + _tile_min_s1_ty_rebased;
+  int _355 = _354 + 7;
+  int _356 = _t618 + 8;
+  int _357 = _355 * _356;
+  int _358 = _357 + _t616;
+  int _359 = _tile_min_s0_tx_bx_loop_extent_s + 1;
+  for (int _tile_min_s1_tx_rebased = 0; _tile_min_s1_tx_rebased < 0 + _359; _tile_min_s1_tx_rebased++)
+  {
+   int _360 = _t632 + _tile_min_s1_tx_rebased;
+   int _361 = _360 * 4;
+   int _362 = _358 + _tile_min_s1_tx_rebased;
+   for (int _tile_min_s1_r10__y = 0; _tile_min_s1_r10__y < 0 + 4; _tile_min_s1_r10__y++)
+   {
+    int _363 = _353 + _tile_min_s1_r10__y;
+    int _364 = _input_extent_1 + 3;
+    int _365 = min(_363, _364);
+    int _366 = max(_365, 4);
+    int _367 = _366 + -4;
+    int _368 = _367 * _input_stride_1;
+    int _369 = _368 - _t620;
+    for (int _tile_min_s1_r10__x = 0; _tile_min_s1_r10__x < 0 + 4; _tile_min_s1_r10__x++)
+    {
+     int _370 = _362 + 7;
+     uchar _371 = _tile_min[_370];
+     int _372 = _361 + _tile_min_s1_r10__x;
+     int _373 = _input_extent_0 + 3;
+     int _374 = min(_372, _373);
+     int _375 = max(_374, 4);
+     int _376 = _375 + _369;
+     int _377 = _376 + -4;
+     uchar _378 = _input[_377];
+     uchar _379 = min(_371, _378);
+     _tile_min[_370] = _379;
+    } // for _tile_min_s1_r10__x
+   } // for _tile_min_s1_r10__y
+  } // for _tile_min_s1_tx_rebased
+ } // for _tile_min_s1_ty_rebased
+ int _380 = _t258 - _t257;
+ for (int _tile_min_s1_ty_rebased = 0; _tile_min_s1_ty_rebased < 0 + _380; _tile_min_s1_ty_rebased++)
+ {
+  int _381 = _t257 + _tile_min_s1_ty_rebased;
+  int _382 = _381 * 4;
+  int _383 = _t259 - _t632;
+  int _384 = _t624 + _tile_min_s1_ty_rebased;
+  int _385 = _384 + 8;
+  int _386 = _t618 + 8;
+  int _387 = _385 * _386;
+  int _388 = _387 + _t616;
+  int _389 = _383 + 1;
+  for (int _tile_min_s1_tx_rebased = 0; _tile_min_s1_tx_rebased < 0 + _389; _tile_min_s1_tx_rebased++)
+  {
+   int _390 = _t632 + _tile_min_s1_tx_rebased;
+   int _391 = _390 * 4;
+   int _392 = _388 + _tile_min_s1_tx_rebased;
+   for (int _tile_min_s1_r10__y = 0; _tile_min_s1_r10__y < 0 + 4; _tile_min_s1_r10__y++)
+   {
+    int _393 = _382 + _tile_min_s1_r10__y;
+    int _394 = _input_extent_1 + -1;
+    int _395 = min(_393, _394);
+    int _396 = max(_395, 0);
+    int _397 = _396 * _input_stride_1;
+    int _398 = _397 - _t620;
+    for (int _tile_min_s1_r10__x = 0; _tile_min_s1_r10__x < 0 + 4; _tile_min_s1_r10__x++)
+    {
+     int _399 = _392 + 7;
+     uchar _400 = _tile_min[_399];
+     int _401 = _391 + _tile_min_s1_r10__x;
+     int _402 = _input_extent_0 + 3;
+     int _403 = min(_401, _402);
+     int _404 = max(_403, 4);
+     int _405 = _404 + _398;
+     int _406 = _405 + -4;
+     uchar _407 = _input[_406];
+     uchar _408 = min(_400, _407);
+     _tile_min[_399] = _408;
+    } // for _tile_min_s1_r10__x
+   } // for _tile_min_s1_r10__y
+  } // for _tile_min_s1_tx_rebased
+  int _409 = _t257 + _tile_min_s1_ty_rebased;
+  int _410 = _409 * 4;
+  int _411 = _t260 - _t259;
+  int _412 = _t624 + _tile_min_s1_ty_rebased;
+  int _413 = _412 + 8;
+  int _414 = _t618 + 8;
+  int _415 = _413 * _414;
+  int _416 = _415 + _t626;
+  for (int _tile_min_s1_tx_rebased = 0; _tile_min_s1_tx_rebased < 0 + _411; _tile_min_s1_tx_rebased++)
+  {
+   int _417 = _t259 + _tile_min_s1_tx_rebased;
+   int _418 = _417 * 4;
+   int _419 = _416 + _tile_min_s1_tx_rebased;
+   for (int _tile_min_s1_r10__y = 0; _tile_min_s1_r10__y < 0 + 4; _tile_min_s1_r10__y++)
+   {
+    int _420 = _410 + _tile_min_s1_r10__y;
+    int _421 = _input_extent_1 + -1;
+    int _422 = min(_420, _421);
+    int _423 = max(_422, 0);
+    int _424 = _423 * _input_stride_1;
+    int _425 = _424 - _t620;
+    for (int _tile_min_s1_r10__x = 0; _tile_min_s1_r10__x < 0 + 4; _tile_min_s1_r10__x++)
+    {
+     int _426 = _419 + 8;
+     uchar _427 = _tile_min[_426];
+     int _428 = _418 + _tile_min_s1_r10__x;
+     int _429 = _input_extent_0 + -1;
+     int _430 = min(_428, _429);
+     int _431 = max(_430, 0);
+     int _432 = _431 + _425;
+     uchar _433 = _input[_432];
+     uchar _434 = min(_427, _433);
+     _tile_min[_426] = _434;
+    } // for _tile_min_s1_r10__x
+   } // for _tile_min_s1_r10__y
+  } // for _tile_min_s1_tx_rebased
+  int _435 = _t257 + _tile_min_s1_ty_rebased;
+  int _436 = _435 * 4;
+  int _437 = _t624 + _tile_min_s1_ty_rebased;
+  int _438 = _437 + 8;
+  int _439 = _t618 + 8;
+  int _440 = _438 * _439;
+  int _441 = _440 + _t628;
+  for (int _tile_min_s1_tx_rebased = 0; _tile_min_s1_tx_rebased < 0 + _t627; _tile_min_s1_tx_rebased++)
+  {
+   int _442 = _t260 + _tile_min_s1_tx_rebased;
+   int _443 = _442 * 4;
+   int _444 = _441 + _tile_min_s1_tx_rebased;
+   for (int _tile_min_s1_r10__y = 0; _tile_min_s1_r10__y < 0 + 4; _tile_min_s1_r10__y++)
+   {
+    int _445 = _436 + _tile_min_s1_r10__y;
+    int _446 = _input_extent_1 + -1;
+    int _447 = min(_445, _446);
+    int _448 = max(_447, 0);
+    int _449 = _448 * _input_stride_1;
+    int _450 = _449 - _t620;
+    for (int _tile_min_s1_r10__x = 0; _tile_min_s1_r10__x < 0 + 4; _tile_min_s1_r10__x++)
+    {
+     int _451 = _444 + 8;
+     uchar _452 = _tile_min[_451];
+     int _453 = _443 + _tile_min_s1_r10__x;
+     int _454 = _input_extent_0 + -1;
+     int _455 = min(_453, _454);
+     int _456 = max(_455, 0);
+     int _457 = _456 + _450;
+     uchar _458 = _input[_457];
+     uchar _459 = min(_452, _458);
+     _tile_min[_451] = _459;
+    } // for _tile_min_s1_r10__x
+   } // for _tile_min_s1_r10__y
+  } // for _tile_min_s1_tx_rebased
+ } // for _tile_min_s1_ty_rebased
+ for (int _tile_min_s1_ty_rebased = 0; _tile_min_s1_ty_rebased < 0 + _t629; _tile_min_s1_ty_rebased++)
+ {
+  int _460 = _t258 + _tile_min_s1_ty_rebased;
+  int _461 = _460 * 4;
+  int _462 = _t630 + _tile_min_s1_ty_rebased;
+  int _463 = _462 + 8;
+  int _464 = _t618 + 8;
+  int _465 = _463 * _464;
+  int _466 = _465 + _t616;
+  int _467 = _tile_min_s0_tx_bx_loop_extent_s + 1;
+  for (int _tile_min_s1_tx_rebased = 0; _tile_min_s1_tx_rebased < 0 + _467; _tile_min_s1_tx_rebased++)
+  {
+   int _468 = _t632 + _tile_min_s1_tx_rebased;
+   int _469 = _468 * 4;
+   int _470 = _466 + _tile_min_s1_tx_rebased;
+   for (int _tile_min_s1_r10__y = 0; _tile_min_s1_r10__y < 0 + 4; _tile_min_s1_r10__y++)
+   {
+    int _471 = _461 + _tile_min_s1_r10__y;
+    int _472 = _input_extent_1 + -1;
+    int _473 = min(_471, _472);
+    int _474 = max(_473, 0);
+    int _475 = _474 * _input_stride_1;
+    int _476 = _475 - _t620;
+    for (int _tile_min_s1_r10__x = 0; _tile_min_s1_r10__x < 0 + 4; _tile_min_s1_r10__x++)
+    {
+     int _477 = _470 + 7;
+     uchar _478 = _tile_min[_477];
+     int _479 = _469 + _tile_min_s1_r10__x;
+     int _480 = _input_extent_0 + 3;
+     int _481 = min(_479, _480);
+     int _482 = max(_481, 4);
+     int _483 = _482 + _476;
+     int _484 = _483 + -4;
+     uchar _485 = _input[_484];
+     uchar _486 = min(_478, _485);
+     _tile_min[_477] = _486;
+    } // for _tile_min_s1_r10__x
+   } // for _tile_min_s1_r10__y
+  } // for _tile_min_s1_tx_rebased
+ } // for _tile_min_s1_ty_rebased
+} // kernel _kernel_tile_min_s1___outermost___outermost_v8_block_id_x
+#undef __address_space__input
+#undef __address_space__tile_min
+// Address spaces for _kernel_neigh_min_s0_ty_by_block_id_y
+#define __address_space__neigh_min device
+struct _kernel_neigh_min_s0_ty_by_block_id_y_args {
+int _neigh_max_tx_min_realized;
+int _neigh_max_ty_min_realized;
+int _neigh_min_tx_extent_realized;
+int _t666;
+int _t667;
+int _t668;
+int _t669;
+int _t670;
+};
+kernel void _kernel_neigh_min_s0_ty_by_block_id_y(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_neigh_min_s0_ty_by_block_id_y_args *_scalar_args [[ buffer(0) ]],
+ __address_space__neigh_min uchar *_neigh_min [[ buffer(1) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _neigh_max_tx_min_realized = _scalar_args->_neigh_max_tx_min_realized;
+int _neigh_max_ty_min_realized = _scalar_args->_neigh_max_ty_min_realized;
+int _neigh_min_tx_extent_realized = _scalar_args->_neigh_min_tx_extent_realized;
+int _t666 = _scalar_args->_t666;
+int _t667 = _scalar_args->_t667;
+int _t668 = _scalar_args->_t668;
+int _t669 = _scalar_args->_t669;
+int _t670 = _scalar_args->_t670;
+ int _neigh_min_s0_ty_by_block_id_y = tgroup_index.y;
+ int _neigh_min_s0_tx_bx_block_id_x = tgroup_index.x;
+ int _thread_id_y = tid_in_tgroup.y;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _487 = _neigh_min_s0_ty_by_block_id_y * 8;
+ int _488 = _487 + _t666;
+ int _489 = _t667 + -7;
+ int _490 = min(_488, _489);
+ int _491 = _t668 + 1;
+ bool _492 = _neigh_min_s0_tx_bx_block_id_x < _491;
+ if (_492)
+ {
+  int _493 = _neigh_min_s0_tx_bx_block_id_x * 8;
+  int _494 = _493 + _t669;
+  uchar _495 = (uchar)(255ull);
+  int _496 = _490 - _neigh_max_ty_min_realized;
+  int _497 = _496 + _thread_id_y;
+  int _498 = _497 * _neigh_min_tx_extent_realized;
+  int _499 = _494 - _neigh_max_tx_min_realized;
+  int _500 = _498 + _499;
+  int _501 = _500 + _thread_id_x;
+  _neigh_min[_501] = _495;
+ } // if _492
+ else
+ {
+  uchar _502 = (uchar)(255ull);
+  int _503 = _490 - _neigh_max_ty_min_realized;
+  int _504 = _503 + _thread_id_y;
+  int _505 = _504 * _neigh_min_tx_extent_realized;
+  int _506 = _505 + _t670;
+  int _507 = _506 + _thread_id_x;
+  int _508 = _507 + -7;
+  _neigh_min[_508] = _502;
+ } // if _492 else
+} // kernel _kernel_neigh_min_s0_ty_by_block_id_y
+#undef __address_space__neigh_min
+// Address spaces for _kernel_neigh_min_s1___outermost___outermost_v12_block_id_x
+#define __address_space__neigh_min device
+#define __address_space__tile_min device
+struct _kernel_neigh_min_s1___outermost___outermost_v12_block_id_x_args {
+int _neigh_min_s0_tx_bx_loop_extent_s;
+int _neigh_min_s0_ty_by_loop_extent_s;
+int _neigh_min_tx_extent_realized;
+int _t671;
+int _t672;
+int _t673;
+int _t675;
+int _t676;
+int _t678;
+int _t679;
+int _tile_max_tx_min_realized_s;
+int _tile_max_ty_min_realized_s;
+};
+kernel void _kernel_neigh_min_s1___outermost___outermost_v12_block_id_x(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_neigh_min_s1___outermost___outermost_v12_block_id_x_args *_scalar_args [[ buffer(0) ]],
+ __address_space__neigh_min uchar *_neigh_min [[ buffer(1) ]],
+ __address_space__tile_min const uchar *_tile_min [[ buffer(2) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _neigh_min_s0_tx_bx_loop_extent_s = _scalar_args->_neigh_min_s0_tx_bx_loop_extent_s;
+int _neigh_min_s0_ty_by_loop_extent_s = _scalar_args->_neigh_min_s0_ty_by_loop_extent_s;
+int _neigh_min_tx_extent_realized = _scalar_args->_neigh_min_tx_extent_realized;
+int _t671 = _scalar_args->_t671;
+int _t672 = _scalar_args->_t672;
+int _t673 = _scalar_args->_t673;
+int _t675 = _scalar_args->_t675;
+int _t676 = _scalar_args->_t676;
+int _t678 = _scalar_args->_t678;
+int _t679 = _scalar_args->_t679;
+int _tile_max_tx_min_realized_s = _scalar_args->_tile_max_tx_min_realized_s;
+int _tile_max_ty_min_realized_s = _scalar_args->_tile_max_ty_min_realized_s;
+ int _neigh_min_s1___outermost___outermost_v12_block_id_x = tgroup_index.x;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _509 = _neigh_min_s0_ty_by_loop_extent_s + 1;
+ for (int _neigh_min_s1_ty_rebased = 0; _neigh_min_s1_ty_rebased < 0 + _509; _neigh_min_s1_ty_rebased++)
+ {
+  int _510 = _neigh_min_s1_ty_rebased + _t679;
+  int _511 = _neigh_min_s1_ty_rebased + _t672;
+  int _512 = _511 * _neigh_min_tx_extent_realized;
+  int _513 = _512 + _t671;
+  int _514 = _neigh_min_s0_tx_bx_loop_extent_s + 1;
+  for (int _neigh_min_s1_tx_rebased = 0; _neigh_min_s1_tx_rebased < 0 + _514; _neigh_min_s1_tx_rebased++)
+  {
+   int _515 = _neigh_min_s1_tx_rebased + _513;
+   int _516 = _neigh_min_s1_tx_rebased + _t678;
+   for (int _neigh_min_s1_r23__y_rebased = 0; _neigh_min_s1_r23__y_rebased < 0 + 3; _neigh_min_s1_r23__y_rebased++)
+   {
+    int _517 = _neigh_min_s1_r23__y_rebased + _510;
+    int _518 = min(_517, _t673);
+    int _519 = max(_518, 1);
+    int _520 = _519 - _tile_max_ty_min_realized_s;
+    int _521 = _520 + 7;
+    int _522 = _t675 + 8;
+    int _523 = _521 * _522;
+    int _524 = _523 - _tile_max_tx_min_realized_s;
+    for (int _neigh_min_s1_r23__x_rebased = 0; _neigh_min_s1_r23__x_rebased < 0 + 3; _neigh_min_s1_r23__x_rebased++)
+    {
+     uchar _525 = _neigh_min[_515];
+     int _526 = _neigh_min_s1_r23__x_rebased + _516;
+     int _527 = min(_526, _t676);
+     int _528 = max(_527, 1);
+     int _529 = _528 + _524;
+     int _530 = _529 + 7;
+     uchar _531 = _tile_min[_530];
+     uchar _532 = min(_525, _531);
+     _neigh_min[_515] = _532;
+    } // for _neigh_min_s1_r23__x_rebased
+   } // for _neigh_min_s1_r23__y_rebased
+  } // for _neigh_min_s1_tx_rebased
+ } // for _neigh_min_s1_ty_rebased
+} // kernel _kernel_neigh_min_s1___outermost___outermost_v12_block_id_x
+#undef __address_space__neigh_min
+#undef __address_space__tile_min
+// Address spaces for _kernel_min_px_s0_y_by_block_id_y
+#define __address_space__min_px device
+#define __address_space__neigh_min device
+struct _kernel_min_px_s0_y_by_block_id_y_args {
+int _halide_threshold_output_extent_0;
+int _halide_threshold_output_extent_1;
+int _halide_threshold_output_min_0;
+int _halide_threshold_output_min_1;
+int _neigh_max_tx_min_realized;
+int _neigh_max_ty_min_realized;
+int _neigh_min_tx_extent_realized;
+int _t687;
+int _t688;
+int _t689;
+int _t691;
+};
+kernel void _kernel_min_px_s0_y_by_block_id_y(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_min_px_s0_y_by_block_id_y_args *_scalar_args [[ buffer(0) ]],
+ __address_space__min_px uchar *_min_px [[ buffer(1) ]],
+ __address_space__neigh_min const uchar *_neigh_min [[ buffer(2) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _halide_threshold_output_extent_0 = _scalar_args->_halide_threshold_output_extent_0;
+int _halide_threshold_output_extent_1 = _scalar_args->_halide_threshold_output_extent_1;
+int _halide_threshold_output_min_0 = _scalar_args->_halide_threshold_output_min_0;
+int _halide_threshold_output_min_1 = _scalar_args->_halide_threshold_output_min_1;
+int _neigh_max_tx_min_realized = _scalar_args->_neigh_max_tx_min_realized;
+int _neigh_max_ty_min_realized = _scalar_args->_neigh_max_ty_min_realized;
+int _neigh_min_tx_extent_realized = _scalar_args->_neigh_min_tx_extent_realized;
+int _t687 = _scalar_args->_t687;
+int _t688 = _scalar_args->_t688;
+int _t689 = _scalar_args->_t689;
+int _t691 = _scalar_args->_t691;
+ int _min_px_s0_y_by_block_id_y = tgroup_index.y;
+ int _min_px_s0_x_bx_block_id_x = tgroup_index.x;
+ int _thread_id_y = tid_in_tgroup.y;
+ int _thread_id_x = tid_in_tgroup.x;
+ int _533 = _min_px_s0_y_by_block_id_y * 16;
+ int _534 = _halide_threshold_output_extent_1 + -16;
+ int _535 = min(_533, _534);
+ bool _536 = _min_px_s0_x_bx_block_id_x < _t687;
+ if (_536)
+ {
+  int _537 = _min_px_s0_x_bx_block_id_x * 16;
+  int _538 = _t688 - _537;
+  int _539 = min(_538, 16);
+  int _540 = _537 + _halide_threshold_output_min_0;
+  int _541 = min(_540, 0);
+  int _542 = max(_541, -16);
+  int _543 = 0 - _542;
+  int _544 = max(_539, _543);
+  int _545 = _542 + _thread_id_x;
+  bool _546 = _545 < 0;
+  if (_546)
+  {
+   int _547 = _halide_threshold_output_min_1 + _535;
+   int _548 = _547 + _thread_id_y;
+   int _549 = _thread_id_x + _halide_threshold_output_min_0;
+   int _550 = _549 >> 2;
+   int _551 = _min_px_s0_x_bx_block_id_x * 4;
+   int _552 = _550 + _551;
+   int _553 = max(_552, 0);
+   int _554 = _548 >> 2;
+   int _555 = _t689 + -1;
+   int _556 = _t689 * 4;
+   bool _557 = _548 < _556;
+   int _558 = (int)select(_555, _554, _557);
+   int _559 = min(_558, _555);
+   int _560 = max(_559, 0);
+   int _561 = _560 - _neigh_max_ty_min_realized;
+   int _562 = _561 * _neigh_min_tx_extent_realized;
+   int _563 = _562 - _neigh_max_tx_min_realized;
+   int _564 = _553 + _563;
+   uchar _565 = _neigh_min[_564];
+   int _566 = _min_px_s0_x_bx_block_id_x * 16;
+   int _567 = _thread_id_y + _535;
+   int _568 = _567 * _halide_threshold_output_extent_0;
+   int _569 = _566 + _568;
+   int _570 = _569 + _thread_id_x;
+   _min_px[_570] = _565;
+  } // if _546
+  else
+  {
+   bool _571 = _thread_id_x < _544;
+   if (_571)
+   {
+    int _572 = _halide_threshold_output_min_1 + _535;
+    int _573 = _572 + _thread_id_y;
+    int _574 = _thread_id_x + _halide_threshold_output_min_0;
+    int _575 = _574 >> 2;
+    int _576 = _573 >> 2;
+    int _577 = _t689 + -1;
+    int _578 = _t689 * 4;
+    bool _579 = _573 < _578;
+    int _580 = (int)select(_577, _576, _579);
+    int _581 = min(_580, _577);
+    int _582 = max(_581, 0);
+    int _583 = _582 - _neigh_max_ty_min_realized;
+    int _584 = _583 * _neigh_min_tx_extent_realized;
+    int _585 = _min_px_s0_x_bx_block_id_x * 4;
+    int _586 = _585 - _neigh_max_tx_min_realized;
+    int _587 = _584 + _586;
+    int _588 = _575 + _587;
+    uchar _589 = _neigh_min[_588];
+    int _590 = _min_px_s0_x_bx_block_id_x * 16;
+    int _591 = _thread_id_y + _535;
+    int _592 = _591 * _halide_threshold_output_extent_0;
+    int _593 = _590 + _592;
+    int _594 = _593 + _thread_id_x;
+    _min_px[_594] = _589;
+   } // if _571
+   else
+   {
+    int _595 = _halide_threshold_output_min_1 + _535;
+    int _596 = _595 + _thread_id_y;
+    int _597 = _thread_id_x + _halide_threshold_output_min_0;
+    int _598 = _597 >> 2;
+    int _599 = _min_px_s0_x_bx_block_id_x * 4;
+    int _600 = _598 + _599;
+    int _601 = _t691 + -1;
+    int _602 = min(_600, _601);
+    int _603 = max(_602, 0);
+    int _604 = _596 >> 2;
+    int _605 = _t689 + -1;
+    int _606 = _t689 * 4;
+    bool _607 = _596 < _606;
+    int _608 = (int)select(_605, _604, _607);
+    int _609 = min(_608, _605);
+    int _610 = max(_609, 0);
+    int _611 = _610 - _neigh_max_ty_min_realized;
+    int _612 = _611 * _neigh_min_tx_extent_realized;
+    int _613 = _612 - _neigh_max_tx_min_realized;
+    int _614 = _603 + _613;
+    uchar _615 = _neigh_min[_614];
+    int _616 = _min_px_s0_x_bx_block_id_x * 16;
+    int _617 = _thread_id_y + _535;
+    int _618 = _617 * _halide_threshold_output_extent_0;
+    int _619 = _616 + _618;
+    int _620 = _619 + _thread_id_x;
+    _min_px[_620] = _615;
+   } // if _571 else
+  } // if _546 else
+ } // if _536
+ else
+ {
+  int _621 = _min_px_s0_x_bx_block_id_x * 16;
+  int _622 = _halide_threshold_output_extent_0 + -16;
+  int _623 = min(_621, _622);
+  int _624 = _halide_threshold_output_min_1 + _535;
+  int _625 = _624 + _thread_id_y;
+  int _626 = _halide_threshold_output_min_0 + _623;
+  int _627 = _626 + _thread_id_x;
+  int _628 = _627 >> 2;
+  int _629 = _t691 + -1;
+  int _630 = _t691 * 4;
+  bool _631 = _627 < _630;
+  int _632 = (int)select(_629, _628, _631);
+  int _633 = min(_632, _629);
+  int _634 = max(_633, 0);
+  int _635 = _625 >> 2;
+  int _636 = _t689 + -1;
+  int _637 = _t689 * 4;
+  bool _638 = _625 < _637;
+  int _639 = (int)select(_636, _635, _638);
+  int _640 = min(_639, _636);
+  int _641 = max(_640, 0);
+  int _642 = _641 - _neigh_max_ty_min_realized;
+  int _643 = _642 * _neigh_min_tx_extent_realized;
+  int _644 = _643 - _neigh_max_tx_min_realized;
+  int _645 = _634 + _644;
+  uchar _646 = _neigh_min[_645];
+  int _647 = _thread_id_y + _535;
+  int _648 = _647 * _halide_threshold_output_extent_0;
+  int _649 = _648 + _623;
+  int _650 = _649 + _thread_id_x;
+  _min_px[_650] = _646;
+ } // if _536 else
+} // kernel _kernel_min_px_s0_y_by_block_id_y
+#undef __address_space__min_px
+#undef __address_space__neigh_min
+// Address spaces for _kernel_halide_threshold_output_s0_y_by_block_id_y
+#define __address_space__halide_threshold_output device
+#define __address_space__input device
+#define __address_space__max_px device
+#define __address_space__min_px device
+struct _kernel_halide_threshold_output_s0_y_by_block_id_y_args {
+int _halide_threshold_output_extent_0;
+int _halide_threshold_output_extent_1;
+int _halide_threshold_output_min_0;
+int _halide_threshold_output_min_1;
+int _halide_threshold_output_s0_y_by_block_id_y_epilogue;
+int _halide_threshold_output_s0_y_by_block_id_y_prologue;
+int _halide_threshold_output_stride_1;
+int _input_extent_0;
+int _input_extent_1;
+int _input_stride_1;
+int _min_white_black_diff;
+int _t288;
+int _t289;
+int _t694;
+int _t695;
+int _t696;
+};
+kernel void _kernel_halide_threshold_output_s0_y_by_block_id_y(
+uint3 tgroup_index [[ threadgroup_position_in_grid ]],
+uint3 tid_in_tgroup [[ thread_position_in_threadgroup ]],
+const device _kernel_halide_threshold_output_s0_y_by_block_id_y_args *_scalar_args [[ buffer(0) ]],
+ __address_space__halide_threshold_output uchar *_halide_threshold_output [[ buffer(1) ]],
+ __address_space__input const uchar *_input [[ buffer(2) ]],
+ __address_space__max_px const uchar *_max_px [[ buffer(3) ]],
+ __address_space__min_px const uchar *_min_px [[ buffer(4) ]],
+ threadgroup int4* __shared [[ threadgroup(0) ]])
+{
+int _halide_threshold_output_extent_0 = _scalar_args->_halide_threshold_output_extent_0;
+int _halide_threshold_output_extent_1 = _scalar_args->_halide_threshold_output_extent_1;
+int _halide_threshold_output_min_0 = _scalar_args->_halide_threshold_output_min_0;
+int _halide_threshold_output_min_1 = _scalar_args->_halide_threshold_output_min_1;
+int _halide_threshold_output_s0_y_by_block_id_y_epilogue = _scalar_args->_halide_threshold_output_s0_y_by_block_id_y_epilogue;
+int _halide_threshold_output_s0_y_by_block_id_y_prologue = _scalar_args->_halide_threshold_output_s0_y_by_block_id_y_prologue;
+int _halide_threshold_output_stride_1 = _scalar_args->_halide_threshold_output_stride_1;
+int _input_extent_0 = _scalar_args->_input_extent_0;
+int _input_extent_1 = _scalar_args->_input_extent_1;
+int _input_stride_1 = _scalar_args->_input_stride_1;
+int _min_white_black_diff = _scalar_args->_min_white_black_diff;
+int _t288 = _scalar_args->_t288;
+int _t289 = _scalar_args->_t289;
+int _t694 = _scalar_args->_t694;
+int _t695 = _scalar_args->_t695;
+int _t696 = _scalar_args->_t696;
+ int _halide_threshold_output_s0_y_by_block_id_y = tgroup_index.y;
+ int _halide_threshold_output_s0_x_bx_block_id_x = tgroup_index.x;
+ int _thread_id_y = tid_in_tgroup.y;
+ int _thread_id_x = tid_in_tgroup.x;
+ bool _651 = _halide_threshold_output_s0_y_by_block_id_y_prologue <= _halide_threshold_output_s0_y_by_block_id_y;
+ bool _652 = _halide_threshold_output_s0_y_by_block_id_y < _halide_threshold_output_s0_y_by_block_id_y_epilogue;
+ bool _653 = _651 && _652;
+ if (_653)
+ {
+  int _654 = _halide_threshold_output_s0_y_by_block_id_y * 16;
+  int _655 = _halide_threshold_output_extent_1 + -16;
+  int _656 = min(_654, _655);
+  bool _657 = _t288 <= _halide_threshold_output_s0_x_bx_block_id_x;
+  bool _658 = _halide_threshold_output_s0_x_bx_block_id_x < _t289;
+  bool _659 = _657 && _658;
+  if (_659)
+  {
+   int _660 = _halide_threshold_output_s0_x_bx_block_id_x * 16;
+   int _661 = _thread_id_y + _656;
+   int _662 = _661 * _halide_threshold_output_extent_0;
+   int _663 = _660 + _662;
+   int _664 = _663 + _thread_id_x;
+   uchar _665 = _min_px[_664];
+   uchar _666 = _max_px[_664];
+   int _667 = int(_666);
+   int _668 = int(_665);
+   int _669 = _667 - _668;
+   int _670 = _halide_threshold_output_min_1 + _656;
+   int _671 = _670 + _thread_id_y;
+   int _672 = _669 >> 1;
+   int _673 = _672 + _668;
+   uchar _674 = uchar(_673);
+   int _675 = _input_stride_1 * _671;
+   int _676 = _660 + _t694;
+   int _677 = _675 + _676;
+   int _678 = _677 + _thread_id_x;
+   uchar _679 = _input[_678];
+   bool _680 = _674 < _679;
+   int _681 = (int)select(0, 255, _680);
+   bool _682 = _669 < _min_white_black_diff;
+   int _683 = (int)select(_681, 127, _682);
+   uchar _684 = uchar(_683);
+   int _685 = _halide_threshold_output_stride_1 * _671;
+   int _686 = _660 + _t695;
+   int _687 = _685 + _686;
+   int _688 = _687 + _thread_id_x;
+   _halide_threshold_output[_688] = _684;
+  } // if _659
+  else
+  {
+   int _689 = _halide_threshold_output_s0_x_bx_block_id_x * 16;
+   int _690 = _halide_threshold_output_extent_0 + -16;
+   int _691 = min(_689, _690);
+   int _692 = _thread_id_y + _656;
+   int _693 = _692 * _halide_threshold_output_extent_0;
+   int _694 = _693 + _691;
+   int _695 = _694 + _thread_id_x;
+   uchar _696 = _min_px[_695];
+   uchar _697 = _max_px[_695];
+   int _698 = int(_697);
+   int _699 = int(_696);
+   int _700 = _698 - _699;
+   int _701 = _halide_threshold_output_min_1 + _656;
+   int _702 = _701 + _thread_id_y;
+   int _703 = _700 >> 1;
+   int _704 = _703 + _699;
+   uchar _705 = uchar(_704);
+   int _706 = _halide_threshold_output_min_0 + _691;
+   int _707 = _706 + _thread_id_x;
+   int _708 = _input_extent_0 + -1;
+   int _709 = min(_707, _708);
+   int _710 = max(_709, 0);
+   int _711 = _input_stride_1 * _702;
+   int _712 = _711 - _t696;
+   int _713 = _710 + _712;
+   uchar _714 = _input[_713];
+   bool _715 = _705 < _714;
+   int _716 = (int)select(0, 255, _715);
+   bool _717 = _700 < _min_white_black_diff;
+   int _718 = (int)select(_716, 127, _717);
+   uchar _719 = uchar(_718);
+   int _720 = _halide_threshold_output_stride_1 * _702;
+   int _721 = _691 + _t695;
+   int _722 = _720 + _721;
+   int _723 = _722 + _thread_id_x;
+   _halide_threshold_output[_723] = _719;
+  } // if _659 else
+ } // if _653
+ else
+ {
+  int _724 = _halide_threshold_output_s0_y_by_block_id_y * 16;
+  int _725 = _halide_threshold_output_extent_1 + -16;
+  int _726 = min(_724, _725);
+  int _727 = _halide_threshold_output_s0_x_bx_block_id_x * 16;
+  int _728 = _halide_threshold_output_extent_0 + -16;
+  int _729 = min(_727, _728);
+  int _730 = _thread_id_y + _726;
+  int _731 = _730 * _halide_threshold_output_extent_0;
+  int _732 = _731 + _729;
+  int _733 = _732 + _thread_id_x;
+  uchar _734 = _min_px[_733];
+  uchar _735 = _max_px[_733];
+  int _736 = int(_735);
+  int _737 = int(_734);
+  int _738 = _736 - _737;
+  int _739 = _halide_threshold_output_min_1 + _726;
+  int _740 = _739 + _thread_id_y;
+  int _741 = _738 >> 1;
+  int _742 = _741 + _737;
+  uchar _743 = uchar(_742);
+  int _744 = _halide_threshold_output_min_0 + _729;
+  int _745 = _744 + _thread_id_x;
+  int _746 = _input_extent_0 + -1;
+  int _747 = min(_745, _746);
+  int _748 = max(_747, 0);
+  int _749 = _input_extent_1 + -1;
+  int _750 = min(_749, _740);
+  int _751 = max(_750, 0);
+  int _752 = _751 * _input_stride_1;
+  int _753 = _752 - _t696;
+  int _754 = _748 + _753;
+  uchar _755 = _input[_754];
+  bool _756 = _743 < _755;
+  int _757 = (int)select(0, 255, _756);
+  bool _758 = _738 < _min_white_black_diff;
+  int _759 = (int)select(_757, 127, _758);
+  uchar _760 = uchar(_759);
+  int _761 = _halide_threshold_output_stride_1 * _740;
+  int _762 = _729 + _t695;
+  int _763 = _761 + _762;
+  int _764 = _763 + _thread_id_x;
+  _halide_threshold_output[_764] = _760;
+ } // if _653 else
+} // kernel _kernel_halide_threshold_output_s0_y_by_block_id_y
+#undef __address_space__halide_threshold_output
+#undef __address_space__input
+#undef __address_space__max_px
+#undef __address_space__min_px
+
+Lowering Parallel Tasks...
+Embedding image metal_buf
+Embedding image metal_gpu_source_kernels
+Target triple of initial module: arm64-apple-macosx11.0.0
+Generating llvm bitcode...
+Generating llvm bitcode prolog for function halide_threshold_output...
+Generating llvm bitcode for function halide_threshold_output...
+JIT compiling shared runtime for arm-64-osx-arm_dot_prod-arm_fp16-jit-metal-user_context
+Looking for Metal framework...
+JIT compiling metal for arm-64-osx-arm_dot_prod-arm_fp16-jit-metal-user_context
+JIT compiling halide_threshold_output for arm-64-osx-arm_dot_prod-arm_fp16-jit-metal-user_context
+Halide pipeline compiled successfully
+[HALIDE GPU] threshold histogram zero=16384 mid=0 high=0 total=16384
+Creating initial loop nests...
+Injecting realization of { dbg_output }
+Injecting realization of { dbg_min_px }
+Injecting realization of { dbg_neigh_min }
+Injecting realization of { dbg_tile_min }
+Injecting realization of { dbg_max_px }
+Injecting realization of { dbg_neigh_max }
+Injecting realization of { dbg_tile_max }
+Inlining repeat_edge$1
+Inlining input_f
+Skipping injecting memoization...
+Injecting tracing...
+Adding checks for parameters
+Computing bounds of each function's value
+Clamping unsafe data-dependent accesses
+Performing computation bounds inference...
+Asserting that all split factors are positive...
+Removing extern loops...
+Performing sliding window optimization...
+Uniquifying variable names...
+Simplifying...
+Simplifying correlated differences...
+Performing allocation bounds inference...
+Adding checks for images
+Removing code that depends on undef values...
+Performing storage folding optimization...
+Injecting debug_to_file calls...
+Injecting prefetches...
+Discarding safe promises...
+Dynamically skipping stages...
+Forking asynchronous producers...
+Destructuring tuple-valued realizations...
+Bounding small realizations...
+Performing storage flattening...
+Adding atomic mutex allocation...
+Unpacking buffer arguments...
+Skipping rewriting memoized allocations...
+Simplifying...
+Reduce prefetch dimension...
+Simplifying correlated differences...
+Bounding constant extent loops...
+Unrolling...
+Vectorizing...
+Detecting vector interleavings...
+Partitioning loops to simplify boundary conditions...
+Staging strided loads...
+Trimming loops to the region over which they do something...
+Rebasing loops to zero...
+Hoisting loop invariant if statements...
+Injecting early frees...
+Simplifying correlated differences...
+Bounding small allocations...
+Simplifying...
+Lowering unsafe promises...
+Flattening nested ramps...
+Removing dead allocations and moving loop invariant code...
+Finding intrinsics...
+Hoisting prefetches...
+Lowering after final simplification:
+assert(reinterpret<uint64>((struct halide_buffer_t *)dbg_output.buffer) != (uint64)0, halide_error_buffer_argument_is_null("dbg_output"))
+assert(reinterpret<uint64>((struct halide_buffer_t *)b242.buffer) != (uint64)0, halide_error_buffer_argument_is_null("b242"))
+let b242 = (void *)_halide_buffer_get_host((struct halide_buffer_t *)b242.buffer)
+let b242.type = (uint32)_halide_buffer_get_type((struct halide_buffer_t *)b242.buffer)
+let b242.device_dirty = (uint1)_halide_buffer_get_device_dirty((struct halide_buffer_t *)b242.buffer)
+let b242.dimensions = _halide_buffer_get_dimensions((struct halide_buffer_t *)b242.buffer)
+let b242.min.0 = _halide_buffer_get_min((struct halide_buffer_t *)b242.buffer, 0)
+let b242.extent.0 = _halide_buffer_get_extent((struct halide_buffer_t *)b242.buffer, 0)
+let b242.stride.0 = _halide_buffer_get_stride((struct halide_buffer_t *)b242.buffer, 0)
+let b242.min.1 = _halide_buffer_get_min((struct halide_buffer_t *)b242.buffer, 1)
+let b242.extent.1 = _halide_buffer_get_extent((struct halide_buffer_t *)b242.buffer, 1)
+let b242.stride.1 = _halide_buffer_get_stride((struct halide_buffer_t *)b242.buffer, 1)
+let dbg_output = (void *)_halide_buffer_get_host((struct halide_buffer_t *)dbg_output.buffer)
+let dbg_output.type = (uint32)_halide_buffer_get_type((struct halide_buffer_t *)dbg_output.buffer)
+let dbg_output.device_dirty = (uint1)_halide_buffer_get_device_dirty((struct halide_buffer_t *)dbg_output.buffer)
+let dbg_output.dimensions = _halide_buffer_get_dimensions((struct halide_buffer_t *)dbg_output.buffer)
+let dbg_output.min.0 = _halide_buffer_get_min((struct halide_buffer_t *)dbg_output.buffer, 0)
+let dbg_output.extent.0 = _halide_buffer_get_extent((struct halide_buffer_t *)dbg_output.buffer, 0)
+let dbg_output.stride.0 = _halide_buffer_get_stride((struct halide_buffer_t *)dbg_output.buffer, 0)
+let dbg_output.min.1 = _halide_buffer_get_min((struct halide_buffer_t *)dbg_output.buffer, 1)
+let dbg_output.extent.1 = _halide_buffer_get_extent((struct halide_buffer_t *)dbg_output.buffer, 1)
+let dbg_output.stride.1 = _halide_buffer_get_stride((struct halide_buffer_t *)dbg_output.buffer, 1)
+let dbg_neigh_min.s1.ty.max.s = let t1449 = (dbg_output.extent.1 + dbg_output.min.1) in max(select(t1449 < 129, (t1449 + -1)/4, 31), select(dbg_output.min.1 < 128, (t1449 + -1)/4, 31))
+let dbg_neigh_min.s1.ty.min.s = min(select((dbg_output.extent.1 + dbg_output.min.1) < 129, dbg_output.min.1/4, 31), select(dbg_output.min.1 < 128, dbg_output.min.1/4, 31))
+let dbg_neigh_min.s1.tx.max.s = let t1450 = (dbg_output.extent.0 + dbg_output.min.0) in max(select(t1450 < 129, (t1450 + -1)/4, 31), select(dbg_output.min.0 < 128, (t1450 + -1)/4, 31))
+let dbg_neigh_min.s1.tx.min.s = min(select((dbg_output.extent.0 + dbg_output.min.0) < 129, dbg_output.min.0/4, 31), select(dbg_output.min.0 < 128, dbg_output.min.0/4, 31))
+let b242.extent.0.required.s = max(min(dbg_output.extent.0 + dbg_output.min.0, 128), (max(min(dbg_neigh_min.s1.tx.max.s, 30), 0)*4) + 8) - min(max(min(min(dbg_output.extent.0, 64) + dbg_output.min.0, 191), 64), (max(min(dbg_neigh_min.s1.tx.min.s, 31), 1)*4) + 60)
+let b242.min.0.required.s = min(max(min(min(dbg_output.extent.0, 64) + dbg_output.min.0, 191), 64), (max(min(dbg_neigh_min.s1.tx.min.s, 31), 1)*4) + 60)
+let b242.extent.1.required.s = max(min(dbg_output.extent.1 + dbg_output.min.1, 128), (max(min(dbg_neigh_min.s1.ty.max.s, 30), 0)*4) + 8) - min(max(min(min(dbg_output.extent.1, 32) + dbg_output.min.1, 159), 32), (max(min(dbg_neigh_min.s1.ty.min.s, 31), 1)*4) + 28)
+let b242.min.1.required.s = min(max(min(min(dbg_output.extent.1, 32) + dbg_output.min.1, 159), 32), (max(min(dbg_neigh_min.s1.ty.min.s, 31), 1)*4) + 28)
+assert(!(uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)b242.buffer) || ((b242.extent.0.required.s + b242.min.0.required.s) <= 128), halide_error_constraints_make_required_region_smaller("Input buffer b242", 0, 0, 127, b242.min.0.required.s + -64, (b242.extent.0.required.s + b242.min.0.required.s) + -1))
+assert(!(uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)b242.buffer) || ((b242.extent.1.required.s + b242.min.1.required.s) <= 128), halide_error_constraints_make_required_region_smaller("Input buffer b242", 1, 0, 127, b242.min.1.required.s + -32, (b242.extent.1.required.s + b242.min.1.required.s) + -1))
+if ((uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)b242.buffer)) {
+ (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)b242.buffer, (struct halide_dimension_t *)_halide_buffer_get_shape((struct halide_buffer_t *)b242.buffer), reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, (struct halide_dimension_t *)make_struct(0, 128, 1, 0, 0, 128, 192, 0), (uint64)0)
+}
+if ((uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)dbg_output.buffer)) {
+ let t1451 = max(dbg_output.extent.0, 64) in (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)dbg_output.buffer, (struct halide_dimension_t *)_halide_buffer_get_shape((struct halide_buffer_t *)dbg_output.buffer), reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, (struct halide_dimension_t *)make_struct((min(dbg_output.extent.0, 64) + dbg_output.min.0) + -64, t1451, 1, 0, (min(dbg_output.extent.1, 32) + dbg_output.min.1) + -32, max(dbg_output.extent.1, 32), t1451, 0), (uint64)0)
+}
+if (!((uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)b242.buffer) || (uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)dbg_output.buffer))) {
+ assert(b242.type == (uint32)67585, halide_error_bad_type("Input buffer b242", b242.type, (uint32)67585))
+ assert(b242.dimensions == 2, halide_error_bad_dimensions("Input buffer b242", b242.dimensions, 2))
+ assert(dbg_output.type == (uint32)67585, halide_error_bad_type("Output buffer dbg_output", dbg_output.type, (uint32)67585))
+ assert(dbg_output.dimensions == 2, halide_error_bad_dimensions("Output buffer dbg_output", dbg_output.dimensions, 2))
+ assert(((b242.min.0 + 64) <= b242.min.0.required.s) && ((b242.extent.0.required.s + b242.min.0.required.s) <= (b242.extent.0 + b242.min.0)), halide_error_access_out_of_bounds("Input buffer b242", 0, b242.min.0.required.s + -64, (b242.extent.0.required.s + b242.min.0.required.s) + -1, b242.min.0, (b242.extent.0 + b242.min.0) + -1))
+ assert(0 <= b242.extent.0, halide_error_buffer_extents_negative("Input buffer b242", 0, b242.extent.0))
+ assert(((b242.min.1 + 32) <= b242.min.1.required.s) && ((b242.extent.1.required.s + b242.min.1.required.s) <= (b242.extent.1 + b242.min.1)), halide_error_access_out_of_bounds("Input buffer b242", 1, b242.min.1.required.s + -32, (b242.extent.1.required.s + b242.min.1.required.s) + -1, b242.min.1, (b242.extent.1 + b242.min.1) + -1))
+ assert(0 <= b242.extent.1, halide_error_buffer_extents_negative("Input buffer b242", 1, b242.extent.1))
+ assert(64 <= dbg_output.extent.0, let t1452 = (dbg_output.extent.0 + dbg_output.min.0) in halide_error_access_out_of_bounds("Output buffer dbg_output", 0, (min(dbg_output.extent.0, 64) + dbg_output.min.0) + -64, t1452 + -1, dbg_output.min.0, t1452 + -1))
+ assert(32 <= dbg_output.extent.1, let t1453 = (dbg_output.extent.1 + dbg_output.min.1) in halide_error_access_out_of_bounds("Output buffer dbg_output", 1, (min(dbg_output.extent.1, 32) + dbg_output.min.1) + -32, t1453 + -1, dbg_output.min.1, t1453 + -1))
+ assert(b242.stride.0 == 1, halide_error_constraint_violated("b242.stride.0", b242.stride.0, "1", 1))
+ assert(b242.min.0 == 0, halide_error_constraint_violated("b242.min.0", b242.min.0, "0", 0))
+ assert(b242.extent.0 == 128, halide_error_constraint_violated("b242.extent.0", b242.extent.0, "128", 128))
+ assert(b242.stride.1 == 192, halide_error_constraint_violated("b242.stride.1", b242.stride.1, "192", 192))
+ assert(b242.min.1 == 0, halide_error_constraint_violated("b242.min.1", b242.min.1, "0", 0))
+ assert(b242.extent.1 == 128, halide_error_constraint_violated("b242.extent.1", b242.extent.1, "128", 128))
+ assert(dbg_output.stride.0 == 1, halide_error_constraint_violated("dbg_output.stride.0", dbg_output.stride.0, "1", 1))
+ let dbg_output.total_extent.1 = int64(dbg_output.extent.1)*int64(dbg_output.extent.0)
+ assert((uint64)abs(int64(dbg_output.extent.0)) <= (uint64)2147483647, halide_error_buffer_allocation_too_large("dbg_output", (uint64)abs(int64(dbg_output.extent.0)), (uint64)2147483647))
+ assert((uint64)abs(int64(dbg_output.extent.1)*int64(dbg_output.stride.1)) <= (uint64)2147483647, halide_error_buffer_allocation_too_large("dbg_output", (uint64)abs(int64(dbg_output.extent.1)*int64(dbg_output.stride.1)), (uint64)2147483647))
+ assert(dbg_output.total_extent.1 <= (int64)2147483647, halide_error_buffer_extents_too_large("dbg_output", dbg_output.total_extent.1, (int64)2147483647))
+ assert(!b242.device_dirty, halide_error_device_dirty_with_no_device_support("Input buffer b242"))
+ assert(!dbg_output.device_dirty, halide_error_device_dirty_with_no_device_support("Output buffer dbg_output"))
+ assert(b242 != reinterpret<(void *)>((uint64)0), halide_error_host_is_null("Input buffer b242"))
+ assert(dbg_output != reinterpret<(void *)>((uint64)0), halide_error_host_is_null("Output buffer dbg_output"))
+ let dbg_tile_max.ty.extent_realized.s = max(min(dbg_neigh_min.s1.ty.max.s, 30), 0) - max(min(dbg_neigh_min.s1.ty.min.s, 31), 1)
+ let dbg_tile_max.tx.min_realized.s = min(max(min(dbg_neigh_min.s1.tx.max.s, 30), 0), max(min(dbg_neigh_min.s1.tx.min.s, 31), 1) + 13)
+ let dbg_tile_max.tx.extent_realized.s = max(min(dbg_neigh_min.s1.tx.max.s, 30), 0) - max(min(dbg_neigh_min.s1.tx.min.s, 31), 1)
+ allocate dbg_tile_max[uint8 * (max(dbg_tile_max.tx.extent_realized.s, 13) + 3) * (dbg_tile_max.ty.extent_realized.s + 3)]
+ produce dbg_tile_max {
+  let t1307 = max(min(dbg_neigh_min.s1.tx.max.s, 30), 0)
+  let t1308 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 1)
+  let t1304 = max(dbg_tile_max.tx.extent_realized.s, 13)
+  let t1302 = min(t1307 - t1308, dbg_tile_max.tx.extent_realized.s + 15)
+  let t1305 = (dbg_tile_max.tx.extent_realized.s + 18)/16
+  let t1306 = t1307 - dbg_tile_max.tx.min_realized.s
+  parallel (dbg_tile_max.s0.ty.rebased, 0, dbg_tile_max.ty.extent_realized.s + 3) {
+   let t1309 = max((t1302 + -13)/16, -1)
+   let t1310 = ((t1304 + 3)*dbg_tile_max.s0.ty.rebased) - dbg_tile_max.tx.min_realized.s
+   for (dbg_tile_max.s0.tx.tx, 0, t1309 + 1) {
+    let dbg_tile_max.s0.tx.v26.base.s = (dbg_tile_max.s0.tx.tx*16) + t1308
+    dbg_tile_max[ramp((dbg_tile_max.s0.tx.v26.base.s + t1310) + 13, 1, 16)] = x16((uint8)0)
+   }
+   let t1311 = t1305 - max((t1302 + -13)/16, -1)
+   let t1312 = ((t1304 + 3)*dbg_tile_max.s0.ty.rebased) + t1306
+   for (dbg_tile_max.s0.tx.tx, 0, t1311 + -1) {
+    dbg_tile_max[ramp(t1312, 1, 16)] = x16((uint8)0)
+   }
+  }
+  let t1317 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 1)
+  let t1314 = max(dbg_tile_max.tx.extent_realized.s, 13)
+  let t1315 = max(min(dbg_neigh_min.s1.ty.min.s, 31), 1)
+  let t1313 = t1317 - dbg_tile_max.tx.min_realized.s
+  parallel (dbg_tile_max.s1.ty.rebased, 0, dbg_tile_max.ty.extent_realized.s + 3) {
+   let t1319 = (dbg_tile_max.s1.ty.rebased + t1315)*4
+   let t1318 = ((t1314 + 3)*dbg_tile_max.s1.ty.rebased) + t1313
+   for (dbg_tile_max.s1.tx.rebased, 0, dbg_tile_max.tx.extent_realized.s + 3) {
+    let t1321 = (dbg_tile_max.s1.tx.rebased + t1317)*4
+    let t1320 = dbg_tile_max.s1.tx.rebased + t1318
+    for (dbg_tile_max.s1.r470$y, 0, 4) {
+     let t1322 = min(dbg_tile_max.s1.r470$y + t1319, 131)*192
+     for (dbg_tile_max.s1.r470$x, 0, 4) {
+      dbg_tile_max[t1320 + 13] = max(dbg_tile_max[t1320 + 13], b242[(min(dbg_tile_max.s1.r470$x + t1321, 131) + t1322) + -772])
+     }
+    }
+   }
+  }
+ }
+ let dbg_neigh_max.ty.extent_realized = let t1454 = (dbg_output.extent.1 + dbg_output.min.1) in (let t1455 = (t1454 < 129) in (let t1456 = (dbg_output.min.1 < 128) in ((max(min(max(max(select(t1455, (t1454 + -1)/4, 31), select(t1456, (t1454 + -1)/4, 31)), dbg_neigh_min.s1.ty.max.s), 31), 0) - max(min(min(min(select(t1455, dbg_output.min.1/4, 31), select(t1456, dbg_output.min.1/4, 31)), dbg_neigh_min.s1.ty.min.s), 31), 0)) + 1)))
+ let dbg_neigh_max.tx.min_realized = min(max(min(dbg_neigh_min.s1.tx.min.s, 31), 0), max(min(dbg_neigh_min.s1.tx.max.s, 31), 0) + -15)
+ let dbg_neigh_max.tx.extent_realized = let t1457 = min(dbg_neigh_min.s1.tx.max.s, 31) in (let t1458 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 0) in (let t1459 = max(t1457, 0) in (let t1460 = (dbg_output.extent.0 + dbg_output.min.0) in (let t1461 = (t1460 < 129) in (let t1462 = (dbg_output.min.0 < 128) in ((max(max(max(t1457, min(t1458 + (((t1459 - t1458)/16)*16), -15) + 15), min(max(max(select(t1461, (t1460 + -1)/4, 31), select(t1462, (t1460 + -1)/4, 31)), dbg_neigh_min.s1.tx.max.s), 31)), 0) - min(t1458, min(max(min(min(select(t1461, dbg_output.min.0/4, 31), select(t1462, dbg_output.min.0/4, 31)), 31), 0), t1459 + -15))) + 1))))))
+ allocate dbg_neigh_max[uint8 * dbg_neigh_max.tx.extent_realized * dbg_neigh_max.ty.extent_realized]
+ let dbg_neigh_max.s0.ty.loop_extent.s = max(min(dbg_neigh_min.s1.ty.max.s, 31), 0) - max(min(dbg_neigh_min.s1.ty.min.s, 31), 0)
+ let dbg_neigh_max.s0.tx.tx.loop_extent.s = max(min(dbg_neigh_min.s1.tx.max.s, 31), 0) - max(min(dbg_neigh_min.s1.tx.min.s, 31), 0)
+ produce dbg_neigh_max {
+  let t1327 = max(min(dbg_neigh_min.s1.tx.max.s, 31), 0)
+  let t1328 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 0)
+  let t1323 = min((t1327 - t1328) + -15, dbg_neigh_max.s0.tx.tx.loop_extent.s)
+  let t1325 = dbg_neigh_max.s0.tx.tx.loop_extent.s/16
+  let t1326 = t1327 - dbg_neigh_max.tx.min_realized
+  parallel (dbg_neigh_max.s0.ty.rebased, 0, dbg_neigh_max.s0.ty.loop_extent.s + 1) {
+   let t1329 = max(t1323/16, -1)
+   let t1330 = (dbg_neigh_max.s0.ty.rebased*dbg_neigh_max.tx.extent_realized) - dbg_neigh_max.tx.min_realized
+   for (dbg_neigh_max.s0.tx.tx, 0, t1329 + 1) {
+    let dbg_neigh_max.s0.tx.v28.base = (dbg_neigh_max.s0.tx.tx*16) + t1328
+    dbg_neigh_max[ramp(dbg_neigh_max.s0.tx.v28.base + t1330, 1, 16)] = x16((uint8)0)
+   }
+   let t1331 = t1325 - max(t1323/16, -1)
+   let t1332 = (dbg_neigh_max.s0.ty.rebased*dbg_neigh_max.tx.extent_realized) + t1326
+   for (dbg_neigh_max.s0.tx.tx, 0, t1331) {
+    dbg_neigh_max[ramp(t1332 + -15, 1, 16)] = x16((uint8)0)
+   }
+  }
+  consume dbg_tile_max {
+   let t1337 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 0)
+   let t1335 = max(dbg_tile_max.tx.extent_realized.s, 13)
+   let t1334 = min(dbg_neigh_min.s1.ty.min.s, 31)
+   let t1333 = t1337 - dbg_neigh_max.tx.min_realized
+   parallel (dbg_neigh_max.s1.ty.rebased, 0, dbg_neigh_max.s0.ty.loop_extent.s + 1) {
+    let t1340 = max(t1334, 1)
+    let t1338 = (dbg_neigh_max.s1.ty.rebased*dbg_neigh_max.tx.extent_realized) + t1333
+    let t1339 = max(t1334, 0) + dbg_neigh_max.s1.ty.rebased
+    for (dbg_neigh_max.s1.tx.rebased, 0, dbg_neigh_max.s0.tx.tx.loop_extent.s + 1) {
+     let t1341 = dbg_neigh_max.s1.tx.rebased + t1338
+     let t1342 = dbg_neigh_max.s1.tx.rebased + t1337
+     for (dbg_neigh_max.s1.r483$y.rebased, 0, 3) {
+      let t1343 = ((max(min(dbg_neigh_max.s1.r483$y.rebased + t1339, 32), 1) - t1340)*(t1335 + 3)) - dbg_tile_max.tx.min_realized.s
+      for (dbg_neigh_max.s1.r483$x.rebased, 0, 3) {
+       dbg_neigh_max[t1341] = max(dbg_neigh_max[t1341], dbg_tile_max[(max(min(dbg_neigh_max.s1.r483$x.rebased + t1342, 32), 1) + t1343) + 13])
+      }
+     }
+    }
+   }
+  }
+  free dbg_tile_max
+ }
+ allocate dbg_max_px[uint8 * dbg_output.extent.0 * dbg_output.extent.1]
+ produce dbg_max_px {
+  consume dbg_neigh_max {
+   let t1345 = max(min(dbg_neigh_min.s1.ty.min.s, 31), 0)
+   let t1344 = min(min(min(min(min(112 - dbg_output.min.0, dbg_output.extent.0 + -16), 113 - dbg_output.min.0), 114 - dbg_output.min.0), 115 - dbg_output.min.0), dbg_output.extent.0 + -1)
+   let t1350 = (dbg_output.extent.0 + 15)/16
+   let t1349 = (dbg_output.min.0 + 3)/4
+   let t1348 = (dbg_output.min.0 + 2)/4
+   let t1347 = (dbg_output.min.0 + 1)/4
+   let t1346 = dbg_output.min.0/4
+   parallel (dbg_max_px.s0.y.rebased, 0, dbg_output.extent.1) {
+    let t1354 = dbg_max_px.s0.y.rebased + dbg_output.min.1
+    let t1351 = max(t1344/16, -1)
+    let t1353 = dbg_max_px.s0.y.rebased*dbg_output.extent.0
+    let t1352 = max(min(select(t1354 < 128, t1354/4, 31), 31), 0) - t1345
+    for (dbg_max_px.s0.x.x, 0, t1351 + 1) {
+     let t1279 = x4((dbg_neigh_max.tx.extent_realized*t1352) - dbg_neigh_max.tx.min_realized)
+     dbg_max_px[ramp((dbg_max_px.s0.x.x*16) + t1353, 1, 16)] = interleave_vectors(dbg_neigh_max[max(min(ramp((dbg_max_px.s0.x.x*4) + t1346, 1, 4), x4(31)), x4(0)) + t1279], dbg_neigh_max[max(min(ramp((dbg_max_px.s0.x.x*4) + t1347, 1, 4), x4(31)), x4(0)) + t1279], dbg_neigh_max[max(min(ramp((dbg_max_px.s0.x.x*4) + t1348, 1, 4), x4(31)), x4(0)) + t1279], dbg_neigh_max[max(min(ramp((dbg_max_px.s0.x.x*4) + t1349, 1, 4), x4(31)), x4(0)) + t1279])
+    }
+    let t1359 = dbg_max_px.s0.y.rebased + dbg_output.min.1
+    let t1360 = max(t1344/16, -1)
+    let t1358 = dbg_max_px.s0.y.rebased*dbg_output.extent.0
+    let t1355 = t1350 - t1360
+    let t1357 = max(min(select(t1359 < 128, t1359/4, 31), 31), 0) - t1345
+    for (dbg_max_px.s0.x.x.rebased, 0, t1355 + -1) {
+     let dbg_max_px.s0.x.v30.base.s.s = min(((dbg_max_px.s0.x.x.rebased + t1360)*16) + 32, dbg_output.extent.0)
+     let t1281 = x4((dbg_neigh_max.tx.extent_realized*t1357) - dbg_neigh_max.tx.min_realized)
+     let t1282 = dbg_max_px.s0.x.v30.base.s.s + dbg_output.min.0
+     dbg_max_px[ramp((dbg_max_px.s0.x.v30.base.s.s + t1358) + -16, 1, 16)] = interleave_vectors(dbg_neigh_max[max(min(select(ramp(t1282 + -16, 4, 4) < x4(128), ramp((t1282/4) + -4, 1, 4), x4(31)), x4(31)), x4(0)) + t1281], dbg_neigh_max[max(min(select(ramp(t1282 + -15, 4, 4) < x4(128), ramp((t1282 + -15)/4, 1, 4), x4(31)), x4(31)), x4(0)) + t1281], dbg_neigh_max[max(min(select(ramp(t1282 + -14, 4, 4) < x4(128), ramp((t1282 + -14)/4, 1, 4), x4(31)), x4(31)), x4(0)) + t1281], dbg_neigh_max[max(min(select(ramp(t1282 + -13, 4, 4) < x4(128), ramp((t1282 + -13)/4, 1, 4), x4(31)), x4(31)), x4(0)) + t1281])
+    }
+   }
+  }
+ }
+ free dbg_neigh_max
+ allocate dbg_tile_min[uint8 * (max(dbg_tile_max.tx.extent_realized.s, 13) + 3) * (dbg_tile_max.ty.extent_realized.s + 3)]
+ produce dbg_tile_min {
+  let t1366 = max(min(dbg_neigh_min.s1.tx.max.s, 30), 0)
+  let t1367 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 1)
+  let t1363 = max(dbg_tile_max.tx.extent_realized.s, 13)
+  let t1361 = min(t1366 - t1367, dbg_tile_max.tx.extent_realized.s + 15)
+  let t1364 = (dbg_tile_max.tx.extent_realized.s + 18)/16
+  let t1365 = t1366 - dbg_tile_max.tx.min_realized.s
+  parallel (dbg_tile_min.s0.ty.rebased, 0, dbg_tile_max.ty.extent_realized.s + 3) {
+   let t1368 = max((t1361 + -13)/16, -1)
+   let t1369 = ((t1363 + 3)*dbg_tile_min.s0.ty.rebased) - dbg_tile_max.tx.min_realized.s
+   for (dbg_tile_min.s0.tx.tx, 0, t1368 + 1) {
+    let dbg_tile_min.s0.tx.v25.base.s = (dbg_tile_min.s0.tx.tx*16) + t1367
+    dbg_tile_min[ramp((dbg_tile_min.s0.tx.v25.base.s + t1369) + 13, 1, 16)] = x16((uint8)255)
+   }
+   let t1370 = t1364 - max((t1361 + -13)/16, -1)
+   let t1371 = ((t1363 + 3)*dbg_tile_min.s0.ty.rebased) + t1365
+   for (dbg_tile_min.s0.tx.tx, 0, t1370 + -1) {
+    dbg_tile_min[ramp(t1371, 1, 16)] = x16((uint8)255)
+   }
+  }
+  let t1376 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 1)
+  let t1373 = max(dbg_tile_max.tx.extent_realized.s, 13)
+  let t1374 = max(min(dbg_neigh_min.s1.ty.min.s, 31), 1)
+  let t1372 = t1376 - dbg_tile_max.tx.min_realized.s
+  parallel (dbg_tile_min.s1.ty.rebased, 0, dbg_tile_max.ty.extent_realized.s + 3) {
+   let t1378 = (dbg_tile_min.s1.ty.rebased + t1374)*4
+   let t1377 = ((t1373 + 3)*dbg_tile_min.s1.ty.rebased) + t1372
+   for (dbg_tile_min.s1.tx.rebased, 0, dbg_tile_max.tx.extent_realized.s + 3) {
+    let t1380 = (dbg_tile_min.s1.tx.rebased + t1376)*4
+    let t1379 = dbg_tile_min.s1.tx.rebased + t1377
+    for (dbg_tile_min.s1.r470$y, 0, 4) {
+     let t1381 = min(dbg_tile_min.s1.r470$y + t1378, 131)*192
+     for (dbg_tile_min.s1.r470$x, 0, 4) {
+      dbg_tile_min[t1379 + 13] = min(dbg_tile_min[t1379 + 13], b242[(min(dbg_tile_min.s1.r470$x + t1380, 131) + t1381) + -772])
+     }
+    }
+   }
+  }
+ }
+ let dbg_neigh_min.ty.extent_realized = let t1463 = (dbg_output.extent.1 + dbg_output.min.1) in (let t1464 = (t1463 < 129) in (let t1465 = (dbg_output.min.1 < 128) in ((max(min(max(max(select(t1464, (t1463 + -1)/4, 31), select(t1465, (t1463 + -1)/4, 31)), dbg_neigh_min.s1.ty.max.s), 31), 0) - max(min(min(min(select(t1464, dbg_output.min.1/4, 31), select(t1465, dbg_output.min.1/4, 31)), dbg_neigh_min.s1.ty.min.s), 31), 0)) + 1)))
+ let dbg_neigh_min.tx.extent_realized = let t1466 = min(dbg_neigh_min.s1.tx.max.s, 31) in (let t1467 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 0) in (let t1468 = max(t1466, 0) in (let t1469 = (dbg_output.extent.0 + dbg_output.min.0) in (let t1470 = (t1469 < 129) in (let t1471 = (dbg_output.min.0 < 128) in ((max(max(max(t1466, min(t1467 + (((t1468 - t1467)/16)*16), -15) + 15), min(max(max(select(t1470, (t1469 + -1)/4, 31), select(t1471, (t1469 + -1)/4, 31)), dbg_neigh_min.s1.tx.max.s), 31)), 0) - min(t1467, min(max(min(min(select(t1470, dbg_output.min.0/4, 31), select(t1471, dbg_output.min.0/4, 31)), 31), 0), t1468 + -15))) + 1))))))
+ allocate dbg_neigh_min[uint8 * dbg_neigh_min.tx.extent_realized * dbg_neigh_min.ty.extent_realized]
+ let dbg_neigh_min.s0.ty.loop_extent.s = max(min(dbg_neigh_min.s1.ty.max.s, 31), 0) - max(min(dbg_neigh_min.s1.ty.min.s, 31), 0)
+ let dbg_neigh_min.s0.tx.tx.loop_extent.s = max(min(dbg_neigh_min.s1.tx.max.s, 31), 0) - max(min(dbg_neigh_min.s1.tx.min.s, 31), 0)
+ produce dbg_neigh_min {
+  let t1386 = max(min(dbg_neigh_min.s1.tx.max.s, 31), 0)
+  let t1387 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 0)
+  let t1382 = min((t1386 - t1387) + -15, dbg_neigh_min.s0.tx.tx.loop_extent.s)
+  let t1384 = dbg_neigh_min.s0.tx.tx.loop_extent.s/16
+  let t1385 = t1386 - dbg_neigh_max.tx.min_realized
+  parallel (dbg_neigh_min.s0.ty.rebased, 0, dbg_neigh_min.s0.ty.loop_extent.s + 1) {
+   let t1388 = max(t1382/16, -1)
+   let t1389 = (dbg_neigh_min.s0.ty.rebased*dbg_neigh_min.tx.extent_realized) - dbg_neigh_max.tx.min_realized
+   for (dbg_neigh_min.s0.tx.tx, 0, t1388 + 1) {
+    let dbg_neigh_min.s0.tx.v27.base = (dbg_neigh_min.s0.tx.tx*16) + t1387
+    dbg_neigh_min[ramp(dbg_neigh_min.s0.tx.v27.base + t1389, 1, 16)] = x16((uint8)255)
+   }
+   let t1390 = t1384 - max(t1382/16, -1)
+   let t1391 = (dbg_neigh_min.s0.ty.rebased*dbg_neigh_min.tx.extent_realized) + t1385
+   for (dbg_neigh_min.s0.tx.tx, 0, t1390) {
+    dbg_neigh_min[ramp(t1391 + -15, 1, 16)] = x16((uint8)255)
+   }
+  }
+  consume dbg_tile_min {
+   let t1396 = max(min(dbg_neigh_min.s1.tx.min.s, 31), 0)
+   let t1394 = max(dbg_tile_max.tx.extent_realized.s, 13)
+   let t1393 = min(dbg_neigh_min.s1.ty.min.s, 31)
+   let t1392 = t1396 - dbg_neigh_max.tx.min_realized
+   parallel (dbg_neigh_min.s1.ty.rebased, 0, dbg_neigh_min.s0.ty.loop_extent.s + 1) {
+    let t1399 = max(t1393, 1)
+    let t1397 = (dbg_neigh_min.s1.ty.rebased*dbg_neigh_min.tx.extent_realized) + t1392
+    let t1398 = max(t1393, 0) + dbg_neigh_min.s1.ty.rebased
+    for (dbg_neigh_min.s1.tx.rebased, 0, dbg_neigh_min.s0.tx.tx.loop_extent.s + 1) {
+     let t1400 = dbg_neigh_min.s1.tx.rebased + t1397
+     let t1401 = dbg_neigh_min.s1.tx.rebased + t1396
+     for (dbg_neigh_min.s1.r483$y.rebased, 0, 3) {
+      let t1402 = ((max(min(dbg_neigh_min.s1.r483$y.rebased + t1398, 32), 1) - t1399)*(t1394 + 3)) - dbg_tile_max.tx.min_realized.s
+      for (dbg_neigh_min.s1.r483$x.rebased, 0, 3) {
+       dbg_neigh_min[t1400] = min(dbg_neigh_min[t1400], dbg_tile_min[(max(min(dbg_neigh_min.s1.r483$x.rebased + t1401, 32), 1) + t1402) + 13])
+      }
+     }
+    }
+   }
+  }
+  free dbg_tile_min
+ }
+ allocate dbg_min_px[uint8 * dbg_output.extent.0 * dbg_output.extent.1]
+ produce dbg_min_px {
+  consume dbg_neigh_min {
+   let t1404 = max(min(dbg_neigh_min.s1.ty.min.s, 31), 0)
+   let t1403 = min(min(min(min(min(112 - dbg_output.min.0, dbg_output.extent.0 + -16), 113 - dbg_output.min.0), 114 - dbg_output.min.0), 115 - dbg_output.min.0), dbg_output.extent.0 + -1)
+   let t1409 = (dbg_output.extent.0 + 15)/16
+   let t1408 = (dbg_output.min.0 + 3)/4
+   let t1407 = (dbg_output.min.0 + 2)/4
+   let t1406 = (dbg_output.min.0 + 1)/4
+   let t1405 = dbg_output.min.0/4
+   parallel (dbg_min_px.s0.y.rebased, 0, dbg_output.extent.1) {
+    let t1413 = dbg_min_px.s0.y.rebased + dbg_output.min.1
+    let t1410 = max(t1403/16, -1)
+    let t1412 = dbg_min_px.s0.y.rebased*dbg_output.extent.0
+    let t1411 = max(min(select(t1413 < 128, t1413/4, 31), 31), 0) - t1404
+    for (dbg_min_px.s0.x.x, 0, t1410 + 1) {
+     let t1294 = x4((dbg_neigh_min.tx.extent_realized*t1411) - dbg_neigh_max.tx.min_realized)
+     dbg_min_px[ramp((dbg_min_px.s0.x.x*16) + t1412, 1, 16)] = interleave_vectors(dbg_neigh_min[max(min(ramp((dbg_min_px.s0.x.x*4) + t1405, 1, 4), x4(31)), x4(0)) + t1294], dbg_neigh_min[max(min(ramp((dbg_min_px.s0.x.x*4) + t1406, 1, 4), x4(31)), x4(0)) + t1294], dbg_neigh_min[max(min(ramp((dbg_min_px.s0.x.x*4) + t1407, 1, 4), x4(31)), x4(0)) + t1294], dbg_neigh_min[max(min(ramp((dbg_min_px.s0.x.x*4) + t1408, 1, 4), x4(31)), x4(0)) + t1294])
+    }
+    let t1418 = dbg_min_px.s0.y.rebased + dbg_output.min.1
+    let t1419 = max(t1403/16, -1)
+    let t1417 = dbg_min_px.s0.y.rebased*dbg_output.extent.0
+    let t1414 = t1409 - t1419
+    let t1416 = max(min(select(t1418 < 128, t1418/4, 31), 31), 0) - t1404
+    for (dbg_min_px.s0.x.x.rebased, 0, t1414 + -1) {
+     let dbg_min_px.s0.x.v29.base.s.s = min(((dbg_min_px.s0.x.x.rebased + t1419)*16) + 32, dbg_output.extent.0)
+     let t1296 = x4((dbg_neigh_min.tx.extent_realized*t1416) - dbg_neigh_max.tx.min_realized)
+     let t1297 = dbg_min_px.s0.x.v29.base.s.s + dbg_output.min.0
+     dbg_min_px[ramp((dbg_min_px.s0.x.v29.base.s.s + t1417) + -16, 1, 16)] = interleave_vectors(dbg_neigh_min[max(min(select(ramp(t1297 + -16, 4, 4) < x4(128), ramp((t1297/4) + -4, 1, 4), x4(31)), x4(31)), x4(0)) + t1296], dbg_neigh_min[max(min(select(ramp(t1297 + -15, 4, 4) < x4(128), ramp((t1297 + -15)/4, 1, 4), x4(31)), x4(31)), x4(0)) + t1296], dbg_neigh_min[max(min(select(ramp(t1297 + -14, 4, 4) < x4(128), ramp((t1297 + -14)/4, 1, 4), x4(31)), x4(31)), x4(0)) + t1296], dbg_neigh_min[max(min(select(ramp(t1297 + -13, 4, 4) < x4(128), ramp((t1297 + -13)/4, 1, 4), x4(31)), x4(31)), x4(0)) + t1296])
+    }
+   }
+  }
+ }
+ free dbg_neigh_min
+ produce dbg_output {
+  consume dbg_min_px {
+   consume dbg_max_px {
+    let dbg_output.s0.y.yo.prologue = min((dbg_output.extent.1 + 31)/32, 0 - min(dbg_output.min.1/32, 0))
+    let dbg_output.s0.y.yo.epilogue$4 = max(min((dbg_output.extent.1 + 31)/32, 0 - min(dbg_output.min.1/32, 0)), (min(96 - dbg_output.min.1, dbg_output.extent.1 + -32)/32) + 1)
+    let t1425 = (dbg_output.extent.0 + 63)/64
+    let t1426 = min(0 - min(dbg_output.min.0/64, 0), t1425)
+    let t1422 = max(min(128 - dbg_output.min.0, dbg_output.extent.0)/64, t1426)
+    let t1420 = (dbg_output.extent.1 + 31)/32
+    let t1423 = (dbg_output.min.1*dbg_output.stride.1) + dbg_output.min.0
+    parallel (dbg_output.s0.y.yo, 0, t1420) {
+     if ((dbg_output.s0.y.yo.prologue <= dbg_output.s0.y.yo) && (dbg_output.s0.y.yo < dbg_output.s0.y.yo.epilogue$4)) {
+      let dbg_output.s0.y.yi.base.s = min(dbg_output.s0.y.yo*32, dbg_output.extent.1 + -32)
+      let t1427 = dbg_output.min.1 + dbg_output.s0.y.yi.base.s
+      for (dbg_output.s0.x.xo, 0, t1426) {
+       let dbg_output.s0.x.xi.base.s = min(dbg_output.s0.x.xo*64, dbg_output.extent.0 + -64)
+       let t1428 = dbg_output.min.0 + dbg_output.s0.x.xi.base.s
+       for (dbg_output.s0.y.yi, 0, 32) {
+        let t1430 = dbg_output.s0.y.yi + t1427
+        let t1429 = ((dbg_output.s0.y.yi + dbg_output.s0.y.yi.base.s)*dbg_output.extent.0) + dbg_output.s0.x.xi.base.s
+        for (dbg_output.s0.x.xi.xi, 0, 4) {
+         let t1182 = (dbg_output.s0.x.xi.xi*16) + t1429
+         let t1183.s = dbg_min_px[ramp(t1182, 1, 16)]
+         let t1445 = dbg_max_px[ramp(t1182, 1, 16)]
+         let t1185 = (dbg_output.s0.x.xi.xi*16) + t1428
+         let t1472 = (int16x16)widening_sub(t1445, t1183.s)
+         dbg_output[ramp(((dbg_output.stride.1*t1430) - t1423) + t1185, 1, 16)] = uint8x16(select(int32x16(t1472) < x16(5), x16(127), select(uint8x16((int32x16)widening_add((int16x16)shift_right(t1472, x16((int16)1)), int16x16(t1183.s))) < b242[max(min(ramp(t1185, 1, 16), x16(127)), x16(0)) + x16(t1430*192)], x16(255), x16(0))))
+        }
+       }
+      }
+      let t1431 = t1422 - t1426
+      let t1432 = dbg_output.min.1 + dbg_output.s0.y.yi.base.s
+      for (dbg_output.s0.x.xo.rebased, 0, t1431) {
+       let dbg_output.s0.x.xi.base.s = min((dbg_output.s0.x.xo.rebased + t1426)*64, dbg_output.extent.0 + -64)
+       let t1433 = dbg_output.min.0 + dbg_output.s0.x.xi.base.s
+       for (dbg_output.s0.y.yi, 0, 32) {
+        let t1435 = dbg_output.s0.y.yi + t1432
+        let t1434 = ((dbg_output.s0.y.yi + dbg_output.s0.y.yi.base.s)*dbg_output.extent.0) + dbg_output.s0.x.xi.base.s
+        for (dbg_output.s0.x.xi.xi, 0, 4) {
+         let t1187 = (dbg_output.s0.x.xi.xi*16) + t1434
+         let t1188.s = dbg_min_px[ramp(t1187, 1, 16)]
+         let t1446 = dbg_max_px[ramp(t1187, 1, 16)]
+         let t1191 = (dbg_output.s0.x.xi.xi*16) + t1433
+         let t1473 = (int16x16)widening_sub(t1446, t1188.s)
+         dbg_output[ramp(((dbg_output.stride.1*t1435) - t1423) + t1191, 1, 16)] = uint8x16(select(int32x16(t1473) < x16(5), x16(127), select(uint8x16((int32x16)widening_add((int16x16)shift_right(t1473, x16((int16)1)), int16x16(t1188.s))) < b242[ramp((t1435*192) + t1191, 1, 16)], x16(255), x16(0))))
+        }
+       }
+      }
+      let t1436 = t1425 - t1422
+      let t1437 = dbg_output.min.1 + dbg_output.s0.y.yi.base.s
+      for (dbg_output.s0.x.xo.rebased, 0, t1436) {
+       let dbg_output.s0.x.xi.base.s = min((dbg_output.s0.x.xo.rebased + t1422)*64, dbg_output.extent.0 + -64)
+       let t1438 = dbg_output.min.0 + dbg_output.s0.x.xi.base.s
+       for (dbg_output.s0.y.yi, 0, 32) {
+        let t1440 = dbg_output.s0.y.yi + t1437
+        let t1439 = ((dbg_output.s0.y.yi + dbg_output.s0.y.yi.base.s)*dbg_output.extent.0) + dbg_output.s0.x.xi.base.s
+        for (dbg_output.s0.x.xi.xi, 0, 4) {
+         let t1192 = (dbg_output.s0.x.xi.xi*16) + t1439
+         let t1193.s = dbg_min_px[ramp(t1192, 1, 16)]
+         let t1447 = dbg_max_px[ramp(t1192, 1, 16)]
+         let t1195 = (dbg_output.s0.x.xi.xi*16) + t1438
+         let t1474 = (int16x16)widening_sub(t1447, t1193.s)
+         dbg_output[ramp(((dbg_output.stride.1*t1440) - t1423) + t1195, 1, 16)] = uint8x16(select(int32x16(t1474) < x16(5), x16(127), select(uint8x16((int32x16)widening_add((int16x16)shift_right(t1474, x16((int16)1)), int16x16(t1193.s))) < b242[max(min(ramp(t1195, 1, 16), x16(127)), x16(0)) + x16(t1440*192)], x16(255), x16(0))))
+        }
+       }
+      }
+     } else {
+      let dbg_output.s0.y.yi.base.s = min(dbg_output.s0.y.yo*32, dbg_output.extent.1 + -32)
+      let t1441 = dbg_output.min.1 + dbg_output.s0.y.yi.base.s
+      for (dbg_output.s0.x.xo, 0, t1425) {
+       let dbg_output.s0.x.xi.base.s = min(dbg_output.s0.x.xo*64, dbg_output.extent.0 + -64)
+       let t1442 = dbg_output.min.0 + dbg_output.s0.x.xi.base.s
+       for (dbg_output.s0.y.yi, 0, 32) {
+        let t1444 = dbg_output.s0.y.yi + t1441
+        let t1443 = ((dbg_output.s0.y.yi + dbg_output.s0.y.yi.base.s)*dbg_output.extent.0) + dbg_output.s0.x.xi.base.s
+        for (dbg_output.s0.x.xi.xi, 0, 4) {
+         let t1197 = (dbg_output.s0.x.xi.xi*16) + t1443
+         let t1198.s = dbg_min_px[ramp(t1197, 1, 16)]
+         let t1448 = dbg_max_px[ramp(t1197, 1, 16)]
+         let t1200 = (dbg_output.s0.x.xi.xi*16) + t1442
+         let t1475 = (int16x16)widening_sub(t1448, t1198.s)
+         dbg_output[ramp(((dbg_output.stride.1*t1444) - t1423) + t1200, 1, 16)] = uint8x16(select(int32x16(t1475) < x16(5), x16(127), select(uint8x16((int32x16)widening_add((int16x16)shift_right(t1475, x16((int16)1)), int16x16(t1198.s))) < b242[max(min(ramp(t1200, 1, 16), x16(127)), x16(0)) + x16(max(min(t1444, 127), 0)*192)], x16(255), x16(0))))
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+ free dbg_max_px
+ free dbg_min_px
+}
+
+
+Skipping Hexagon offload...
+Skipping GPU offload...
+Lowering Parallel Tasks...
+Target triple of initial module: arm64-apple-macosx11.0.0
+Generating llvm bitcode...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_tile_max_s0_ty_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_tile_max_s0_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_tile_max_s1_ty_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_tile_max_s1_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_neigh_max_s0_ty_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_neigh_max_s0_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_neigh_max_s1_ty_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_neigh_max_s1_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_max_px_s0_y_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_max_px_s0_y_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_tile_min_s0_ty_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_tile_min_s0_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_tile_min_s1_ty_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_tile_min_s1_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_neigh_min_s0_ty_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_neigh_min_s0_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_neigh_min_s1_ty_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_neigh_min_s1_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_min_px_s0_y_rebased...
+Generating llvm bitcode for function dbg_output_par_for_dbg_min_px_s0_y_rebased...
+Generating llvm bitcode prolog for function dbg_output_par_for_dbg_output_s0_y_yo...
+Generating llvm bitcode for function dbg_output_par_for_dbg_output_s0_y_yo...
+Generating llvm bitcode prolog for function dbg_output...
+Generating llvm bitcode for function dbg_output...
+JIT compiling dbg_output for arm-64-osx-arm_dot_prod-arm_fp16-jit-user_context
+[HALIDE GPU DEBUG] mismatches=16384 max_diff=127 first_diff=(0,0)
+[HALIDE GPU] threshold histogram zero=1217280 mid=0 high=0 total=1217280
+[INFO] Running Halide-accelerated AprilTag detection...
+Creating initial loop nests...
+Injecting realization of { dbg_output$1 }
+Injecting realization of { dbg_min_px$1 }
+Injecting realization of { dbg_neigh_min$1 }
+Injecting realization of { dbg_tile_min$1 }
+Injecting realization of { dbg_max_px$1 }
+Injecting realization of { dbg_neigh_max$1 }
+Injecting realization of { dbg_tile_max$1 }
+Inlining repeat_edge$2
+Inlining input_f$1
+Skipping injecting memoization...
+Injecting tracing...
+Adding checks for parameters
+Computing bounds of each function's value
+Clamping unsafe data-dependent accesses
+Performing computation bounds inference...
+Asserting that all split factors are positive...
+Removing extern loops...
+Performing sliding window optimization...
+Uniquifying variable names...
+Simplifying...
+Simplifying correlated differences...
+Performing allocation bounds inference...
+Adding checks for images
+Removing code that depends on undef values...
+Performing storage folding optimization...
+Injecting debug_to_file calls...
+Injecting prefetches...
+Discarding safe promises...
+Dynamically skipping stages...
+Forking asynchronous producers...
+Destructuring tuple-valued realizations...
+Bounding small realizations...
+Performing storage flattening...
+Adding atomic mutex allocation...
+Unpacking buffer arguments...
+Skipping rewriting memoized allocations...
+Simplifying...
+Reduce prefetch dimension...
+Simplifying correlated differences...
+Bounding constant extent loops...
+Unrolling...
+Vectorizing...
+Detecting vector interleavings...
+Partitioning loops to simplify boundary conditions...
+Staging strided loads...
+Trimming loops to the region over which they do something...
+Rebasing loops to zero...
+Hoisting loop invariant if statements...
+Injecting early frees...
+Simplifying correlated differences...
+Bounding small allocations...
+Simplifying...
+Lowering unsafe promises...
+Flattening nested ramps...
+Removing dead allocations and moving loop invariant code...
+Finding intrinsics...
+Hoisting prefetches...
+Lowering after final simplification:
+assert(reinterpret<uint64>((struct halide_buffer_t *)dbg_output$1.buffer) != (uint64)0, halide_error_buffer_argument_is_null("dbg_output$1"))
+assert(reinterpret<uint64>((struct halide_buffer_t *)b521.buffer) != (uint64)0, halide_error_buffer_argument_is_null("b521"))
+let b521 = (void *)_halide_buffer_get_host((struct halide_buffer_t *)b521.buffer)
+let b521.type = (uint32)_halide_buffer_get_type((struct halide_buffer_t *)b521.buffer)
+let b521.device_dirty = (uint1)_halide_buffer_get_device_dirty((struct halide_buffer_t *)b521.buffer)
+let b521.dimensions = _halide_buffer_get_dimensions((struct halide_buffer_t *)b521.buffer)
+let b521.min.0 = _halide_buffer_get_min((struct halide_buffer_t *)b521.buffer, 0)
+let b521.extent.0 = _halide_buffer_get_extent((struct halide_buffer_t *)b521.buffer, 0)
+let b521.stride.0 = _halide_buffer_get_stride((struct halide_buffer_t *)b521.buffer, 0)
+let b521.min.1 = _halide_buffer_get_min((struct halide_buffer_t *)b521.buffer, 1)
+let b521.extent.1 = _halide_buffer_get_extent((struct halide_buffer_t *)b521.buffer, 1)
+let b521.stride.1 = _halide_buffer_get_stride((struct halide_buffer_t *)b521.buffer, 1)
+let dbg_output$1 = (void *)_halide_buffer_get_host((struct halide_buffer_t *)dbg_output$1.buffer)
+let dbg_output$1.type = (uint32)_halide_buffer_get_type((struct halide_buffer_t *)dbg_output$1.buffer)
+let dbg_output$1.device_dirty = (uint1)_halide_buffer_get_device_dirty((struct halide_buffer_t *)dbg_output$1.buffer)
+let dbg_output$1.dimensions = _halide_buffer_get_dimensions((struct halide_buffer_t *)dbg_output$1.buffer)
+let dbg_output$1.min.0 = _halide_buffer_get_min((struct halide_buffer_t *)dbg_output$1.buffer, 0)
+let dbg_output$1.extent.0 = _halide_buffer_get_extent((struct halide_buffer_t *)dbg_output$1.buffer, 0)
+let dbg_output$1.stride.0 = _halide_buffer_get_stride((struct halide_buffer_t *)dbg_output$1.buffer, 0)
+let dbg_output$1.min.1 = _halide_buffer_get_min((struct halide_buffer_t *)dbg_output$1.buffer, 1)
+let dbg_output$1.extent.1 = _halide_buffer_get_extent((struct halide_buffer_t *)dbg_output$1.buffer, 1)
+let dbg_output$1.stride.1 = _halide_buffer_get_stride((struct halide_buffer_t *)dbg_output$1.buffer, 1)
+let dbg_neigh_min$1.s1.ty.max.s = let t2189 = (dbg_output$1.extent.1 + dbg_output$1.min.1) in max(select(t2189 < 949, (t2189 + -1)/4, 236), select(dbg_output$1.min.1 < 948, (t2189 + -1)/4, 236))
+let dbg_neigh_min$1.s1.ty.min.s = min(select((dbg_output$1.extent.1 + dbg_output$1.min.1) < 949, dbg_output$1.min.1/4, 236), select(dbg_output$1.min.1 < 948, dbg_output$1.min.1/4, 236))
+let dbg_neigh_min$1.s1.tx.max.s = let t2190 = (dbg_output$1.extent.0 + dbg_output$1.min.0) in max(select(t2190 < 1281, (t2190 + -1)/4, 319), select(dbg_output$1.min.0 < 1280, (t2190 + -1)/4, 319))
+let dbg_neigh_min$1.s1.tx.min.s = min(select((dbg_output$1.extent.0 + dbg_output$1.min.0) < 1281, dbg_output$1.min.0/4, 319), select(dbg_output$1.min.0 < 1280, dbg_output$1.min.0/4, 319))
+let b521.extent.0.required.s = max(min(dbg_output$1.extent.0 + dbg_output$1.min.0, 1280), (max(min(dbg_neigh_min$1.s1.tx.max.s, 318), 0)*4) + 8) - min(max(min(min(dbg_output$1.extent.0, 64) + dbg_output$1.min.0, 1343), 64), (max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 1)*4) + 60)
+let b521.min.0.required.s = min(max(min(min(dbg_output$1.extent.0, 64) + dbg_output$1.min.0, 1343), 64), (max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 1)*4) + 60)
+let b521.extent.1.required.s = max(min(dbg_output$1.extent.1 + dbg_output$1.min.1, 951), (max(min(dbg_neigh_min$1.s1.ty.max.s, 235), 0)*4) + 8) - min(max(min(min(dbg_output$1.extent.1, 32) + dbg_output$1.min.1, 982), 32), (max(min(dbg_neigh_min$1.s1.ty.min.s, 236), 1)*4) + 28)
+let b521.min.1.required.s = min(max(min(min(dbg_output$1.extent.1, 32) + dbg_output$1.min.1, 982), 32), (max(min(dbg_neigh_min$1.s1.ty.min.s, 236), 1)*4) + 28)
+assert(!(uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)b521.buffer) || ((b521.extent.0.required.s + b521.min.0.required.s) <= 1280), halide_error_constraints_make_required_region_smaller("Input buffer b521", 0, 0, 1279, b521.min.0.required.s + -64, (b521.extent.0.required.s + b521.min.0.required.s) + -1))
+assert(!(uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)b521.buffer) || ((b521.extent.1.required.s + b521.min.1.required.s) <= 951), halide_error_constraints_make_required_region_smaller("Input buffer b521", 1, 0, 950, b521.min.1.required.s + -32, (b521.extent.1.required.s + b521.min.1.required.s) + -1))
+if ((uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)b521.buffer)) {
+ (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)b521.buffer, (struct halide_dimension_t *)_halide_buffer_get_shape((struct halide_buffer_t *)b521.buffer), reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, (struct halide_dimension_t *)make_struct(0, 1280, 1, 0, 0, 951, 1344, 0), (uint64)0)
+}
+if ((uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)dbg_output$1.buffer)) {
+ let t2191 = max(dbg_output$1.extent.0, 64) in (struct halide_buffer_t *)_halide_buffer_init((struct halide_buffer_t *)dbg_output$1.buffer, (struct halide_dimension_t *)_halide_buffer_get_shape((struct halide_buffer_t *)dbg_output$1.buffer), reinterpret<(void *)>((uint64)0), (uint64)0, reinterpret<(struct halide_device_interface_t *)>((uint64)0), 1, 8, 2, (struct halide_dimension_t *)make_struct((min(dbg_output$1.extent.0, 64) + dbg_output$1.min.0) + -64, t2191, 1, 0, (min(dbg_output$1.extent.1, 32) + dbg_output$1.min.1) + -32, max(dbg_output$1.extent.1, 32), t2191, 0), (uint64)0)
+}
+if (!((uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)b521.buffer) || (uint1)_halide_buffer_is_bounds_query((struct halide_buffer_t *)dbg_output$1.buffer))) {
+ assert(b521.type == (uint32)67585, halide_error_bad_type("Input buffer b521", b521.type, (uint32)67585))
+ assert(b521.dimensions == 2, halide_error_bad_dimensions("Input buffer b521", b521.dimensions, 2))
+ assert(dbg_output$1.type == (uint32)67585, halide_error_bad_type("Output buffer dbg_output$1", dbg_output$1.type, (uint32)67585))
+ assert(dbg_output$1.dimensions == 2, halide_error_bad_dimensions("Output buffer dbg_output$1", dbg_output$1.dimensions, 2))
+ assert(((b521.min.0 + 64) <= b521.min.0.required.s) && ((b521.extent.0.required.s + b521.min.0.required.s) <= (b521.extent.0 + b521.min.0)), halide_error_access_out_of_bounds("Input buffer b521", 0, b521.min.0.required.s + -64, (b521.extent.0.required.s + b521.min.0.required.s) + -1, b521.min.0, (b521.extent.0 + b521.min.0) + -1))
+ assert(0 <= b521.extent.0, halide_error_buffer_extents_negative("Input buffer b521", 0, b521.extent.0))
+ assert(((b521.min.1 + 32) <= b521.min.1.required.s) && ((b521.extent.1.required.s + b521.min.1.required.s) <= (b521.extent.1 + b521.min.1)), halide_error_access_out_of_bounds("Input buffer b521", 1, b521.min.1.required.s + -32, (b521.extent.1.required.s + b521.min.1.required.s) + -1, b521.min.1, (b521.extent.1 + b521.min.1) + -1))
+ assert(0 <= b521.extent.1, halide_error_buffer_extents_negative("Input buffer b521", 1, b521.extent.1))
+ assert(64 <= dbg_output$1.extent.0, let t2192 = (dbg_output$1.extent.0 + dbg_output$1.min.0) in halide_error_access_out_of_bounds("Output buffer dbg_output$1", 0, (min(dbg_output$1.extent.0, 64) + dbg_output$1.min.0) + -64, t2192 + -1, dbg_output$1.min.0, t2192 + -1))
+ assert(32 <= dbg_output$1.extent.1, let t2193 = (dbg_output$1.extent.1 + dbg_output$1.min.1) in halide_error_access_out_of_bounds("Output buffer dbg_output$1", 1, (min(dbg_output$1.extent.1, 32) + dbg_output$1.min.1) + -32, t2193 + -1, dbg_output$1.min.1, t2193 + -1))
+ assert(b521.stride.0 == 1, halide_error_constraint_violated("b521.stride.0", b521.stride.0, "1", 1))
+ assert(b521.min.0 == 0, halide_error_constraint_violated("b521.min.0", b521.min.0, "0", 0))
+ assert(b521.extent.0 == 1280, halide_error_constraint_violated("b521.extent.0", b521.extent.0, "1280", 1280))
+ assert(b521.stride.1 == 1344, halide_error_constraint_violated("b521.stride.1", b521.stride.1, "1344", 1344))
+ assert(b521.min.1 == 0, halide_error_constraint_violated("b521.min.1", b521.min.1, "0", 0))
+ assert(b521.extent.1 == 951, halide_error_constraint_violated("b521.extent.1", b521.extent.1, "951", 951))
+ assert(dbg_output$1.stride.0 == 1, halide_error_constraint_violated("dbg_output$1.stride.0", dbg_output$1.stride.0, "1", 1))
+ let dbg_output$1.total_extent.1 = int64(dbg_output$1.extent.1)*int64(dbg_output$1.extent.0)
+ assert((uint64)abs(int64(dbg_output$1.extent.0)) <= (uint64)2147483647, halide_error_buffer_allocation_too_large("dbg_output$1", (uint64)abs(int64(dbg_output$1.extent.0)), (uint64)2147483647))
+ assert((uint64)abs(int64(dbg_output$1.extent.1)*int64(dbg_output$1.stride.1)) <= (uint64)2147483647, halide_error_buffer_allocation_too_large("dbg_output$1", (uint64)abs(int64(dbg_output$1.extent.1)*int64(dbg_output$1.stride.1)), (uint64)2147483647))
+ assert(dbg_output$1.total_extent.1 <= (int64)2147483647, halide_error_buffer_extents_too_large("dbg_output$1", dbg_output$1.total_extent.1, (int64)2147483647))
+ assert(!b521.device_dirty, halide_error_device_dirty_with_no_device_support("Input buffer b521"))
+ assert(!dbg_output$1.device_dirty, halide_error_device_dirty_with_no_device_support("Output buffer dbg_output$1"))
+ assert(b521 != reinterpret<(void *)>((uint64)0), halide_error_host_is_null("Input buffer b521"))
+ assert(dbg_output$1 != reinterpret<(void *)>((uint64)0), halide_error_host_is_null("Output buffer dbg_output$1"))
+ let dbg_tile_max$1.ty.extent_realized.s = max(min(dbg_neigh_min$1.s1.ty.max.s, 235), 0) - max(min(dbg_neigh_min$1.s1.ty.min.s, 236), 1)
+ let dbg_tile_max$1.tx.min_realized.s = min(max(min(dbg_neigh_min$1.s1.tx.max.s, 318), 0), max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 1) + 13)
+ let dbg_tile_max$1.tx.extent_realized.s = max(min(dbg_neigh_min$1.s1.tx.max.s, 318), 0) - max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 1)
+ allocate dbg_tile_max$1[uint8 * (max(dbg_tile_max$1.tx.extent_realized.s, 13) + 3) * (dbg_tile_max$1.ty.extent_realized.s + 3)]
+ produce dbg_tile_max$1 {
+  let t2047 = max(min(dbg_neigh_min$1.s1.tx.max.s, 318), 0)
+  let t2048 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 1)
+  let t2044 = max(dbg_tile_max$1.tx.extent_realized.s, 13)
+  let t2042 = min(t2047 - t2048, dbg_tile_max$1.tx.extent_realized.s + 15)
+  let t2045 = (dbg_tile_max$1.tx.extent_realized.s + 18)/16
+  let t2046 = t2047 - dbg_tile_max$1.tx.min_realized.s
+  parallel (dbg_tile_max$1.s0.ty.rebased, 0, dbg_tile_max$1.ty.extent_realized.s + 3) {
+   let t2049 = max((t2042 + -13)/16, -1)
+   let t2050 = ((t2044 + 3)*dbg_tile_max$1.s0.ty.rebased) - dbg_tile_max$1.tx.min_realized.s
+   for (dbg_tile_max$1.s0.tx.tx, 0, t2049 + 1) {
+    let dbg_tile_max$1.s0.tx.v41.base.s = (dbg_tile_max$1.s0.tx.tx*16) + t2048
+    dbg_tile_max$1[ramp((dbg_tile_max$1.s0.tx.v41.base.s + t2050) + 13, 1, 16)] = x16((uint8)0)
+   }
+   let t2051 = t2045 - max((t2042 + -13)/16, -1)
+   let t2052 = ((t2044 + 3)*dbg_tile_max$1.s0.ty.rebased) + t2046
+   for (dbg_tile_max$1.s0.tx.tx, 0, t2051 + -1) {
+    dbg_tile_max$1[ramp(t2052, 1, 16)] = x16((uint8)0)
+   }
+  }
+  let t2057 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 1)
+  let t2054 = max(dbg_tile_max$1.tx.extent_realized.s, 13)
+  let t2055 = max(min(dbg_neigh_min$1.s1.ty.min.s, 236), 1)
+  let t2053 = t2057 - dbg_tile_max$1.tx.min_realized.s
+  parallel (dbg_tile_max$1.s1.ty.rebased, 0, dbg_tile_max$1.ty.extent_realized.s + 3) {
+   let t2059 = (dbg_tile_max$1.s1.ty.rebased + t2055)*4
+   let t2058 = ((t2054 + 3)*dbg_tile_max$1.s1.ty.rebased) + t2053
+   for (dbg_tile_max$1.s1.tx.rebased, 0, dbg_tile_max$1.tx.extent_realized.s + 3) {
+    let t2061 = (dbg_tile_max$1.s1.tx.rebased + t2057)*4
+    let t2060 = dbg_tile_max$1.s1.tx.rebased + t2058
+    for (dbg_tile_max$1.s1.r794$y, 0, 4) {
+     let t2062 = min(dbg_tile_max$1.s1.r794$y + t2059, 954)*1344
+     for (dbg_tile_max$1.s1.r794$x, 0, 4) {
+      dbg_tile_max$1[t2060 + 13] = max(dbg_tile_max$1[t2060 + 13], b521[(min(dbg_tile_max$1.s1.r794$x + t2061, 1283) + t2062) + -5380])
+     }
+    }
+   }
+  }
+ }
+ let dbg_neigh_max$1.ty.extent_realized = let t2194 = (dbg_output$1.extent.1 + dbg_output$1.min.1) in (let t2195 = (t2194 < 949) in (let t2196 = (dbg_output$1.min.1 < 948) in ((max(min(max(max(select(t2195, (t2194 + -1)/4, 236), select(t2196, (t2194 + -1)/4, 236)), dbg_neigh_min$1.s1.ty.max.s), 236), 0) - max(min(min(min(select(t2195, dbg_output$1.min.1/4, 236), select(t2196, dbg_output$1.min.1/4, 236)), dbg_neigh_min$1.s1.ty.min.s), 236), 0)) + 1)))
+ let dbg_neigh_max$1.tx.min_realized = min(max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 0), max(min(dbg_neigh_min$1.s1.tx.max.s, 319), 0) + -15)
+ let dbg_neigh_max$1.tx.extent_realized = let t2197 = min(dbg_neigh_min$1.s1.tx.max.s, 319) in (let t2198 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 0) in (let t2199 = max(t2197, 0) in (let t2200 = (dbg_output$1.extent.0 + dbg_output$1.min.0) in (let t2201 = (t2200 < 1281) in (let t2202 = (dbg_output$1.min.0 < 1280) in ((max(max(max(t2197, min(t2198 + (((t2199 - t2198)/16)*16), -15) + 15), min(max(max(select(t2201, (t2200 + -1)/4, 319), select(t2202, (t2200 + -1)/4, 319)), dbg_neigh_min$1.s1.tx.max.s), 319)), 0) - min(t2198, min(max(min(min(select(t2201, dbg_output$1.min.0/4, 319), select(t2202, dbg_output$1.min.0/4, 319)), 319), 0), t2199 + -15))) + 1))))))
+ allocate dbg_neigh_max$1[uint8 * dbg_neigh_max$1.tx.extent_realized * dbg_neigh_max$1.ty.extent_realized]
+ let dbg_neigh_max$1.s0.ty.loop_extent.s = max(min(dbg_neigh_min$1.s1.ty.max.s, 236), 0) - max(min(dbg_neigh_min$1.s1.ty.min.s, 236), 0)
+ let dbg_neigh_max$1.s0.tx.tx.loop_extent.s = max(min(dbg_neigh_min$1.s1.tx.max.s, 319), 0) - max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 0)
+ produce dbg_neigh_max$1 {
+  let t2067 = max(min(dbg_neigh_min$1.s1.tx.max.s, 319), 0)
+  let t2068 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 0)
+  let t2063 = min((t2067 - t2068) + -15, dbg_neigh_max$1.s0.tx.tx.loop_extent.s)
+  let t2065 = dbg_neigh_max$1.s0.tx.tx.loop_extent.s/16
+  let t2066 = t2067 - dbg_neigh_max$1.tx.min_realized
+  parallel (dbg_neigh_max$1.s0.ty.rebased, 0, dbg_neigh_max$1.s0.ty.loop_extent.s + 1) {
+   let t2069 = max(t2063/16, -1)
+   let t2070 = (dbg_neigh_max$1.s0.ty.rebased*dbg_neigh_max$1.tx.extent_realized) - dbg_neigh_max$1.tx.min_realized
+   for (dbg_neigh_max$1.s0.tx.tx, 0, t2069 + 1) {
+    let dbg_neigh_max$1.s0.tx.v43.base = (dbg_neigh_max$1.s0.tx.tx*16) + t2068
+    dbg_neigh_max$1[ramp(dbg_neigh_max$1.s0.tx.v43.base + t2070, 1, 16)] = x16((uint8)0)
+   }
+   let t2071 = t2065 - max(t2063/16, -1)
+   let t2072 = (dbg_neigh_max$1.s0.ty.rebased*dbg_neigh_max$1.tx.extent_realized) + t2066
+   for (dbg_neigh_max$1.s0.tx.tx, 0, t2071) {
+    dbg_neigh_max$1[ramp(t2072 + -15, 1, 16)] = x16((uint8)0)
+   }
+  }
+  consume dbg_tile_max$1 {
+   let t2077 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 0)
+   let t2075 = max(dbg_tile_max$1.tx.extent_realized.s, 13)
+   let t2074 = min(dbg_neigh_min$1.s1.ty.min.s, 236)
+   let t2073 = t2077 - dbg_neigh_max$1.tx.min_realized
+   parallel (dbg_neigh_max$1.s1.ty.rebased, 0, dbg_neigh_max$1.s0.ty.loop_extent.s + 1) {
+    let t2080 = max(t2074, 1)
+    let t2078 = (dbg_neigh_max$1.s1.ty.rebased*dbg_neigh_max$1.tx.extent_realized) + t2073
+    let t2079 = max(t2074, 0) + dbg_neigh_max$1.s1.ty.rebased
+    for (dbg_neigh_max$1.s1.tx.rebased, 0, dbg_neigh_max$1.s0.tx.tx.loop_extent.s + 1) {
+     let t2081 = dbg_neigh_max$1.s1.tx.rebased + t2078
+     let t2082 = dbg_neigh_max$1.s1.tx.rebased + t2077
+     for (dbg_neigh_max$1.s1.r807$y.rebased, 0, 3) {
+      let t2083 = ((max(min(dbg_neigh_max$1.s1.r807$y.rebased + t2079, 237), 1) - t2080)*(t2075 + 3)) - dbg_tile_max$1.tx.min_realized.s
+      for (dbg_neigh_max$1.s1.r807$x.rebased, 0, 3) {
+       dbg_neigh_max$1[t2081] = max(dbg_neigh_max$1[t2081], dbg_tile_max$1[(max(min(dbg_neigh_max$1.s1.r807$x.rebased + t2082, 320), 1) + t2083) + 13])
+      }
+     }
+    }
+   }
+  }
+  free dbg_tile_max$1
+ }
+ allocate dbg_max_px$1[uint8 * dbg_output$1.extent.0 * dbg_output$1.extent.1]
+ produce dbg_max_px$1 {
+  consume dbg_neigh_max$1 {
+   let t2085 = max(min(dbg_neigh_min$1.s1.ty.min.s, 236), 0)
+   let t2084 = min(min(min(min(min(1264 - dbg_output$1.min.0, dbg_output$1.extent.0 + -16), 1265 - dbg_output$1.min.0), 1266 - dbg_output$1.min.0), 1267 - dbg_output$1.min.0), dbg_output$1.extent.0 + -1)
+   let t2090 = (dbg_output$1.extent.0 + 15)/16
+   let t2089 = (dbg_output$1.min.0 + 3)/4
+   let t2088 = (dbg_output$1.min.0 + 2)/4
+   let t2087 = (dbg_output$1.min.0 + 1)/4
+   let t2086 = dbg_output$1.min.0/4
+   parallel (dbg_max_px$1.s0.y.rebased, 0, dbg_output$1.extent.1) {
+    let t2094 = dbg_max_px$1.s0.y.rebased + dbg_output$1.min.1
+    let t2091 = max(t2084/16, -1)
+    let t2093 = dbg_max_px$1.s0.y.rebased*dbg_output$1.extent.0
+    let t2092 = max(min(select(t2094 < 948, t2094/4, 236), 236), 0) - t2085
+    for (dbg_max_px$1.s0.x.x, 0, t2091 + 1) {
+     let t2019 = x4((dbg_neigh_max$1.tx.extent_realized*t2092) - dbg_neigh_max$1.tx.min_realized)
+     dbg_max_px$1[ramp((dbg_max_px$1.s0.x.x*16) + t2093, 1, 16)] = interleave_vectors(dbg_neigh_max$1[max(min(ramp((dbg_max_px$1.s0.x.x*4) + t2086, 1, 4), x4(319)), x4(0)) + t2019], dbg_neigh_max$1[max(min(ramp((dbg_max_px$1.s0.x.x*4) + t2087, 1, 4), x4(319)), x4(0)) + t2019], dbg_neigh_max$1[max(min(ramp((dbg_max_px$1.s0.x.x*4) + t2088, 1, 4), x4(319)), x4(0)) + t2019], dbg_neigh_max$1[max(min(ramp((dbg_max_px$1.s0.x.x*4) + t2089, 1, 4), x4(319)), x4(0)) + t2019])
+    }
+    let t2099 = dbg_max_px$1.s0.y.rebased + dbg_output$1.min.1
+    let t2100 = max(t2084/16, -1)
+    let t2098 = dbg_max_px$1.s0.y.rebased*dbg_output$1.extent.0
+    let t2095 = t2090 - t2100
+    let t2097 = max(min(select(t2099 < 948, t2099/4, 236), 236), 0) - t2085
+    for (dbg_max_px$1.s0.x.x.rebased, 0, t2095 + -1) {
+     let dbg_max_px$1.s0.x.v45.base.s.s = min(((dbg_max_px$1.s0.x.x.rebased + t2100)*16) + 32, dbg_output$1.extent.0)
+     let t2021 = x4((dbg_neigh_max$1.tx.extent_realized*t2097) - dbg_neigh_max$1.tx.min_realized)
+     let t2022 = dbg_max_px$1.s0.x.v45.base.s.s + dbg_output$1.min.0
+     dbg_max_px$1[ramp((dbg_max_px$1.s0.x.v45.base.s.s + t2098) + -16, 1, 16)] = interleave_vectors(dbg_neigh_max$1[max(min(select(ramp(t2022 + -16, 4, 4) < x4(1280), ramp((t2022/4) + -4, 1, 4), x4(319)), x4(319)), x4(0)) + t2021], dbg_neigh_max$1[max(min(select(ramp(t2022 + -15, 4, 4) < x4(1280), ramp((t2022 + -15)/4, 1, 4), x4(319)), x4(319)), x4(0)) + t2021], dbg_neigh_max$1[max(min(select(ramp(t2022 + -14, 4, 4) < x4(1280), ramp((t2022 + -14)/4, 1, 4), x4(319)), x4(319)), x4(0)) + t2021], dbg_neigh_max$1[max(min(select(ramp(t2022 + -13, 4, 4) < x4(1280), ramp((t2022 + -13)/4, 1, 4), x4(319)), x4(319)), x4(0)) + t2021])
+    }
+   }
+  }
+ }
+ free dbg_neigh_max$1
+ allocate dbg_tile_min$1[uint8 * (max(dbg_tile_max$1.tx.extent_realized.s, 13) + 3) * (dbg_tile_max$1.ty.extent_realized.s + 3)]
+ produce dbg_tile_min$1 {
+  let t2106 = max(min(dbg_neigh_min$1.s1.tx.max.s, 318), 0)
+  let t2107 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 1)
+  let t2103 = max(dbg_tile_max$1.tx.extent_realized.s, 13)
+  let t2101 = min(t2106 - t2107, dbg_tile_max$1.tx.extent_realized.s + 15)
+  let t2104 = (dbg_tile_max$1.tx.extent_realized.s + 18)/16
+  let t2105 = t2106 - dbg_tile_max$1.tx.min_realized.s
+  parallel (dbg_tile_min$1.s0.ty.rebased, 0, dbg_tile_max$1.ty.extent_realized.s + 3) {
+   let t2108 = max((t2101 + -13)/16, -1)
+   let t2109 = ((t2103 + 3)*dbg_tile_min$1.s0.ty.rebased) - dbg_tile_max$1.tx.min_realized.s
+   for (dbg_tile_min$1.s0.tx.tx, 0, t2108 + 1) {
+    let dbg_tile_min$1.s0.tx.v40.base.s = (dbg_tile_min$1.s0.tx.tx*16) + t2107
+    dbg_tile_min$1[ramp((dbg_tile_min$1.s0.tx.v40.base.s + t2109) + 13, 1, 16)] = x16((uint8)255)
+   }
+   let t2110 = t2104 - max((t2101 + -13)/16, -1)
+   let t2111 = ((t2103 + 3)*dbg_tile_min$1.s0.ty.rebased) + t2105
+   for (dbg_tile_min$1.s0.tx.tx, 0, t2110 + -1) {
+    dbg_tile_min$1[ramp(t2111, 1, 16)] = x16((uint8)255)
+   }
+  }
+  let t2116 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 1)
+  let t2113 = max(dbg_tile_max$1.tx.extent_realized.s, 13)
+  let t2114 = max(min(dbg_neigh_min$1.s1.ty.min.s, 236), 1)
+  let t2112 = t2116 - dbg_tile_max$1.tx.min_realized.s
+  parallel (dbg_tile_min$1.s1.ty.rebased, 0, dbg_tile_max$1.ty.extent_realized.s + 3) {
+   let t2118 = (dbg_tile_min$1.s1.ty.rebased + t2114)*4
+   let t2117 = ((t2113 + 3)*dbg_tile_min$1.s1.ty.rebased) + t2112
+   for (dbg_tile_min$1.s1.tx.rebased, 0, dbg_tile_max$1.tx.extent_realized.s + 3) {
+    let t2120 = (dbg_tile_min$1.s1.tx.rebased + t2116)*4
+    let t2119 = dbg_tile_min$1.s1.tx.rebased + t2117
+    for (dbg_tile_min$1.s1.r794$y, 0, 4) {
+     let t2121 = min(dbg_tile_min$1.s1.r794$y + t2118, 954)*1344
+     for (dbg_tile_min$1.s1.r794$x, 0, 4) {
+      dbg_tile_min$1[t2119 + 13] = min(dbg_tile_min$1[t2119 + 13], b521[(min(dbg_tile_min$1.s1.r794$x + t2120, 1283) + t2121) + -5380])
+     }
+    }
+   }
+  }
+ }
+ let dbg_neigh_min$1.ty.extent_realized = let t2203 = (dbg_output$1.extent.1 + dbg_output$1.min.1) in (let t2204 = (t2203 < 949) in (let t2205 = (dbg_output$1.min.1 < 948) in ((max(min(max(max(select(t2204, (t2203 + -1)/4, 236), select(t2205, (t2203 + -1)/4, 236)), dbg_neigh_min$1.s1.ty.max.s), 236), 0) - max(min(min(min(select(t2204, dbg_output$1.min.1/4, 236), select(t2205, dbg_output$1.min.1/4, 236)), dbg_neigh_min$1.s1.ty.min.s), 236), 0)) + 1)))
+ let dbg_neigh_min$1.tx.extent_realized = let t2206 = min(dbg_neigh_min$1.s1.tx.max.s, 319) in (let t2207 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 0) in (let t2208 = max(t2206, 0) in (let t2209 = (dbg_output$1.extent.0 + dbg_output$1.min.0) in (let t2210 = (t2209 < 1281) in (let t2211 = (dbg_output$1.min.0 < 1280) in ((max(max(max(t2206, min(t2207 + (((t2208 - t2207)/16)*16), -15) + 15), min(max(max(select(t2210, (t2209 + -1)/4, 319), select(t2211, (t2209 + -1)/4, 319)), dbg_neigh_min$1.s1.tx.max.s), 319)), 0) - min(t2207, min(max(min(min(select(t2210, dbg_output$1.min.0/4, 319), select(t2211, dbg_output$1.min.0/4, 319)), 319), 0), t2208 + -15))) + 1))))))
+ allocate dbg_neigh_min$1[uint8 * dbg_neigh_min$1.tx.extent_realized * dbg_neigh_min$1.ty.extent_realized]
+ let dbg_neigh_min$1.s0.ty.loop_extent.s = max(min(dbg_neigh_min$1.s1.ty.max.s, 236), 0) - max(min(dbg_neigh_min$1.s1.ty.min.s, 236), 0)
+ let dbg_neigh_min$1.s0.tx.tx.loop_extent.s = max(min(dbg_neigh_min$1.s1.tx.max.s, 319), 0) - max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 0)
+ produce dbg_neigh_min$1 {
+  let t2126 = max(min(dbg_neigh_min$1.s1.tx.max.s, 319), 0)
+  let t2127 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 0)
+  let t2122 = min((t2126 - t2127) + -15, dbg_neigh_min$1.s0.tx.tx.loop_extent.s)
+  let t2124 = dbg_neigh_min$1.s0.tx.tx.loop_extent.s/16
+  let t2125 = t2126 - dbg_neigh_max$1.tx.min_realized
+  parallel (dbg_neigh_min$1.s0.ty.rebased, 0, dbg_neigh_min$1.s0.ty.loop_extent.s + 1) {
+   let t2128 = max(t2122/16, -1)
+   let t2129 = (dbg_neigh_min$1.s0.ty.rebased*dbg_neigh_min$1.tx.extent_realized) - dbg_neigh_max$1.tx.min_realized
+   for (dbg_neigh_min$1.s0.tx.tx, 0, t2128 + 1) {
+    let dbg_neigh_min$1.s0.tx.v42.base = (dbg_neigh_min$1.s0.tx.tx*16) + t2127
+    dbg_neigh_min$1[ramp(dbg_neigh_min$1.s0.tx.v42.base + t2129, 1, 16)] = x16((uint8)255)
+   }
+   let t2130 = t2124 - max(t2122/16, -1)
+   let t2131 = (dbg_neigh_min$1.s0.ty.rebased*dbg_neigh_min$1.tx.extent_realized) + t2125
+   for (dbg_neigh_min$1.s0.tx.tx, 0, t2130) {
+    dbg_neigh_min$1[ramp(t2131 + -15, 1, 16)] = x16((uint8)255)
+   }
+  }
+  consume dbg_tile_min$1 {
+   let t2136 = max(min(dbg_neigh_min$1.s1.tx.min.s, 319), 0)
+   let t2134 = max(dbg_tile_max$1.tx.extent_realized.s, 13)
+   let t2133 = min(dbg_neigh_min$1.s1.ty.min.s, 236)
+   let t2132 = t2136 - dbg_neigh_max$1.tx.min_realized
+   parallel (dbg_neigh_min$1.s1.ty.rebased, 0, dbg_neigh_min$1.s0.ty.loop_extent.s + 1) {
+    let t2139 = max(t2133, 1)
+    let t2137 = (dbg_neigh_min$1.s1.ty.rebased*dbg_neigh_min$1.tx.extent_realized) + t2132
+    let t2138 = max(t2133, 0) + dbg_neigh_min$1.s1.ty.rebased
+    for (dbg_neigh_min$1.s1.tx.rebased, 0, dbg_neigh_min$1.s0.tx.tx.loop_extent.s + 1) {
+     let t2140 = dbg_neigh_min$1.s1.tx.rebased + t2137
+     let t2141 = dbg_neigh_min$1.s1.tx.rebased + t2136
+     for (dbg_neigh_min$1.s1.r807$y.rebased, 0, 3) {
+      let t2142 = ((max(min(dbg_neigh_min$1.s1.r807$y.rebased + t2138, 237), 1) - t2139)*(t2134 + 3)) - dbg_tile_max$1.tx.min_realized.s
+      for (dbg_neigh_min$1.s1.r807$x.rebased, 0, 3) {
+       dbg_neigh_min$1[t2140] = min(dbg_neigh_min$1[t2140], dbg_tile_min$1[(max(min(dbg_neigh_min$1.s1.r807$x.rebased + t2141, 320), 1) + t2142) + 13])
+      }
+     }
+    }
+   }
+  }
+  free dbg_tile_min$1
+ }
+ allocate dbg_min_px$1[uint8 * dbg_output$1.extent.0 * dbg_output$1.extent.1]
+ produce dbg_min_px$1 {
+  consume dbg_neigh_min$1 {
+   let t2144 = max(min(dbg_neigh_min$1.s1.ty.min.s, 236), 0)
+   let t2143 = min(min(min(min(min(1264 - dbg_output$1.min.0, dbg_output$1.extent.0 + -16), 1265 - dbg_output$1.min.0), 1266 - dbg_output$1.min.0), 1267 - dbg_output$1.min.0), dbg_output$1.extent.0 + -1)
+   let t2149 = (dbg_output$1.extent.0 + 15)/16
+   let t2148 = (dbg_output$1.min.0 + 3)/4
+   let t2147 = (dbg_output$1.min.0 + 2)/4
+   let t2146 = (dbg_output$1.min.0 + 1)/4
+   let t2145 = dbg_output$1.min.0/4
+   parallel (dbg_min_px$1.s0.y.rebased, 0, dbg_output$1.extent.1) {
+    let t2153 = dbg_min_px$1.s0.y.rebased + dbg_output$1.min.1
+    let t2150 = max(t2143/16, -1)
+    let t2152 = dbg_min_px$1.s0.y.rebased*dbg_output$1.extent.0
+    let t2151 = max(min(select(t2153 < 948, t2153/4, 236), 236), 0) - t2144
+    for (dbg_min_px$1.s0.x.x, 0, t2150 + 1) {
+     let t2034 = x4((dbg_neigh_min$1.tx.extent_realized*t2151) - dbg_neigh_max$1.tx.min_realized)
+     dbg_min_px$1[ramp((dbg_min_px$1.s0.x.x*16) + t2152, 1, 16)] = interleave_vectors(dbg_neigh_min$1[max(min(ramp((dbg_min_px$1.s0.x.x*4) + t2145, 1, 4), x4(319)), x4(0)) + t2034], dbg_neigh_min$1[max(min(ramp((dbg_min_px$1.s0.x.x*4) + t2146, 1, 4), x4(319)), x4(0)) + t2034], dbg_neigh_min$1[max(min(ramp((dbg_min_px$1.s0.x.x*4) + t2147, 1, 4), x4(319)), x4(0)) + t2034], dbg_neigh_min$1[max(min(ramp((dbg_min_px$1.s0.x.x*4) + t2148, 1, 4), x4(319)), x4(0)) + t2034])
+    }
+    let t2158 = dbg_min_px$1.s0.y.rebased + dbg_output$1.min.1
+    let t2159 = max(t2143/16, -1)
+    let t2157 = dbg_min_px$1.s0.y.rebased*dbg_output$1.extent.0
+    let t2154 = t2149 - t2159
+    let t2156 = max(min(select(t2158 < 948, t2158/4, 236), 236), 0) - t2144
+    for (dbg_min_px$1.s0.x.x.rebased, 0, t2154 + -1) {
+     let dbg_min_px$1.s0.x.v44.base.s.s = min(((dbg_min_px$1.s0.x.x.rebased + t2159)*16) + 32, dbg_output$1.extent.0)
+     let t2036 = x4((dbg_neigh_min$1.tx.extent_realized*t2156) - dbg_neigh_max$1.tx.min_realized)
+     let t2037 = dbg_min_px$1.s0.x.v44.base.s.s + dbg_output$1.min.0
+     dbg_min_px$1[ramp((dbg_min_px$1.s0.x.v44.base.s.s + t2157) + -16, 1, 16)] = interleave_vectors(dbg_neigh_min$1[max(min(select(ramp(t2037 + -16, 4, 4) < x4(1280), ramp((t2037/4) + -4, 1, 4), x4(319)), x4(319)), x4(0)) + t2036], dbg_neigh_min$1[max(min(select(ramp(t2037 + -15, 4, 4) < x4(1280), ramp((t2037 + -15)/4, 1, 4), x4(319)), x4(319)), x4(0)) + t2036], dbg_neigh_min$1[max(min(select(ramp(t2037 + -14, 4, 4) < x4(1280), ramp((t2037 + -14)/4, 1, 4), x4(319)), x4(319)), x4(0)) + t2036], dbg_neigh_min$1[max(min(select(ramp(t2037 + -13, 4, 4) < x4(1280), ramp((t2037 + -13)/4, 1, 4), x4(319)), x4(319)), x4(0)) + t2036])
+    }
+   }
+  }
+ }
+ free dbg_neigh_min$1
+ produce dbg_output$1 {
+  consume dbg_min_px$1 {
+   consume dbg_max_px$1 {
+    let dbg_output$1.s0.y.yo.prologue = min((dbg_output$1.extent.1 + 31)/32, 0 - min(dbg_output$1.min.1/32, 0))
+    let dbg_output$1.s0.y.yo.epilogue = max(min((dbg_output$1.extent.1 + 31)/32, 0 - min(dbg_output$1.min.1/32, 0)), (min(919 - dbg_output$1.min.1, dbg_output$1.extent.1 + -32)/32) + 1)
+    let t2165 = (dbg_output$1.extent.0 + 63)/64
+    let t2166 = min(0 - min(dbg_output$1.min.0/64, 0), t2165)
+    let t2162 = max((min(1216 - dbg_output$1.min.0, dbg_output$1.extent.0 + -64)/64) + 1, t2166)
+    let t2160 = (dbg_output$1.extent.1 + 31)/32
+    let t2163 = (dbg_output$1.min.1*dbg_output$1.stride.1) + dbg_output$1.min.0
+    parallel (dbg_output$1.s0.y.yo, 0, t2160) {
+     if ((dbg_output$1.s0.y.yo.prologue <= dbg_output$1.s0.y.yo) && (dbg_output$1.s0.y.yo < dbg_output$1.s0.y.yo.epilogue)) {
+      let dbg_output$1.s0.y.yi.base.s = min(dbg_output$1.s0.y.yo*32, dbg_output$1.extent.1 + -32)
+      let t2167 = dbg_output$1.min.1 + dbg_output$1.s0.y.yi.base.s
+      for (dbg_output$1.s0.x.xo, 0, t2166) {
+       let dbg_output$1.s0.x.xi.base.s = min(dbg_output$1.s0.x.xo*64, dbg_output$1.extent.0 + -64)
+       let t2168 = dbg_output$1.min.0 + dbg_output$1.s0.x.xi.base.s
+       for (dbg_output$1.s0.y.yi, 0, 32) {
+        let t2170 = dbg_output$1.s0.y.yi + t2167
+        let t2169 = ((dbg_output$1.s0.y.yi + dbg_output$1.s0.y.yi.base.s)*dbg_output$1.extent.0) + dbg_output$1.s0.x.xi.base.s
+        for (dbg_output$1.s0.x.xi.xi, 0, 4) {
+         let t1922 = (dbg_output$1.s0.x.xi.xi*16) + t2169
+         let t1923.s = dbg_min_px$1[ramp(t1922, 1, 16)]
+         let t2185 = dbg_max_px$1[ramp(t1922, 1, 16)]
+         let t1925 = (dbg_output$1.s0.x.xi.xi*16) + t2168
+         let t2212 = (int16x16)widening_sub(t2185, t1923.s)
+         dbg_output$1[ramp(((dbg_output$1.stride.1*t2170) - t2163) + t1925, 1, 16)] = uint8x16(select(int32x16(t2212) < x16(5), x16(127), select(uint8x16((int32x16)widening_add((int16x16)shift_right(t2212, x16((int16)1)), int16x16(t1923.s))) < b521[max(min(ramp(t1925, 1, 16), x16(1279)), x16(0)) + x16(t2170*1344)], x16(255), x16(0))))
+        }
+       }
+      }
+      let t2171 = t2162 - t2166
+      let t2172 = dbg_output$1.min.1 + dbg_output$1.s0.y.yi.base.s
+      for (dbg_output$1.s0.x.xo.rebased, 0, t2171) {
+       let dbg_output$1.s0.x.xi.base.s = min((dbg_output$1.s0.x.xo.rebased + t2166)*64, dbg_output$1.extent.0 + -64)
+       let t2173 = dbg_output$1.min.0 + dbg_output$1.s0.x.xi.base.s
+       for (dbg_output$1.s0.y.yi, 0, 32) {
+        let t2175 = dbg_output$1.s0.y.yi + t2172
+        let t2174 = ((dbg_output$1.s0.y.yi + dbg_output$1.s0.y.yi.base.s)*dbg_output$1.extent.0) + dbg_output$1.s0.x.xi.base.s
+        for (dbg_output$1.s0.x.xi.xi, 0, 4) {
+         let t1927 = (dbg_output$1.s0.x.xi.xi*16) + t2174
+         let t1928.s = dbg_min_px$1[ramp(t1927, 1, 16)]
+         let t2186 = dbg_max_px$1[ramp(t1927, 1, 16)]
+         let t1931 = (dbg_output$1.s0.x.xi.xi*16) + t2173
+         let t2213 = (int16x16)widening_sub(t2186, t1928.s)
+         dbg_output$1[ramp(((dbg_output$1.stride.1*t2175) - t2163) + t1931, 1, 16)] = uint8x16(select(int32x16(t2213) < x16(5), x16(127), select(uint8x16((int32x16)widening_add((int16x16)shift_right(t2213, x16((int16)1)), int16x16(t1928.s))) < b521[ramp((t2175*1344) + t1931, 1, 16)], x16(255), x16(0))))
+        }
+       }
+      }
+      let t2176 = t2165 - t2162
+      let t2177 = dbg_output$1.min.1 + dbg_output$1.s0.y.yi.base.s
+      for (dbg_output$1.s0.x.xo.rebased, 0, t2176) {
+       let dbg_output$1.s0.x.xi.base.s = min((dbg_output$1.s0.x.xo.rebased + t2162)*64, dbg_output$1.extent.0 + -64)
+       let t2178 = dbg_output$1.min.0 + dbg_output$1.s0.x.xi.base.s
+       for (dbg_output$1.s0.y.yi, 0, 32) {
+        let t2180 = dbg_output$1.s0.y.yi + t2177
+        let t2179 = ((dbg_output$1.s0.y.yi + dbg_output$1.s0.y.yi.base.s)*dbg_output$1.extent.0) + dbg_output$1.s0.x.xi.base.s
+        for (dbg_output$1.s0.x.xi.xi, 0, 4) {
+         let t1932 = (dbg_output$1.s0.x.xi.xi*16) + t2179
+         let t1933.s = dbg_min_px$1[ramp(t1932, 1, 16)]
+         let t2187 = dbg_max_px$1[ramp(t1932, 1, 16)]
+         let t1935 = (dbg_output$1.s0.x.xi.xi*16) + t2178
+         let t2214 = (int16x16)widening_sub(t2187, t1933.s)
+         dbg_output$1[ramp(((dbg_output$1.stride.1*t2180) - t2163) + t1935, 1, 16)] = uint8x16(select(int32x16(t2214) < x16(5), x16(127), select(uint8x16((int32x16)widening_add((int16x16)shift_right(t2214, x16((int16)1)), int16x16(t1933.s))) < b521[max(min(ramp(t1935, 1, 16), x16(1279)), x16(0)) + x16(t2180*1344)], x16(255), x16(0))))
+        }
+       }
+      }
+     } else {
+      let dbg_output$1.s0.y.yi.base.s = min(dbg_output$1.s0.y.yo*32, dbg_output$1.extent.1 + -32)
+      let t2181 = dbg_output$1.min.1 + dbg_output$1.s0.y.yi.base.s
+      for (dbg_output$1.s0.x.xo, 0, t2165) {
+       let dbg_output$1.s0.x.xi.base.s = min(dbg_output$1.s0.x.xo*64, dbg_output$1.extent.0 + -64)
+       let t2182 = dbg_output$1.min.0 + dbg_output$1.s0.x.xi.base.s
+       for (dbg_output$1.s0.y.yi, 0, 32) {
+        let t2184 = dbg_output$1.s0.y.yi + t2181
+        let t2183 = ((dbg_output$1.s0.y.yi + dbg_output$1.s0.y.yi.base.s)*dbg_output$1.extent.0) + dbg_output$1.s0.x.xi.base.s
+        for (dbg_output$1.s0.x.xi.xi, 0, 4) {
+         let t1937 = (dbg_output$1.s0.x.xi.xi*16) + t2183
+         let t1938.s = dbg_min_px$1[ramp(t1937, 1, 16)]
+         let t2188 = dbg_max_px$1[ramp(t1937, 1, 16)]
+         let t1940 = (dbg_output$1.s0.x.xi.xi*16) + t2182
+         let t2215 = (int16x16)widening_sub(t2188, t1938.s)
+         dbg_output$1[ramp(((dbg_output$1.stride.1*t2184) - t2163) + t1940, 1, 16)] = uint8x16(select(int32x16(t2215) < x16(5), x16(127), select(uint8x16((int32x16)widening_add((int16x16)shift_right(t2215, x16((int16)1)), int16x16(t1938.s))) < b521[max(min(ramp(t1940, 1, 16), x16(1279)), x16(0)) + x16(max(min(t2184, 950), 0)*1344)], x16(255), x16(0))))
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ }
+ free dbg_max_px$1
+ free dbg_min_px$1
+}
+
+
+Skipping Hexagon offload...
+Skipping GPU offload...
+Lowering Parallel Tasks...
+Target triple of initial module: arm64-apple-macosx11.0.0
+Generating llvm bitcode...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_tile_max__1_s0_ty_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_tile_max__1_s0_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_tile_max__1_s1_ty_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_tile_max__1_s1_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_neigh_max__1_s0_ty_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_neigh_max__1_s0_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_neigh_max__1_s1_ty_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_neigh_max__1_s1_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_max_px__1_s0_y_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_max_px__1_s0_y_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_tile_min__1_s0_ty_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_tile_min__1_s0_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_tile_min__1_s1_ty_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_tile_min__1_s1_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_neigh_min__1_s0_ty_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_neigh_min__1_s0_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_neigh_min__1_s1_ty_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_neigh_min__1_s1_ty_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_min_px__1_s0_y_rebased...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_min_px__1_s0_y_rebased...
+Generating llvm bitcode prolog for function dbg_output_1_par_for_dbg_output__1_s0_y_yo...
+Generating llvm bitcode for function dbg_output_1_par_for_dbg_output__1_s0_y_yo...
+Generating llvm bitcode prolog for function dbg_output_1...
+Generating llvm bitcode for function dbg_output_1...
+JIT compiling dbg_output_1 for arm-64-osx-arm_dot_prod-arm_fp16-jit-user_context
+[HALIDE GPU DEBUG] mismatches=812677 max_diff=255 first_diff=(0,0)
+
+========== DETECTION RESULTS ==========
+Halide hybrid (Halide threshold, UMich sparse)
+  Detection time: 245.255 ms
+  Detections: 0
+  Quads considered: 0
+  Threads used: 8
+  Decimate factor: 1.0
+  Blur (sigma): 0.00
+
+========== TIMING SUMMARY ==========
+Image load time:   31.147 ms
+Halide detect:     mean 245.255 ms, std 0.000 ms over 1 run(s)
+Total time:        276.402 ms

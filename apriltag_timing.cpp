@@ -7,6 +7,7 @@
 #include <cmath>
 #include <vector>
 #include <array>
+#include <cstdint>
 #include <unordered_map>
 #include <algorithm>
 #include <tuple>
@@ -27,6 +28,17 @@ extern "C" {
 
 #ifdef APRILTAG_HAVE_HALIDE
 extern "C" image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im);
+
+struct halide_candidate_region {
+    int32_t x0;
+    int32_t y0;
+    int32_t x1;
+    int32_t y1;
+    float avg_gradient;
+    int32_t edge_pixels;
+};
+
+extern "C" const halide_candidate_region *halide_get_candidate_rois(size_t *count);
 
 static void warm_halide_threshold_pipeline()
 {
@@ -229,6 +241,9 @@ struct DetectorRun {
     float quad_sigma = 0.0f;
     int threads = 1;
     std::vector<DetectionSummary> detections;
+#ifdef APRILTAG_HAVE_HALIDE
+    std::vector<halide_candidate_region> halide_candidates;
+#endif
 };
 
 struct TimingStats {
@@ -305,6 +320,18 @@ static DetectorRun run_detector(apriltag_family_t *tf,
     run.quad_sigma = td->quad_sigma;
     run.threads = td->nthreads;
 
+#ifdef APRILTAG_HAVE_HALIDE
+    if (use_halide) {
+        size_t roi_count = 0;
+        const halide_candidate_region *rois = halide_get_candidate_rois(&roi_count);
+        if (rois && roi_count > 0) {
+            run.halide_candidates.assign(rois, rois + roi_count);
+        } else {
+            run.halide_candidates.clear();
+        }
+    }
+#endif
+
     apriltag_detections_destroy(detections);
     apriltag_detector_destroy(td);
 
@@ -320,6 +347,21 @@ static void print_run_summary(const char *label, const DetectorRun &run)
     printf("  Threads used: %d\n", run.threads);
     printf("  Decimate factor: %.1f\n", run.quad_decimate);
     printf("  Blur (sigma): %.2f\n", run.quad_sigma);
+#ifdef APRILTAG_HAVE_HALIDE
+    if (run.use_halide) {
+        printf("  Halide candidate ROIs: %zu\n", run.halide_candidates.size());
+        const size_t to_display = std::min<size_t>(run.halide_candidates.size(), 5);
+        for (size_t i = 0; i < to_display; ++i) {
+            const halide_candidate_region &roi = run.halide_candidates[i];
+            printf("    ROI %zu: [%d,%d] -> [%d,%d], avg grad %.1f, edge px %d\n",
+                   i, roi.x0, roi.y0, roi.x1, roi.y1,
+                   roi.avg_gradient, roi.edge_pixels);
+        }
+        if (run.halide_candidates.size() > to_display) {
+            printf("    ... (%zu more)\n", run.halide_candidates.size() - to_display);
+        }
+    }
+#endif
 
     for (size_t i = 0; i < run.detections.size(); i++) {
         const DetectionSummary &det = run.detections[i];
