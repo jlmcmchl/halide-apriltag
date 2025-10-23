@@ -55,10 +55,19 @@ public:
         input_.set(input_buf);
         min_white_black_diff_.set(min_white_black_diff);
 
-        pipeline_->realize(output_buf);
+        const int width = output_buf.width();
+        const int height = output_buf.height();
+
+        tile_width_ = (width + roi_tile_size_ - 1) / roi_tile_size_;
+        tile_height_ = (height + roi_tile_size_ - 1) / roi_tile_size_;
+
+        Halide::Buffer<int32_t> tile_edge_buf(tile_width_, tile_height_);
+        Halide::Buffer<int32_t> tile_fg_buf(tile_width_, tile_height_);
+        Halide::Realization outputs({output_buf, tile_edge_buf, tile_fg_buf});
+        pipeline_->realize(outputs);
 
         if (enable_roi_filter_) {
-            compute_candidates_and_mask(output_buf);
+            compute_candidates_and_mask(output_buf, tile_edge_buf, tile_fg_buf);
         } else {
             candidate_regions_.clear();
         }
@@ -134,11 +143,42 @@ private:
         neigh_max.compute_root().parallel(ty).vectorize(tx, 16);
         neigh_max.update().parallel(ty);
 
-        pipeline_ = std::make_unique<Halide::Pipeline>(output);
-        pipeline_->compile_jit(Halide::get_host_target());
+        const int roi_tilesz = roi_tile_size_;
+
+        Halide::Expr roi_tile_w = (input_.width() + roi_tilesz - 1) / roi_tilesz;
+        Halide::Expr roi_tile_h = (input_.height() + roi_tilesz - 1) / roi_tilesz;
+
+        Halide::RDom roi_dom(0, roi_tilesz, 0, roi_tilesz);
+        Func tile_edge_count("tile_edge_count"), tile_fg_count("tile_fg_count");
+        tile_edge_count(tx, ty) = 0;
+        tile_fg_count(tx, ty) = 0;
+
+        Halide::Expr rx = Halide::min(tx * roi_tilesz + roi_dom.x, input_.width() - 1);
+        Halide::Expr ry = Halide::min(ty * roi_tilesz + roi_dom.y, input_.height() - 1);
+        Halide::Expr center_v = output(rx, ry);
+        Halide::Expr valid = center_v != 127;
+        Halide::Expr right_v = output(Halide::min(rx + 1, input_.width() - 1), ry);
+        Halide::Expr down_v = output(rx, Halide::min(ry + 1, input_.height() - 1));
+        Halide::Expr edge = Halide::select(valid && right_v != 127 && center_v != right_v, 1, 0) +
+                            Halide::select(valid && down_v != 127 && center_v != down_v, 1, 0);
+        tile_edge_count(tx, ty) += edge;
+        tile_fg_count(tx, ty) += Halide::select(valid, 1, 0);
+
+        tile_edge_count.compute_root().parallel(ty);
+        tile_edge_count.update().parallel(ty);
+
+        tile_fg_count.compute_root().parallel(ty);
+        tile_fg_count.update().parallel(ty);
+
+        pipeline_ = std::make_unique<Halide::Pipeline>(std::vector<Func>{output, tile_edge_count, tile_fg_count});
+        Halide::Target target = Halide::get_host_target();
+        target.set_feature(Halide::Target::Metal);
+        pipeline_->compile_jit(target);
     }
 
-    void compute_candidates_and_mask(Halide::Buffer<uint8_t> &output_buf) {
+    void compute_candidates_and_mask(Halide::Buffer<uint8_t> &output_buf,
+                                     const Halide::Buffer<int32_t> &tile_edge_buf,
+                                     const Halide::Buffer<int32_t> &tile_fg_buf) {
         const int width = output_buf.width();
         const int height = output_buf.height();
         if (width == 0 || height == 0) {
@@ -150,58 +190,22 @@ private:
 
         const int stride = output_buf.raw_buffer()->dim[1].stride;
         const int tilesz = roi_tile_size_;
-        const int tile_w = (width + tilesz - 1) / tilesz;
-        const int tile_h = (height + tilesz - 1) / tilesz;
+        const int tile_w = tile_edge_buf.width();
+        const int tile_h = tile_edge_buf.height();
         const int tile_count = tile_w * tile_h;
 
-        std::vector<int> edge_counts(tile_count, 0);
-        std::vector<int> fg_counts(tile_count, 0);
         std::vector<uint8_t> keep(tile_count, 0);
 
+        const int edge_threshold = std::max(tilesz * 4, 64);
+        const int fg_threshold = std::max(tilesz * tilesz / 5, 128);
+        const float ratio_threshold = 0.4f;
+
         for (int ty = 0; ty < tile_h; ++ty) {
-            const int y0 = ty * tilesz;
-            const int y1 = std::min(height, y0 + tilesz);
             for (int tx = 0; tx < tile_w; ++tx) {
-                const int x0 = tx * tilesz;
-                const int x1 = std::min(width, x0 + tilesz);
-
-                int edge_count = 0;
-                int fg_count = 0;
-
-                for (int y = y0; y < y1; ++y) {
-                    const uint8_t *row = output_buf.data() + y * stride;
-                    for (int x = x0; x < x1; ++x) {
-                        const uint8_t v = row[x];
-                        if (v == 127) {
-                            continue;
-                        }
-                        ++fg_count;
-
-                        if (x + 1 < x1) {
-                            const uint8_t right = row[x + 1];
-                            if (right != 127 && right != v) {
-                                ++edge_count;
-                            }
-                        }
-                        if (y + 1 < y1) {
-                            const uint8_t *row_down = output_buf.data() + (y + 1) * stride;
-                            const uint8_t down = row_down[x];
-                            if (down != 127 && down != v) {
-                                ++edge_count;
-                            }
-                        }
-                    }
-                }
-
                 const int idx = ty * tile_w + tx;
-                edge_counts[idx] = edge_count;
-                fg_counts[idx] = fg_count;
-
-                const int edge_threshold = std::max(tilesz * 4, 32); //down from 64
-                const int fg_threshold = std::max(tilesz * tilesz / 6, 48); //down from 6, 128
-                const float ratio_threshold = 0.25f; //down from 0.4
+                const int edge_count = tile_edge_buf(tx, ty);
+                const int fg_count = tile_fg_buf(tx, ty);
                 const float ratio = fg_count > 0 ? static_cast<float>(edge_count) / static_cast<float>(fg_count) : 0.0f;
-
                 if (edge_count >= edge_threshold && fg_count >= fg_threshold && ratio >= ratio_threshold) {
                     keep[idx] = 1;
                 }
@@ -291,8 +295,8 @@ private:
                     min_ty = std::min(min_ty, cy);
                     max_ty = std::max(max_ty, cy);
 
-                    edge_sum += edge_counts[current_idx];
-                    fg_sum += fg_counts[current_idx];
+                    edge_sum += tile_edge_buf(cx, cy);
+                    fg_sum += tile_fg_buf(cx, cy);
 
                     for (const auto &dir : kDirs) {
                         const int nx = cx + dir[0];
@@ -383,6 +387,8 @@ private:
     const int tile_size_;
     const int roi_tile_size_;
     bool enable_roi_filter_;
+    int tile_width_ = 0;
+    int tile_height_ = 0;
     std::vector<halide_candidate_region> candidate_regions_;
 };
 
