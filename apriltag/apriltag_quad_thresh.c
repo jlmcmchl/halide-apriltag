@@ -46,6 +46,10 @@ either expressed or implied, of the Regents of The University of Michigan.
 
 #ifdef APRILTAG_HAVE_HALIDE
 image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im);
+bool halide_metal_threshold_and_label(apriltag_detector_t *td,
+                                      image_u8_t *im,
+                                      image_u8_t **thresh_out,
+                                      unionfind_t **uf_out);
 #endif
 
 #ifdef _WIN32
@@ -1877,8 +1881,23 @@ zarray_t *apriltag_quad_thresh(apriltag_detector_t *td, image_u8_t *im)
 
     int w = im->width, h = im->height;
 
-    image_u8_t *threshim = threshold(td, im);
-    int ts = threshim->stride;
+    image_u8_t *threshim = NULL;
+    unionfind_t *uf = NULL;
+    int ts = 0;
+
+#ifdef APRILTAG_HAVE_HALIDE
+    if (td->use_halide) {
+        if (halide_metal_threshold_and_label(td, im, &threshim, &uf)) {
+            ts = threshim->stride;
+            timeprofile_stamp(td->tp, "threshold");
+        }
+    }
+#endif
+
+    if (threshim == NULL) {
+        threshim = threshold(td, im);
+        ts = threshim->stride;
+    }
 
     if (td->debug)
         image_u8_write_pnm(threshim, "debug_threshold.pnm");
@@ -1886,7 +1905,9 @@ zarray_t *apriltag_quad_thresh(apriltag_detector_t *td, image_u8_t *im)
 
     ////////////////////////////////////////////////////////
     // step 2. find connected components.
-    unionfind_t* uf = connected_components(td, threshim, w, h, ts);
+    if (uf == NULL) {
+        uf = connected_components(td, threshim, w, h, ts);
+    }
 
     // make segmentation image.
     if (td->debug) {
