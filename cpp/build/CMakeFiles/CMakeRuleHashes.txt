@@ -1,0 +1,3 @@
+# Hashes of file build rules.
+5e6c70ba28089abb7e9dce1c54061daa CMakeFiles/build_apriltag_libs
+444b3ef62ddfb1aae8d89679d25f29b1 apriltag_binary.a

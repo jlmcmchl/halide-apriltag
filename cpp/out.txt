@@ -1,0 +1,383 @@
+Loading ../apriltags.png
+Input dimensions: 1280x951x3
+Entering Pipeline atag_binary
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer input_gray: 0x16f0aa258 -> buffer(0, 0x0, 0x5b6400080, 1, float32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer binary: 0x16f0aa1d0 -> buffer(0, 0x0, 0xbdf400080, 0, uint8, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0aa1d0 -> buffer(0, 0x0, 0xbdf400080, 0, uint8, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0aa258 -> buffer(0, 0x0, 0x5b6400080, 1, float32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_binary
+Stage 'binary' completed in 0.506667 milliseconds
+Entering Pipeline atag_edge
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer binary_in: 0x16f0aa1d0 -> buffer(0, 0x0, 0xbdf400080, 1, uint8, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer edge: 0x16f0aa108 -> buffer(0, 0x0, 0x5b6c00080, 0, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0aa1d0 -> buffer(0, 0x0, 0xbdf400080, 1, uint8, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0aa108 -> buffer(0, 0x0, 0x5b6c00080, 0, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_edge
+Stage 'edge' completed in 2.08583 milliseconds
+Entering Pipeline atag_lut
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer density_in: 0x16f0aa108 -> buffer(0, 0x0, 0x5b6c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer lut: 0x16f0aa060 -> buffer(0, 0x0, 0x5b7400080, 0, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0aa108 -> buffer(0, 0x0, 0x5b6c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0aa060 -> buffer(0, 0x0, 0x5b7400080, 0, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_lut
+Stage 'lut' completed in 0.949917 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 0, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 0, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.98183 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.58813 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.68625 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.56804 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55404 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.54167 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.54725 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55996 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.53112 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55071 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.54688 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52588 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52554 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52462 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.588 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.54662 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.57308 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.54075 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.64821 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52242 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52575 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52879 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55938 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52642 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.53775 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55954 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.54717 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55725 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.54442 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55612 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52363 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55646 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52513 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55042 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52546 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52462 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.52592 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.55713 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.61525 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.54 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.54554 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 3.06192 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 3.43375 milliseconds
+Entering Pipeline atag_label_iter
+Target: arm-64-osx-arm_dot_prod-arm_fp16-debug-metal
+ Input Buffer labels_in: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+ Output Buffer label_iter: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9f30 -> buffer(0, 0x0, 0x5b7c00080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+halide_copy_to_host validating input buffer: 0x16f0a9fb8 -> buffer(0, 0x0, 0x5b8400080, 1, int32, {0, 1280, 1}, {0, 951, 1280})
+Exiting Pipeline atag_label_iter
+Stage 'label_iter' completed in 2.68987 milliseconds
+Label propagation iterations: 44
+halide_memoization_cache_cleanup
+halide_memoization_cache_cleanup
+halide_memoization_cache_cleanup
+halide_memoization_cache_cleanup
