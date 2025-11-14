@@ -11,6 +11,9 @@
 #include <algorithm>
 #include <tuple>
 #include <numeric>
+#include <exception>
+#include <cstdlib>
+#include <Halide.h>
 
 extern "C" {
 #include "apriltag/apriltag.h"
@@ -54,6 +57,39 @@ static void warm_halide_threshold_pipeline()
     warmed = true;
 }
 #endif
+
+// Terminate handler to catch exceptions that bypass normal catch blocks
+// (e.g., exceptions thrown from destructors during stack unwinding)
+// Note: When std::terminate is called, the exception may not always be
+// available via std::current_exception(), but we try to catch it anyway.
+void terminate_handler() {
+    std::exception_ptr ex = std::current_exception();
+    if (ex) {
+        try {
+            std::rethrow_exception(ex);
+#ifdef APRILTAG_HAVE_HALIDE
+        } catch (const Halide::CompileError &e) {
+            std::cerr << "Halide CompileError caught in terminate handler: " << e.what() << "\n";
+            std::abort();
+        } catch (const Halide::Error &err) {
+            std::cerr << "Halide Error caught in terminate handler: " << err.what() << "\n";
+            std::abort();
+#endif
+        } catch (const std::exception &err) {
+            std::cerr << "Exception caught in terminate handler: " << err.what() << "\n";
+            std::abort();
+        } catch (...) {
+            std::cerr << "Unknown exception caught in terminate handler\n";
+            std::abort();
+        }
+    } else {
+        // std::terminate was called but no exception is available
+        // This can happen when an exception is thrown from a destructor
+        // during stack unwinding, or from noexcept code
+        std::cerr << "std::terminate called (exception may have been thrown from destructor or noexcept code)\n";
+        std::abort();
+    }
+}
 
 image_u8_t* image_u8_create_from_png(const char *path)
 {
@@ -466,6 +502,7 @@ void print_usage(const char *program_name) {
 }
 
 int main(int argc, char *argv[]) {
+    std::set_terminate(terminate_handler);
     if (argc < 2) {
         print_usage(argv[0]);
         return 1;
