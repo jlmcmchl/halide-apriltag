@@ -1,6 +1,5 @@
-HALIDE_DIR ?= /opt/homebrew/Cellar/halide/21.0.0
+HALIDE_DIR ?= /home/rj/Downloads/Halide-21.0.0-arm-64-linux
 HALIDE_AUTOSCHEDULER_DIR ?= $(HALIDE_DIR)/lib
-LIBJPEG_DIR ?= /opt/homebrew/Cellar/jpeg/9f
 
 LIBMULLAPUDI = $(HALIDE_AUTOSCHEDULER_DIR)/libautoschedule_mullapudi2016.so
 LIBLI = $(HALIDE_AUTOSCHEDULER_DIR)/libautoschedule_li2018.so
@@ -30,15 +29,12 @@ bin/threshold.a: bin/threshold.generator
 		min_white_black_diff=5
 
 bin/thresh.rungen: bin/threshold.a
-	c++ RunGenMain.cpp bin/threshold.a bin/threshold.registration.cpp \
+	c++ -g RunGenMain.cpp bin/threshold.a bin/threshold.registration.cpp \
 		-I $(HALIDE_DIR)/include \
 		-I /Users/jmcmichael/Code/Halide/src/runtime \
-		-I $(LIBJPEG_DIR)/include \
-		-L $(LIBJPEG_DIR)/lib \
 		-o bin/thresh.rungen \
 		--std=c++17 \
 		-ljpeg -lz -lpthread -ldl \
-		-framework Metal -framework Foundation \
 		-D HALIDE_NO_PNG=1
 
 test: bin/thresh.rungen
