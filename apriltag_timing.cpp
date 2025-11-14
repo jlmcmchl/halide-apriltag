@@ -31,6 +31,16 @@ extern "C" {
 #ifdef APRILTAG_HAVE_HALIDE
 extern "C" image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im);
 
+// Forward declaration for ThresholdPipeline (public members needed for access)
+class ThresholdPipeline {
+public:
+    std::vector<double> copy_to_device_times_;
+    std::vector<double> pipeline_times_;
+    std::vector<double> copy_to_host_times_;
+};
+// Declare get_pipeline with C++ linkage (should match definition in halide_threshold.cpp)
+extern ThresholdPipeline &get_pipeline();
+
 static void warm_halide_threshold_pipeline(image_u8_t *input)
 {
     static bool warmed = false;
@@ -706,6 +716,22 @@ int main(int argc, char *argv[]) {
         total_time += stats.mean;
     }
     printf("Total time:        %.3f ms\n", total_time);
+
+#ifdef APRILTAG_HAVE_HALIDE
+    if (halide_valid) {
+        auto &threshold = get_pipeline();
+
+        auto copy_in_stats = compute_stats(threshold.copy_to_device_times_);
+        auto pipeline_stats = compute_stats(threshold.pipeline_times_);
+        auto copy_out_stats = compute_stats(threshold.copy_to_host_times_);
+        printf("Copy to device:     mean %.3f ms, std %.3f ms over %zu run(s)\n",
+                copy_in_stats.mean, copy_in_stats.stddev, threshold.copy_to_device_times_.size());
+        printf("Pipeline:           mean %.3f ms, std %.3f ms over %zu run(s)\n",
+                pipeline_stats.mean, pipeline_stats.stddev, threshold.pipeline_times_.size());
+        printf("Copy to host:       mean %.3f ms, std %.3f ms over %zu run(s)\n",
+                copy_out_stats.mean, copy_out_stats.stddev, threshold.copy_to_host_times_.size());
+    }
+#endif
 
     // Cleanup
     if (strcmp(family_name, "tag36h11") == 0) {

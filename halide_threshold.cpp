@@ -2,6 +2,8 @@
 #include <cstdio>
 #include <memory>
 #include <mutex>
+#include <chrono>
+#include <vector>
 
 extern "C" {
 #include "apriltag/apriltag.h"
@@ -14,8 +16,6 @@ using Halide::Param;
 using Halide::Var;
 using Halide::RVar;
 using Halide::BoundaryConditions::repeat_edge;
-
-namespace {
 
 Halide::Target find_gpu_target() {
     // Start with a target suitable for the machine you're running this on.
@@ -72,6 +72,11 @@ Halide::Target find_gpu_target() {
 
 class ThresholdPipeline {
 public:
+    // Public members first to match forward declaration in apriltag_timing.cpp
+    std::vector<double> copy_to_device_times_;
+    std::vector<double> pipeline_times_;
+    std::vector<double> copy_to_host_times_;
+
     ThresholdPipeline()
         : input_(Halide::type_of<uint8_t>(), 2, "input"),
           min_white_black_diff_("min_white_black_diff") {}
@@ -85,22 +90,52 @@ public:
              Halide::Buffer<uint8_t> &output_buf) {
         compile_once();
 
-        // if (target_->has_gpu_feature()) {
-        //     input_buf.set_host_dirty();
-        //     input_buf.copy_to_device(target_->get_required_device_api(), *target_);
-        // }
+        if (!target_ || !pipeline_) {
+            fprintf(stderr, "Error: Pipeline not properly initialized\n");
+            return;
+        }
 
+        auto copy_to_device_start = std::chrono::high_resolution_clock::now();
+        if (target_->has_gpu_feature()) {
+            input_buf.set_host_dirty();
+            input_buf.copy_to_device(target_->get_required_device_api(), *target_);
+        }
         input_.set(input_buf);
+        input_buf.copy_to_device(target_->get_required_device_api(), *target_);
+
+        auto copy_to_device_end = std::chrono::high_resolution_clock::now();
+        copy_to_device_times_.push_back(
+            static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_device_end - copy_to_device_start).count()
+            ) / 1e6  // Convert nanoseconds to milliseconds
+        );
+
         min_white_black_diff_.set(min_white_black_diff);
 
-        pipeline_->realize(output_buf);
+        // Realize to cached output device buffer or host buffer
+        if (target_->has_gpu_feature()) {
+            pipeline_->realize(output_buf);
+        } else {
+            pipeline_->realize(output_buf);
+        }
+        auto pipeline_end = std::chrono::high_resolution_clock::now();
+        pipeline_times_.push_back(
+            static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(pipeline_end - copy_to_device_end).count()
+            ) / 1e6  // Convert nanoseconds to milliseconds
+        );
 
-        // TODO - this is necessary for gpu pipelines, but cpu pipelines running on
-        //  targets with GPUs break when this is hit.
-        // if (target_->has_gpu_feature()) {
-        //     output_buf.set_device_dirty();
-        //     output_buf.copy_to_host();
-        // }
+        auto copy_to_host_start = std::chrono::high_resolution_clock::now();
+        if (target_->has_gpu_feature()) {
+            output_buf.set_device_dirty();
+            output_buf.copy_to_host();
+        }
+        auto copy_to_host_end = std::chrono::high_resolution_clock::now();
+        copy_to_host_times_.push_back(
+            static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_host_end - copy_to_host_start).count()
+            ) / 1e6  // Convert nanoseconds to milliseconds
+        );
     }
 
 private:
@@ -348,8 +383,6 @@ ThresholdPipeline &get_pipeline() {
     static ThresholdPipeline pipeline;
     return pipeline;
 }
-
-} // namespace
 
 extern "C" image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im)
 {
