@@ -1,5 +1,6 @@
 #include <Halide.h>
 #include <cstdio>
+#include <cstring>
 #include <memory>
 #include <mutex>
 #include <chrono>
@@ -85,23 +86,82 @@ public:
         std::call_once(init_flag_, [&]() { build(); });
     }
 
-    void run(Halide::Buffer<uint8_t> &input_buf,
-             int min_white_black_diff,
-             Halide::Buffer<uint8_t> &output_buf) {
+    void create_input_buffer(int width, int height) {
+        input_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
+        auto *input_raw = input_buf_->raw_buffer();
+        input_raw->dim[0].stride = 1;
+        input_raw->dim[1].stride = width;  // Use width as stride for owned buffer
+        input_raw->dim[0].min = 0;
+        input_raw->dim[1].min = 0;
+    }
+
+    void create_output_buffer(int width, int height) {
+        output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
+        auto *output_raw = output_buf_->raw_buffer();
+        output_raw->dim[0].stride = 1;
+        output_raw->dim[1].stride = width;  // Use width as stride for owned buffer
+        output_raw->dim[0].min = 0;
+        output_raw->dim[1].min = 0;
+    }
+
+    void prepare_buffers(uint8_t *input_data, int width, int height, int input_stride) {
+        if (!input_buf_) {
+            create_input_buffer(width, height);
+        }
+
+        bool input_changed = !input_buf_ || 
+                            input_buf_->width() != width ||
+                            input_buf_->height() != height;
+
+        if (input_changed) {
+            create_input_buffer(width, height);
+        }
+
+        for (int y = 0; y < height; y++) {
+            std::memcpy(input_buf_->data() + y * input_buf_->stride(1),
+                       input_data + y * input_stride,
+                       width);
+        }
+
+        if (!output_buf_) {
+            create_output_buffer(width, height);
+        }
+
+        bool output_changed = !output_buf_ || 
+                              output_buf_->width() != width ||
+                              output_buf_->height() != height;
+
+        if (output_changed) {
+            create_output_buffer(width, height);
+        }
+    }
+
+    void copy_output_to_buffer(uint8_t *output_data, int width, int height, int output_stride) {
+        if (!output_buf_) {
+            return;
+        }
+
+        for (int y = 0; y < height; y++) {
+            std::memcpy(output_data + y * output_stride,
+                       output_buf_->data() + y * output_buf_->stride(1),
+                       width);
+        }
+    }
+
+    void run(int min_white_black_diff, uint8_t *output_data, int width, int height, int output_stride) {
         compile_once();
 
-        if (!target_ || !pipeline_) {
+        if (!target_ || !pipeline_ || !input_buf_ || !output_buf_) {
             fprintf(stderr, "Error: Pipeline not properly initialized\n");
             return;
         }
 
         auto copy_to_device_start = std::chrono::high_resolution_clock::now();
         if (target_->has_gpu_feature()) {
-            input_buf.set_host_dirty();
-            input_buf.copy_to_device(target_->get_required_device_api(), *target_);
+            input_buf_->set_host_dirty();
+            input_buf_->copy_to_device(target_->get_required_device_api(), *target_);
         }
-        input_.set(input_buf);
-        input_buf.copy_to_device(target_->get_required_device_api(), *target_);
+        input_.set(*input_buf_);
 
         auto copy_to_device_end = std::chrono::high_resolution_clock::now();
         copy_to_device_times_.push_back(
@@ -114,9 +174,9 @@ public:
 
         // Realize to cached output device buffer or host buffer
         if (target_->has_gpu_feature()) {
-            pipeline_->realize(output_buf);
+            pipeline_->realize(*output_buf_);
         } else {
-            pipeline_->realize(output_buf);
+            pipeline_->realize(*output_buf_);
         }
         auto pipeline_end = std::chrono::high_resolution_clock::now();
         pipeline_times_.push_back(
@@ -127,9 +187,10 @@ public:
 
         auto copy_to_host_start = std::chrono::high_resolution_clock::now();
         if (target_->has_gpu_feature()) {
-            output_buf.set_device_dirty();
-            output_buf.copy_to_host();
+            output_buf_->set_device_dirty();
+            output_buf_->copy_to_host();
         }
+        copy_output_to_buffer(output_data, width, height, output_stride);
         auto copy_to_host_end = std::chrono::high_resolution_clock::now();
         copy_to_host_times_.push_back(
             static_cast<double>(
@@ -377,6 +438,8 @@ private:
     std::unique_ptr<Halide::Pipeline> pipeline_;
     std::unique_ptr<Halide::Target> target_;
     std::once_flag init_flag_;
+    std::unique_ptr<Halide::Buffer<uint8_t>> input_buf_;
+    std::unique_ptr<Halide::Buffer<uint8_t>> output_buf_;
 };
 
 ThresholdPipeline &get_pipeline() {
@@ -393,25 +456,13 @@ extern "C" image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im)
     ThresholdPipeline &pipeline = get_pipeline();
     pipeline.compile_once();
 
-    Halide::Buffer<uint8_t> input_buf(im->buf, im->width, im->height);
-    auto *input_raw = input_buf.raw_buffer();
-    input_raw->dim[0].stride = 1;
-    input_raw->dim[1].stride = im->stride;
-    input_raw->dim[0].min = 0;
-    input_raw->dim[1].min = 0;
-
     image_u8_t *threshim = image_u8_create_alignment(im->width, im->height, im->stride);
-    Halide::Buffer<uint8_t> output_buf(threshim->buf, threshim->width, threshim->height);
-    auto *output_raw = output_buf.raw_buffer();
-    output_raw->dim[0].stride = 1;
-    output_raw->dim[1].stride = threshim->stride;
-    output_raw->dim[0].min = 0;
-    output_raw->dim[1].min = 0;
 
     try {
-        pipeline.run(input_buf, td->qtp.min_white_black_diff, output_buf);
+        pipeline.prepare_buffers(im->buf, im->width, im->height, im->stride);
+        pipeline.run(td->qtp.min_white_black_diff, threshim->buf, im->width, im->height, im->stride);
         // Debugging - used to affirm 'correctness' for different schedules / algorithms
-        // image_u8_write_pnm(threshim, "debug_output_buf.jpg");
+        // image_u8_write_pnm(threshim, "debug_output_buf.pgm");
     } catch (const Halide::RuntimeError &e) {
         fprintf(stderr, "Halide runtime error: %s\n", e.what());
         image_u8_destroy(threshim);
