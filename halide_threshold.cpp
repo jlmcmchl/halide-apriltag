@@ -61,15 +61,25 @@ public:
         std::call_once(init_flag_, [&]() { build(); });
     }
 
-    void run(const Halide::Buffer<uint8_t> &input_buf,
+    void run(Halide::Buffer<uint8_t> &input_buf,
              int min_white_black_diff,
              Halide::Buffer<uint8_t> &output_buf) {
         compile_once();
+
+        if (target_->has_gpu_feature()) {
+            input_buf.set_host_dirty();
+            input_buf.copy_to_device(target_->get_required_device_api(), *target_);
+        }
 
         input_.set(input_buf);
         min_white_black_diff_.set(min_white_black_diff);
 
         pipeline_->realize(output_buf);
+
+        if (target_->has_gpu_feature()) {
+            output_buf.set_device_dirty();
+            output_buf.copy_to_host();
+        }
     }
 
 private:
