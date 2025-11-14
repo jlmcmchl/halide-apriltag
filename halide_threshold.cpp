@@ -23,6 +23,7 @@ Halide::Target find_gpu_target() {
     // return target;
 
     std::vector<Halide::Target::Feature> features_to_try;
+    features_to_try.push_back(Halide::Target::CUDA);
     if (target.os == Halide::Target::Windows) {
         // Try D3D12 first; if that fails, try OpenCL.
         if (sizeof(void*) == 8) {
@@ -37,13 +38,31 @@ Halide::Target find_gpu_target() {
     } else {
         features_to_try.push_back(Halide::Target::OpenCL);
     }
-    // Uncomment the following lines to also try CUDA:
-    features_to_try.push_back(Halide::Target::CUDA);
 
     for (Halide::Target::Feature f : features_to_try) {
         Halide::Target new_target = target.with_feature(f);
         if (host_supports_target_device(new_target)) {
+            if (f == Halide::Target::Feature::CUDA) {
+                for (Halide::Target::Feature f : {
+                    Halide::Target::Feature::CUDACapability86, 
+                    Halide::Target::Feature::CUDACapability80, 
+                    Halide::Target::Feature::CUDACapability75, 
+                    Halide::Target::Feature::CUDACapability70, 
+                    Halide::Target::Feature::CUDACapability61, 
+                    Halide::Target::Feature::CUDACapability50, 
+                    Halide::Target::Feature::CUDACapability35, 
+                    Halide::Target::Feature::CUDACapability32, 
+                    Halide::Target::Feature::CUDACapability30
+                }) {
+                    Halide::Target new_target_with_feature = new_target.with_feature(f);
+                    if (host_supports_target_device(new_target_with_feature)) {
+                        return new_target_with_feature;
+                    }
+                }
+                return new_target;
+            } else {
             return new_target;
+            }
         }
     }
 
