@@ -333,6 +333,8 @@ extern "C" image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im)
 
     try {
         pipeline.run(input_buf, td->qtp.min_white_black_diff, output_buf);
+        // Debugging - used to affirm 'correctness' for different schedules / algorithms
+        // image_u8_write_pnm(threshim, "debug_output_buf.jpg");
     } catch (const Halide::RuntimeError &e) {
         fprintf(stderr, "Halide runtime error: %s\n", e.what());
         image_u8_destroy(threshim);
