@@ -31,7 +31,7 @@ extern "C" {
 #ifdef APRILTAG_HAVE_HALIDE
 extern "C" image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im);
 
-static void warm_halide_threshold_pipeline()
+static void warm_halide_threshold_pipeline(image_u8_t *input)
 {
     static bool warmed = false;
     if (warmed) {
@@ -44,13 +44,9 @@ static void warm_halide_threshold_pipeline()
     }
     td->use_halide = true;
 
-    image_u8_t *dummy = image_u8_create(128, 128);
-    if (dummy) {
-        image_u8_t *result = halide_threshold(td, dummy);
-        if (result) {
-            image_u8_destroy(result);
-        }
-        image_u8_destroy(dummy);
+    image_u8_t *result = halide_threshold(td, input);
+    if (result) {
+        image_u8_destroy(result);
     }
 
     apriltag_detector_destroy(td);
@@ -652,7 +648,7 @@ int main(int argc, char *argv[]) {
 
 #ifdef APRILTAG_HAVE_HALIDE
     if (run_halide) {
-        warm_halide_threshold_pipeline();
+        warm_halide_threshold_pipeline(im);
     }
 
     if (run_halide) {
