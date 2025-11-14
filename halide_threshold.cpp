@@ -17,6 +17,7 @@ using Halide::Param;
 using Halide::Var;
 using Halide::RVar;
 using Halide::BoundaryConditions::repeat_edge;
+using Halide::TailStrategy;
 
 Halide::Target find_gpu_target() {
     // Start with a target suitable for the machine you're running this on.
@@ -279,7 +280,8 @@ private:
             // Adams2019: https://github.com/halide/Halide/blob/main/src/autoschedulers/adams2019/CostModel.h#L19
             // Anderson2021: https://github.com/halide/Halide/blob/main/src/autoschedulers/anderson2021/CostModel.h#L18
             // ^ gpu only
-            pipeline_->apply_autoscheduler(target, {"Adams2019", {{"parallelism", "32"}, {"beam_size", "64"}, {"random_dropout", "5"}}});
+            auto results = pipeline_->apply_autoscheduler(target, {"Anderson2021", {{"parallelism", "32"}, {"beam_size", "64"}}});
+            printf("Autoscheduler results: %s\n", results.schedule_source.c_str());
 #else
             if (target.has_gpu_feature()) {
                 Var _0(padded.get_schedule().dims()[0].var);
@@ -302,103 +304,107 @@ private:
                 RVar r10_y(tile_min.update(0).get_schedule().dims()[1].var);
                 RVar r23_x(neigh_min.update(0).get_schedule().dims()[0].var);
                 RVar r23_y(neigh_min.update(0).get_schedule().dims()[1].var);
-                Var _0i_serial_outer("_0i_serial_outer");
-                Var tyi_serial_outer("tyi_serial_outer");
-                Var tx_serial_outer("tx_serial_outer");
-                Var txi_serial_outer("txi_serial_outer");
                 Var ty_serial_outer("ty_serial_outer");
-                Var yi_serial_outer("yi_serial_outer");
+                Var tyi_serial_outer("tyi_serial_outer");
+                Var _1i_serial_outer("_1i_serial_outer");
+                Var txi_serial_outer("txi_serial_outer");
+                Var _0i_serial_outer("_0i_serial_outer");
+                Var tx_serial_outer("tx_serial_outer");
                 Var xi_serial_outer("xi_serial_outer");
                 output
-                      .split(x, x, xi, 64, Halide::TailStrategy::ShiftInwards)
-                      .split(y, y, yi, 32, Halide::TailStrategy::ShiftInwards)
-                      .split(xi, xi, xii, 2, Halide::TailStrategy::ShiftInwards)
-                      .split(yi, yi, yii, 4, Halide::TailStrategy::ShiftInwards)
-                      .unroll(xii)
-                      .unroll(yii)
-                      .compute_root()
-                      .reorder(xii, yii, xi, yi, x, y)
-                      .gpu_blocks(x)
-                      .gpu_blocks(y)
-                      .split(xi, xi_serial_outer, xi, 32, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(xi)
-                      .split(yi, yi_serial_outer, yi, 8, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(yi);
+                    .split(x, x, xi, 64, TailStrategy::ShiftInwards)
+                    .split(y, y, yi, 4, TailStrategy::ShiftInwards)
+                    .split(xi, xi, xii, 4, TailStrategy::ShiftInwards)
+                    .split(yi, yi, yii, 4, TailStrategy::ShiftInwards)
+                    .unroll(xii)
+                    .unroll(yii)
+                    .compute_root()
+                    .reorder(xii, yii, xi, yi, x, y)
+                    .gpu_blocks(x)
+                    .gpu_blocks(y)
+                    .split(xi, xi_serial_outer, xi, 16, TailStrategy::GuardWithIf)
+                    .gpu_threads(xi);
                 neigh_min
-                      .compute_at(output, x)
-                      .reorder(tx, ty)
-                      .split(tx, tx_serial_outer, tx, 16, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(tx)
-                      .split(ty, ty_serial_outer, ty, 8, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(ty);
+                    .compute_at(output, x)
+                    .reorder(tx, ty)
+                    .split(tx, tx_serial_outer, tx, 16, TailStrategy::GuardWithIf)
+                    .gpu_threads(tx);
                 neigh_min.update(0)
-                      .reorder(r23_x, r23_y, tx, ty)
-                      .split(tx, tx_serial_outer, tx, 16, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(tx)
-                      .split(ty, ty_serial_outer, ty, 8, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(ty);
+                    .reorder(r23_x, r23_y, tx, ty)
+                    .split(tx, tx_serial_outer, tx, 16, TailStrategy::GuardWithIf)
+                    .gpu_threads(tx);
                 tile_min
-                      .compute_at(output, x)
-                      .reorder(tx, ty)
-                      .split(tx, tx_serial_outer, tx, 18, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(tx)
-                      .split(ty, ty_serial_outer, ty, 10, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(ty);
+                    .split(tx, tx, txi, 32, TailStrategy::RoundUp)
+                    .split(ty, ty, tyi, 2, TailStrategy::RoundUp)
+                    .compute_root()
+                    .reorder(txi, tyi, tx, ty)
+                    .gpu_blocks(tx)
+                    .gpu_blocks(ty)
+                    .split(txi, txi_serial_outer, txi, 32, TailStrategy::GuardWithIf)
+                    .gpu_threads(txi)
+                    .split(tyi, tyi_serial_outer, tyi, 2, TailStrategy::GuardWithIf)
+                    .gpu_threads(tyi);
                 tile_min.update(0)
-                      .reorder(r10_x, r10_y, tx, ty)
-                      .split(tx, tx_serial_outer, tx, 18, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(tx)
-                      .split(ty, ty_serial_outer, ty, 10, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(ty);
+                    .split(tx, tx, txi, 32, TailStrategy::RoundUp)
+                    .split(ty, ty, tyi, 2, TailStrategy::RoundUp)
+                    .reorder(r10_x, r10_y, txi, tyi, tx, ty)
+                    .gpu_blocks(tx)
+                    .gpu_blocks(ty)
+                    .split(txi, txi_serial_outer, txi, 32, TailStrategy::GuardWithIf)
+                    .gpu_threads(txi)
+                    .split(tyi, tyi_serial_outer, tyi, 2, TailStrategy::GuardWithIf)
+                    .gpu_threads(tyi);
                 neigh_max
-                      .split(tx, tx, txi, 32, Halide::TailStrategy::RoundUp)
-                      .split(ty, ty, tyi, 8, Halide::TailStrategy::RoundUp)
-                      .split(txi, txi, txii, 2, Halide::TailStrategy::RoundUp)
-                      .unroll(txii)
-                      .compute_root()
-                      .reorder(txii, txi, tyi, tx, ty)
-                      .gpu_blocks(tx)
-                      .gpu_blocks(ty)
-                      .split(txi, txi_serial_outer, txi, 16, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(txi)
-                      .split(tyi, tyi_serial_outer, tyi, 8, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(tyi);
+                    .split(tx, tx, txi, 32, TailStrategy::RoundUp)
+                    .split(ty, ty, tyi, 8, TailStrategy::RoundUp)
+                    .split(txi, txi, txii, 2, TailStrategy::RoundUp)
+                    .unroll(txii)
+                    .compute_root()
+                    .reorder(txii, txi, tyi, tx, ty)
+                    .gpu_blocks(tx)
+                    .gpu_blocks(ty)
+                    .split(txi, txi_serial_outer, txi, 16, TailStrategy::GuardWithIf)
+                    .gpu_threads(txi)
+                    .split(tyi, tyi_serial_outer, tyi, 8, TailStrategy::GuardWithIf)
+                    .gpu_threads(tyi);
                 neigh_max.update(0)
-                      .split(tx, tx, txi, 32, Halide::TailStrategy::RoundUp)
-                      .split(ty, ty, tyi, 8, Halide::TailStrategy::RoundUp)
-                      .split(txi, txi, txii, 2, Halide::TailStrategy::GuardWithIf)
-                      .unroll(txii)
-                      .reorder(txii, r23_x, r23_y, txi, tyi, tx, ty)
-                      .gpu_blocks(tx)
-                      .gpu_blocks(ty)
-                      .split(txi, txi_serial_outer, txi, 16, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(txi)
-                      .split(tyi, tyi_serial_outer, tyi, 8, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(tyi);
+                    .split(tx, tx, txi, 32, TailStrategy::RoundUp)
+                    .split(ty, ty, tyi, 8, TailStrategy::RoundUp)
+                    .split(txi, txi, txii, 2, TailStrategy::GuardWithIf)
+                    .unroll(txii)
+                    .reorder(txii, r23_x, r23_y, txi, tyi, tx, ty)
+                    .gpu_blocks(tx)
+                    .gpu_blocks(ty)
+                    .split(txi, txi_serial_outer, txi, 16, TailStrategy::GuardWithIf)
+                    .gpu_threads(txi)
+                    .split(tyi, tyi_serial_outer, tyi, 8, TailStrategy::GuardWithIf)
+                    .gpu_threads(tyi);
                 tile_max
-                      .compute_at(neigh_max, tx)
-                      .reorder(tx, ty)
-                      .split(tx, tx_serial_outer, tx, 34, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(tx)
-                      .split(ty, ty_serial_outer, ty, 10, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(ty);
+                    .compute_at(neigh_max, tx)
+                    .reorder(tx, ty)
+                    .split(tx, tx_serial_outer, tx, 34, TailStrategy::GuardWithIf)
+                    .gpu_threads(tx)
+                    .split(ty, ty_serial_outer, ty, 10, TailStrategy::GuardWithIf)
+                    .gpu_threads(ty);
                 tile_max.update(0)
-                      .reorder(r10_x, r10_y, tx, ty)
-                      .split(tx, tx_serial_outer, tx, 34, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(tx)
-                      .split(ty, ty_serial_outer, ty, 10, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(ty);
+                    .reorder(r10_x, r10_y, tx, ty)
+                    .split(tx, tx_serial_outer, tx, 34, TailStrategy::GuardWithIf)
+                    .gpu_threads(tx)
+                    .split(ty, ty_serial_outer, ty, 10, TailStrategy::GuardWithIf)
+                    .gpu_threads(ty);
                 padded
-                      .split(_0, _0, _0i, 64, Halide::TailStrategy::ShiftInwards)
-                      .split(_1, _1, _1i, 4, Halide::TailStrategy::ShiftInwards)
-                      .split(_1i, _1i, _1ii, 4, Halide::TailStrategy::ShiftInwards)
-                      .unroll(_1ii)
-                      .compute_root()
-                      .reorder(_1ii, _0i, _1i, _0, _1)
-                      .gpu_blocks(_0)
-                      .gpu_blocks(_1)
-                      .split(_0i, _0i_serial_outer, _0i, 64, Halide::TailStrategy::GuardWithIf)
-                      .gpu_threads(_0i);
+                    .split(_0, _0, _0i, 32, TailStrategy::ShiftInwards)
+                    .split(_1, _1, _1i, 8, TailStrategy::ShiftInwards)
+                    .split(_1i, _1i, _1ii, 4, TailStrategy::ShiftInwards)
+                    .unroll(_1ii)
+                    .compute_root()
+                    .reorder(_1ii, _0i, _1i, _0, _1)
+                    .gpu_blocks(_0)
+                    .gpu_blocks(_1)
+                    .split(_0i, _0i_serial_outer, _0i, 32, TailStrategy::GuardWithIf)
+                    .gpu_threads(_0i)
+                    .split(_1i, _1i_serial_outer, _1i, 2, TailStrategy::GuardWithIf)
+                    .gpu_threads(_1i);
             } else {
                 // Scheduling tuned for CPU parallelism; GPU scheduling can be
                 // layered on later if desired.
