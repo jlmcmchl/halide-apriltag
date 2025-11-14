@@ -23,7 +23,7 @@ bin/threshold.generator: halide_generator.cpp
 bin/threshold.a: bin/threshold.generator
 	./bin/threshold.generator -g threshold -o bin \
 		-e static_library,h,registration,stmt_html,assembly,schedule,conceptual_stmt_html \
-		target=arm-64-osx-arm_dot_prod-arm_fp16-metal \
+		target=host-cuda \
 		-p $(LIBANDERSON),$(LIBADAMS),$(LIBLI),$(LIBMULLAPUDI) \
 		autoscheduler=Anderson2021 \
 		min_white_black_diff=5
@@ -31,7 +31,6 @@ bin/threshold.a: bin/threshold.generator
 bin/thresh.rungen: bin/threshold.a
 	c++ -g RunGenMain.cpp bin/threshold.a bin/threshold.registration.cpp \
 		-I $(HALIDE_DIR)/include \
-		-I /Users/jmcmichael/Code/Halide/src/runtime \
 		-o bin/thresh.rungen \
 		--std=c++17 \
 		-ljpeg -lz -lpthread -ldl \
