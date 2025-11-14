@@ -91,7 +91,12 @@ if (USE_HALIDE)
 
         if (Halide_FOUND)
             target_sources(apriltag_timing PRIVATE halide_threshold.cpp)
-            target_link_libraries(apriltag_timing PRIVATE Halide::Halide)
+            target_link_libraries(apriltag_timing PRIVATE
+                Halide::Halide
+                Halide::Mullapudi2016
+                Halide::Li2018
+                Halide::Adams2019
+                Halide::Anderson2021)
             target_compile_definitions(apriltag_timing PRIVATE APRILTAG_HAVE_HALIDE=1)
             message(STATUS "Halide found - hybrid detector enabled")
         else()

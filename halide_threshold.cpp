@@ -66,24 +66,31 @@ public:
              Halide::Buffer<uint8_t> &output_buf) {
         compile_once();
 
-        if (target_->has_gpu_feature()) {
-            input_buf.set_host_dirty();
-            input_buf.copy_to_device(target_->get_required_device_api(), *target_);
-        }
+        // if (target_->has_gpu_feature()) {
+        //     input_buf.set_host_dirty();
+        //     input_buf.copy_to_device(target_->get_required_device_api(), *target_);
+        // }
 
         input_.set(input_buf);
         min_white_black_diff_.set(min_white_black_diff);
 
         pipeline_->realize(output_buf);
 
-        if (target_->has_gpu_feature()) {
-            output_buf.set_device_dirty();
-            output_buf.copy_to_host();
-        }
+        // TODO - this is necessary for gpu pipelines, but cpu pipelines running on
+        //  targets with GPUs break when this is hit.
+        // if (target_->has_gpu_feature()) {
+        //     output_buf.set_device_dirty();
+        //     output_buf.copy_to_host();
+        // }
     }
 
 private:
     void build() {
+        Halide::load_plugin("libautoschedule_mullapudi2016.so");
+        Halide::load_plugin("libautoschedule_li2018.so");
+        Halide::load_plugin("libautoschedule_adams2019.so");
+        Halide::load_plugin("libautoschedule_anderson2021.so");
+
         Var x("x"), y("y");
 
         Func padded = repeat_edge(input_, {{0, input_.width()}, {0, input_.height()}});
@@ -141,7 +148,24 @@ private:
         try {
             Halide::Target target = find_gpu_target();
             printf("Target: %s\n", target.to_string().c_str());
-            
+            target_ = std::make_unique<Halide::Target>(target);
+
+
+#ifdef AUTO_SCHEDULE
+            printf("AutoScheduling...\n");
+            input_.set_estimates({{0, 1280}, {0, 800}});
+            min_white_black_diff_.set_estimate(5);
+            output.set_estimates({{0, 1280}, {0, 800}});
+
+            pipeline_ = std::make_unique<Halide::Pipeline>(output);
+            // Parameter specs:
+            // Mullapudi2016: https://github.com/halide/Halide/blob/main/src/autoschedulers/mullapudi2016/AutoSchedule.cpp#L24
+            // Li2018: https://github.com/halide/Halide/blob/main/src/autoschedulers/li2018/GradientAutoscheduler.cpp#L11
+            // Adams2019: https://github.com/halide/Halide/blob/main/src/autoschedulers/adams2019/CostModel.h#L19
+            // Anderson2021: https://github.com/halide/Halide/blob/main/src/autoschedulers/anderson2021/CostModel.h#L18
+            // ^ gpu only
+            pipeline_->apply_autoscheduler(target, {"Adams2019", {{"parallelism", "32"}, {"beam_size", "64"}, {"random_dropout", "5"}}});
+#else
             if (target.has_gpu_feature()) {
                 Var _0(padded.get_schedule().dims()[0].var);
                 Var _0i("_0i");
@@ -281,8 +305,9 @@ private:
                 neigh_max.update().parallel(ty);
             }
             
-            target_ = std::make_unique<Halide::Target>(target);
             pipeline_ = std::make_unique<Halide::Pipeline>(output);
+#endif // AUTO_SCHEDULE
+            
             pipeline_->compile_jit(target);
         } catch (const Halide::CompileError &e) {
             fprintf(stderr, "Halide GPU JIT compile error: %s\n", e.what());
