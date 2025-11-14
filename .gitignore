@@ -1,0 +1,7 @@
+build/
+.cache/
+*.pgm
+compile_commands.json
+.vscode/
+generator/bin/
+*.log
