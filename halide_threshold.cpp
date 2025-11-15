@@ -6,6 +6,10 @@
 #include <chrono>
 #include <vector>
 
+#ifdef APRILTAG_HAVE_CUDA
+#include <cuda.h>
+#endif
+
 extern "C" {
 #include "apriltag/apriltag.h"
 #include "apriltag/common/image_u8.h"
@@ -22,53 +26,10 @@ using Halide::TailStrategy;
 Halide::Target find_gpu_target() {
     // Start with a target suitable for the machine you're running this on.
     Halide::Target target = Halide::get_host_target();
-    // return target;
-
-    std::vector<Halide::Target::Feature> features_to_try;
-    features_to_try.push_back(Halide::Target::CUDA);
-    if (target.os == Halide::Target::Windows) {
-        // Try D3D12 first; if that fails, try OpenCL.
-        if (sizeof(void*) == 8) {
-            // D3D12Compute support is only available on 64-bit systems at present.
-            features_to_try.push_back(Halide::Target::D3D12Compute);
-        }
-        features_to_try.push_back(Halide::Target::OpenCL);
-    } else if (target.os == Halide::Target::OSX) {
-        // OS X doesn't update its OpenCL drivers, so they tend to be broken.
-        // CUDA would also be a fine choice on machines with NVidia GPUs.
-        features_to_try.push_back(Halide::Target::Metal);
-    } else {
-        features_to_try.push_back(Halide::Target::OpenCL);
-    }
-
-    for (Halide::Target::Feature f : features_to_try) {
-        Halide::Target new_target = target.with_feature(f);
-        if (host_supports_target_device(new_target)) {
-            if (f == Halide::Target::Feature::CUDA) {
-                for (Halide::Target::Feature f : {
-                    Halide::Target::Feature::CUDACapability86, 
-                    Halide::Target::Feature::CUDACapability80, 
-                    Halide::Target::Feature::CUDACapability75, 
-                    Halide::Target::Feature::CUDACapability70, 
-                    Halide::Target::Feature::CUDACapability61, 
-                    Halide::Target::Feature::CUDACapability50, 
-                    Halide::Target::Feature::CUDACapability35, 
-                    Halide::Target::Feature::CUDACapability32, 
-                    Halide::Target::Feature::CUDACapability30
-                }) {
-                    Halide::Target new_target_with_feature = new_target.with_feature(f);
-                    if (host_supports_target_device(new_target_with_feature)) {
-                        return new_target_with_feature;
-                    }
-                }
-                return new_target;
-            } else {
-            return new_target;
-            }
-        }
-    }
-
-    printf("Requested GPU(s) are not supported. (Do you have the proper hardware and/or driver installed?)\n");
+#ifdef APRILTAG_HAVE_CUDA
+    target = target.with_feature(Halide::Target::Feature::CUDA)
+        .with_feature(Halide::Target::Feature::CUDACapability86);
+#endif
     return target;
 }
 
@@ -88,21 +49,60 @@ public:
     }
 
     void create_input_buffer(int width, int height) {
+#ifdef APRILTAG_HAVE_CUDA
+        uint8_t *buf_ptr;
+        size_t buf_size = sizeof(uint8_t) * width * height;
+        auto result = cuMemHostAlloc((void**)&buf_ptr, buf_size, CU_MEMHOSTALLOC_DEVICEMAP);
+        if (result != CUDA_SUCCESS) {
+            fprintf(stderr, "cuMemHostAlloc failed: %d\n", result);
+            throw std::runtime_error("cuMemHostAlloc failed");
+        }
+
+        CUdeviceptr gpu_buf_ptr;
+        result = cuMemHostGetDevicePointer(&gpu_buf_ptr, buf_ptr, 0);
+        if (result != CUDA_SUCCESS) {
+            fprintf(stderr, "cuMemHostGetDevicePointer failed: %d\n", result);
+            throw std::runtime_error("cuMemHostGetDevicePointer failed");
+        }
+
+        input_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(buf_ptr,width, height, "input_buffer");
+        input_buf_->device_wrap_native(Halide::DeviceAPI::CUDA, gpu_buf_ptr, target_);
+#else
         input_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
         auto *input_raw = input_buf_->raw_buffer();
         input_raw->dim[0].stride = 1;
         input_raw->dim[1].stride = width;  // Use width as stride for owned buffer
         input_raw->dim[0].min = 0;
         input_raw->dim[1].min = 0;
+#endif
     }
 
     void create_output_buffer(int width, int height) {
+#ifdef APRILTAG_HAVE_CUDA
+        uint8_t *buf_ptr;
+        size_t buf_size = sizeof(uint8_t) * width * height;
+        auto result = cuMemHostAlloc((void**)&buf_ptr, buf_size, CU_MEMHOSTALLOC_DEVICEMAP);
+        if (result != CUDA_SUCCESS) {
+            fprintf(stderr, "cuMemHostAlloc failed: %d\n", result);
+            throw std::runtime_error("cuMemHostAlloc failed");
+        }
+
+        CUdeviceptr gpu_buf_ptr;
+        result = cuMemHostGetDevicePointer(&gpu_buf_ptr, buf_ptr, 0);
+        if (result != CUDA_SUCCESS) {
+            fprintf(stderr, "cuMemHostGetDevicePointer failed: %d\n", result);
+            throw std::runtime_error("cuMemHostGetDevicePointer failed");
+        }
+        output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(buf_ptr,width, height, "output_buffer");
+        output_buf_->device_wrap_native(Halide::DeviceAPI::CUDA, gpu_buf_ptr, target_);
+#else
         output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
         auto *output_raw = output_buf_->raw_buffer();
         output_raw->dim[0].stride = 1;
         output_raw->dim[1].stride = width;  // Use width as stride for owned buffer
         output_raw->dim[0].min = 0;
         output_raw->dim[1].min = 0;
+#endif
     }
 
     void prepare_buffers(uint8_t *input_data, int width, int height, int input_stride) {

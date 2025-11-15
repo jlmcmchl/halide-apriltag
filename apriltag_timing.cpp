@@ -14,6 +14,9 @@
 #include <exception>
 #include <cstdlib>
 #include <Halide.h>
+#ifdef APRILTAG_HAVE_CUDA
+#include <cuda.h>
+#endif
 
 extern "C" {
 #include "apriltag/apriltag.h"
@@ -507,8 +510,43 @@ void print_usage(const char *program_name) {
     printf("  -h, --help             Show this help message\n");
 }
 
+#ifdef APRILTAG_HAVE_CUDA
+void cuda_init() {
+    auto result = cuInit(0);
+    if (result != CUDA_SUCCESS) {
+        fprintf(stderr, "cuInit failed: %d\n", result);
+        throw std::runtime_error("cuInit failed");
+    }
+    int device_count = 0;
+    result = cuDeviceGetCount(&device_count);
+    if (result != CUDA_SUCCESS) {
+        fprintf(stderr, "cuDeviceGetCount failed: %d\n", result);
+        throw std::runtime_error("cuDeviceGetCount failed");
+    }
+    printf("CUDA devices found: %d\n", device_count);
+    assert(device_count == 1);
+    CUdevice device;
+    result = cuDeviceGet(&device, 0);
+    if (result != CUDA_SUCCESS) {
+        fprintf(stderr, "cuDeviceGet failed: %d\n", result);
+        throw std::runtime_error("cuDeviceGet failed");
+    }
+    printf("CUDA device: %d\n", device);
+    CUcontext ctx;
+    result = cuCtxCreate(&ctx, 0, device);
+    if (result != CUDA_SUCCESS) {
+        fprintf(stderr, "cuCtxCreate failed: %d\n", result);
+        throw std::runtime_error("cuCtxCreate failed");
+    }
+    printf("CUDA context created\n");
+}
+#endif
+
 int main(int argc, char *argv[]) {
     std::set_terminate(terminate_handler);
+#ifdef APRILTAG_HAVE_CUDA
+    cuda_init();
+#endif
     if (argc < 2) {
         print_usage(argv[0]);
         return 1;
