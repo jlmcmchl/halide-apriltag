@@ -11,6 +11,12 @@ set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+# Set default build type to Release with debug info if not specified
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
+endif()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(USE_HALIDE "Build the Halide-backed threshold pipeline" ON)
 
@@ -61,6 +67,8 @@ add_executable(apriltag_timing
     ${APRILTAG_SOURCES}
     ${APRILTAG_COMMON_SOURCES}
 )
+
+target_compile_definitions(apriltag_timing PRIVATE _GNU_SOURCE)
 
 target_include_directories(apriltag_timing
     PRIVATE
@@ -116,7 +124,10 @@ if (CUDAToolkit_FOUND)
     # CUDA::cudart for CUDA runtime API
     # CUDA::cuda_driver for CUDA driver API (cuMemHostAlloc, cuMemHostGetDevicePointer_v2, etc.)
     target_link_libraries(apriltag_timing PRIVATE CUDA::cudart CUDA::cuda_driver)
-    # target_compile_definitions(apriltag_timing PRIVATE APRILTAG_HAVE_CUDA=1)
+    target_compile_definitions(apriltag_timing PRIVATE APRILTAG_HAVE_CUDA=1)
 else()
     message(WARNING "CUDA toolkit not found. CUDA support will be disabled.")
 endif()
+
+# target_compile_options(apriltag_timing PRIVATE -g -pg)
+# target_link_options(apriltag_timing PRIVATE -pg)
