@@ -106,7 +106,7 @@ public:
 #endif
     }
 
-    void prepare_buffers(uint8_t *input_data, int width, int height, int input_stride) {
+    void prepare_buffers(int width, int height, int input_stride) {
         if (!input_buf_) {
             create_input_buffer(width, height);
         }
@@ -117,12 +117,6 @@ public:
 
         if (input_changed) {
             create_input_buffer(width, height);
-        }
-
-        for (int y = 0; y < height; y++) {
-            std::memcpy(input_buf_->data() + y * input_buf_->stride(1),
-                       input_data + y * input_stride,
-                       width);
         }
 
         if (!output_buf_) {
@@ -138,19 +132,7 @@ public:
         }
     }
 
-    void copy_output_to_buffer(uint8_t *output_data, int width, int height, int output_stride) {
-        if (!output_buf_) {
-            return;
-        }
-
-        for (int y = 0; y < height; y++) {
-            std::memcpy(output_data + y * output_stride,
-                       output_buf_->data() + y * output_buf_->stride(1),
-                       width);
-        }
-    }
-
-    void run(int min_white_black_diff, uint8_t *output_data, int width, int height, int output_stride) {
+    void run(int min_white_black_diff, uint8_t *input_data, uint8_t *output_data, int width, int height, int output_stride) {
         compile_once();
 
         if (!pipeline_ || !input_buf_ || !output_buf_) {
@@ -163,6 +145,7 @@ public:
             // input_buf_->set_host_dirty();
             // input_buf_->copy_to_device(target_.get_required_device_api(), target_);
         }
+        std::memcpy(input_buf_->data(), input_data, width * height);
         input_.set(*input_buf_);
 
         auto copy_to_device_end = std::chrono::high_resolution_clock::now();
@@ -523,8 +506,8 @@ extern "C" image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im)
     image_u8_t *threshim = image_u8_create_alignment(im->width, im->height, im->stride);
 
     try {
-        pipeline.prepare_buffers(im->buf, im->width, im->height, im->stride);
-        pipeline.run(td->qtp.min_white_black_diff, threshim->buf, im->width, im->height, im->stride);
+        pipeline.prepare_buffers(im->width, im->height, im->stride);
+        pipeline.run(td->qtp.min_white_black_diff, im->buf, threshim->buf, im->width, im->height, im->stride);
         // Debugging - used to affirm 'correctness' for different schedules / algorithms
         // image_u8_write_pnm(threshim, "debug_output_buf.pgm");
     } catch (const Halide::RuntimeError &e) {
