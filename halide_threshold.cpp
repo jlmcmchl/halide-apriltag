@@ -153,15 +153,15 @@ public:
     void run(int min_white_black_diff, uint8_t *output_data, int width, int height, int output_stride) {
         compile_once();
 
-        if (!target_ || !pipeline_ || !input_buf_ || !output_buf_) {
+        if (!pipeline_ || !input_buf_ || !output_buf_) {
             fprintf(stderr, "Error: Pipeline not properly initialized\n");
             return;
         }
 
         auto copy_to_device_start = std::chrono::high_resolution_clock::now();
-        if (target_->has_gpu_feature()) {
-            input_buf_->set_host_dirty();
-            input_buf_->copy_to_device(target_->get_required_device_api(), *target_);
+        if (target_.has_gpu_feature()) {
+            // input_buf_->set_host_dirty();
+            // input_buf_->copy_to_device(target_.get_required_device_api(), target_);
         }
         input_.set(*input_buf_);
 
@@ -175,7 +175,7 @@ public:
         min_white_black_diff_.set(min_white_black_diff);
 
         // Realize to cached output device buffer or host buffer
-        if (target_->has_gpu_feature()) {
+        if (target_.has_gpu_feature()) {
             pipeline_->realize(*output_buf_);
         } else {
             pipeline_->realize(*output_buf_);
@@ -188,9 +188,9 @@ public:
         );
 
         auto copy_to_host_start = std::chrono::high_resolution_clock::now();
-        if (target_->has_gpu_feature()) {
-            output_buf_->set_device_dirty();
-            output_buf_->copy_to_host();
+        if (target_.has_gpu_feature()) {
+            // output_buf_->set_device_dirty();
+            // output_buf_->copy_to_host();
         }
         copy_output_to_buffer(output_data, width, height, output_stride);
         auto copy_to_host_end = std::chrono::high_resolution_clock::now();
@@ -258,10 +258,7 @@ private:
                            Halide::select(padded(x, y) > threshold, 255, 0)));
 
         try {
-            Halide::Target target = find_gpu_target();
-            printf("Target: %s\n", target.to_string().c_str());
-            target_ = std::make_unique<Halide::Target>(target);
-
+            printf("Target: %s\n", target_.to_string().c_str());
 
 #ifdef AUTO_SCHEDULE
             Halide::load_plugin("libautoschedule_mullapudi2016.so");
@@ -284,7 +281,7 @@ private:
             auto results = pipeline_->apply_autoscheduler(target_, {"Adams2019", {{"parallelism", "32"}, {"beam_size", "64"}}});
             printf("Autoscheduler results: %s\n", results.schedule_source.c_str());
 #else
-            if (target.has_gpu_feature()) {
+            if (target_.has_gpu_feature()) {
                 Var _0(padded.get_schedule().dims()[0].var);
                 Var _0i("_0i");
                 Var _1(padded.get_schedule().dims()[1].var);
@@ -490,7 +487,7 @@ private:
             pipeline_ = std::make_unique<Halide::Pipeline>(output);
 #endif // AUTO_SCHEDULE
             
-            pipeline_->compile_jit(target);
+            pipeline_->compile_jit(target_);
         } catch (const Halide::CompileError &e) {
             fprintf(stderr, "Halide GPU JIT compile error: %s\n", e.what());
             throw;
@@ -503,7 +500,7 @@ private:
     ImageParam input_;
     Param<int> min_white_black_diff_;
     std::unique_ptr<Halide::Pipeline> pipeline_;
-    std::unique_ptr<Halide::Target> target_;
+    Halide::Target target_ = find_gpu_target();
     std::once_flag init_flag_;
     std::unique_ptr<Halide::Buffer<uint8_t>> input_buf_;
     std::unique_ptr<Halide::Buffer<uint8_t>> output_buf_;
