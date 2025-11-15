@@ -32,17 +32,7 @@ extern "C" {
 }
 
 #ifdef APRILTAG_HAVE_HALIDE
-extern "C" image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im);
-
-// Forward declaration for ThresholdPipeline (public members needed for access)
-class ThresholdPipeline {
-public:
-    std::vector<double> copy_to_device_times_;
-    std::vector<double> pipeline_times_;
-    std::vector<double> copy_to_host_times_;
-};
-// Declare get_pipeline with C++ linkage (should match definition in halide_threshold.cpp)
-extern ThresholdPipeline &get_pipeline();
+#include "halide_threshold.h"
 
 static void warm_halide_threshold_pipeline(image_u8_t *input)
 {
@@ -697,6 +687,8 @@ int main(int argc, char *argv[]) {
 #ifdef APRILTAG_HAVE_HALIDE
     if (run_halide) {
         warm_halide_threshold_pipeline(im);
+        auto &threshold = get_pipeline();
+        threshold.reset_stats();
     }
 
     if (run_halide) {
