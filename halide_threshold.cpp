@@ -109,6 +109,7 @@ public:
     void prepare_buffers(int width, int height, int input_stride) {
         if (!input_buf_) {
             create_input_buffer(width, height);
+            input_.set(*input_buf_);
         }
 
         bool input_changed = !input_buf_ || 
@@ -117,6 +118,7 @@ public:
 
         if (input_changed) {
             create_input_buffer(width, height);
+            input_.set(*input_buf_);
         }
 
         if (!output_buf_) {
@@ -132,6 +134,41 @@ public:
         }
     }
 
+    void copy_input_to_buffer(uint8_t *input_data, int width, int height) {
+        auto copy_to_device_start = std::chrono::high_resolution_clock::now();
+        std::memcpy(input_buf_->data(), input_data, width * height);
+        auto copy_to_device_end = std::chrono::high_resolution_clock::now();
+        copy_to_device_times_.push_back(
+            static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_device_end - copy_to_device_start).count()
+            ) / 1e6  // Convert nanoseconds to milliseconds
+        );
+    }
+
+    void run_pipeline(int min_white_black_diff) {
+        auto pipeline_start = std::chrono::high_resolution_clock::now();
+        min_white_black_diff_.set(min_white_black_diff);
+
+        pipeline_->realize(*output_buf_);
+        auto pipeline_end = std::chrono::high_resolution_clock::now();
+        pipeline_times_.push_back(
+            static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(pipeline_end - pipeline_start).count()
+            ) / 1e6  // Convert nanoseconds to milliseconds
+        );
+    }
+
+    void copy_output_to_buffer(uint8_t *output_data, int width, int height) {
+        auto copy_to_host_start = std::chrono::high_resolution_clock::now();
+        std::memcpy(output_data, output_buf_->data(), width * height);
+        auto copy_to_host_end = std::chrono::high_resolution_clock::now();
+        copy_to_host_times_.push_back(
+            static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_host_end - copy_to_host_start).count()
+            ) / 1e6  // Convert nanoseconds to milliseconds
+        );
+    }
+
     void run(int min_white_black_diff, uint8_t *input_data, uint8_t *output_data, int width, int height, int output_stride) {
         compile_once();
 
@@ -140,48 +177,9 @@ public:
             return;
         }
 
-        auto copy_to_device_start = std::chrono::high_resolution_clock::now();
-        if (target_.has_gpu_feature()) {
-            // input_buf_->set_host_dirty();
-            // input_buf_->copy_to_device(target_.get_required_device_api(), target_);
-        }
-        std::memcpy(input_buf_->data(), input_data, width * height);
-        input_.set(*input_buf_);
-
-        auto copy_to_device_end = std::chrono::high_resolution_clock::now();
-        copy_to_device_times_.push_back(
-            static_cast<double>(
-                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_device_end - copy_to_device_start).count()
-            ) / 1e6  // Convert nanoseconds to milliseconds
-        );
-
-        min_white_black_diff_.set(min_white_black_diff);
-
-        // Realize to cached output device buffer or host buffer
-        if (target_.has_gpu_feature()) {
-            pipeline_->realize(*output_buf_);
-        } else {
-            pipeline_->realize(*output_buf_);
-        }
-        auto pipeline_end = std::chrono::high_resolution_clock::now();
-        pipeline_times_.push_back(
-            static_cast<double>(
-                std::chrono::duration_cast<std::chrono::nanoseconds>(pipeline_end - copy_to_device_end).count()
-            ) / 1e6  // Convert nanoseconds to milliseconds
-        );
-
-        auto copy_to_host_start = std::chrono::high_resolution_clock::now();
-        if (target_.has_gpu_feature()) {
-            // output_buf_->set_device_dirty();
-            // output_buf_->copy_to_host();
-        }
-        copy_output_to_buffer(output_data, width, height, output_stride);
-        auto copy_to_host_end = std::chrono::high_resolution_clock::now();
-        copy_to_host_times_.push_back(
-            static_cast<double>(
-                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_host_end - copy_to_host_start).count()
-            ) / 1e6  // Convert nanoseconds to milliseconds
-        );
+        copy_input_to_buffer(input_data, width, height);
+        run_pipeline(min_white_black_diff);
+        copy_output_to_buffer(output_data, width, height);
     }
 
 private:
