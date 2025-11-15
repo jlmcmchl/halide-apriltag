@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(apriltags_halide
         DESCRIPTION "AprilTag timing harness with optional Halide acceleration"
-        LANGUAGES C CXX)
+        LANGUAGES C CXX CUDA)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -103,4 +103,20 @@ if (USE_HALIDE)
             message(WARNING "Halide package not found. Re-run CMake with USE_HALIDE=OFF or provide Halide_DIR.")
         endif()
     endif()
+endif()
+
+# Find CUDA toolkit for CUDA headers and libraries
+find_package(CUDAToolkit)
+
+if (CUDAToolkit_FOUND)
+    message(STATUS "CUDA toolkit found: ${CUDAToolkit_VERSION}")
+    # Add CUDA include directories for C++ files that include CUDA headers
+    target_include_directories(apriltag_timing PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
+    # Link against CUDA runtime and driver libraries
+    # CUDA::cudart for CUDA runtime API
+    # CUDA::cuda_driver for CUDA driver API (cuMemHostAlloc, cuMemHostGetDevicePointer_v2, etc.)
+    target_link_libraries(apriltag_timing PRIVATE CUDA::cudart CUDA::cuda_driver)
+    # target_compile_definitions(apriltag_timing PRIVATE APRILTAG_HAVE_CUDA=1)
+else()
+    message(WARNING "CUDA toolkit not found. CUDA support will be disabled.")
 endif()
