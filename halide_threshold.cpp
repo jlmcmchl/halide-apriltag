@@ -74,7 +74,7 @@ public:
         }
     }
 
-    void run(int min_white_black_diff, uint8_t *input_data, uint8_t *output_data, int width, int height, int output_stride) {
+    void run(int min_white_black_diff, uint8_t *input_data, uint8_t *output_data, int width, int height) {
         compile_once();
 
         if (!pipeline_ || !input_buf_ || !output_buf_) {
