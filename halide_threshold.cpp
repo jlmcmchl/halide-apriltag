@@ -41,72 +41,12 @@ public:
     std::vector<double> pipeline_times_;
     std::vector<double> copy_to_host_times_;
 
+
     ThresholdPipeline()
         : input_(Halide::type_of<uint8_t>(), 2, "input"),
           min_white_black_diff_("min_white_black_diff") {}
 
-    void compile_once() {
-        std::call_once(init_flag_, [&]() { build(); });
-    }
-
-    void create_input_buffer(int width, int height) {
-#ifdef APRILTAG_HAVE_CUDA
-        uint8_t *buf_ptr;
-        size_t buf_size = sizeof(uint8_t) * width * height;
-        auto result = cuMemHostAlloc((void**)&buf_ptr, buf_size, CU_MEMHOSTALLOC_DEVICEMAP);
-        if (result != CUDA_SUCCESS) {
-            fprintf(stderr, "cuMemHostAlloc failed: %d\n", result);
-            throw std::runtime_error("cuMemHostAlloc failed");
-        }
-
-        CUdeviceptr gpu_buf_ptr;
-        result = cuMemHostGetDevicePointer(&gpu_buf_ptr, buf_ptr, 0);
-        if (result != CUDA_SUCCESS) {
-            fprintf(stderr, "cuMemHostGetDevicePointer failed: %d\n", result);
-            throw std::runtime_error("cuMemHostGetDevicePointer failed");
-        }
-
-        input_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(buf_ptr,width, height, "input_buffer");
-        input_buf_->device_wrap_native(Halide::DeviceAPI::CUDA, gpu_buf_ptr, target_);
-#else
-        input_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
-        auto *input_raw = input_buf_->raw_buffer();
-        input_raw->dim[0].stride = 1;
-        input_raw->dim[1].stride = width;  // Use width as stride for owned buffer
-        input_raw->dim[0].min = 0;
-        input_raw->dim[1].min = 0;
-#endif
-    }
-
-    void create_output_buffer(int width, int height) {
-#ifdef APRILTAG_HAVE_CUDA
-        uint8_t *buf_ptr;
-        size_t buf_size = sizeof(uint8_t) * width * height;
-        auto result = cuMemHostAlloc((void**)&buf_ptr, buf_size, CU_MEMHOSTALLOC_DEVICEMAP);
-        if (result != CUDA_SUCCESS) {
-            fprintf(stderr, "cuMemHostAlloc failed: %d\n", result);
-            throw std::runtime_error("cuMemHostAlloc failed");
-        }
-
-        CUdeviceptr gpu_buf_ptr;
-        result = cuMemHostGetDevicePointer(&gpu_buf_ptr, buf_ptr, 0);
-        if (result != CUDA_SUCCESS) {
-            fprintf(stderr, "cuMemHostGetDevicePointer failed: %d\n", result);
-            throw std::runtime_error("cuMemHostGetDevicePointer failed");
-        }
-        output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(buf_ptr,width, height, "output_buffer");
-        output_buf_->device_wrap_native(Halide::DeviceAPI::CUDA, gpu_buf_ptr, target_);
-#else
-        output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
-        auto *output_raw = output_buf_->raw_buffer();
-        output_raw->dim[0].stride = 1;
-        output_raw->dim[1].stride = width;  // Use width as stride for owned buffer
-        output_raw->dim[0].min = 0;
-        output_raw->dim[1].min = 0;
-#endif
-    }
-
-    void prepare_buffers(int width, int height, int input_stride) {
+    void prepare_buffers(int width, int height) {
         if (!input_buf_) {
             create_input_buffer(width, height);
             input_.set(*input_buf_);
@@ -134,41 +74,6 @@ public:
         }
     }
 
-    void copy_input_to_buffer(uint8_t *input_data, int width, int height) {
-        auto copy_to_device_start = std::chrono::high_resolution_clock::now();
-        std::memcpy(input_buf_->data(), input_data, width * height);
-        auto copy_to_device_end = std::chrono::high_resolution_clock::now();
-        copy_to_device_times_.push_back(
-            static_cast<double>(
-                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_device_end - copy_to_device_start).count()
-            ) / 1e6  // Convert nanoseconds to milliseconds
-        );
-    }
-
-    void run_pipeline(int min_white_black_diff) {
-        auto pipeline_start = std::chrono::high_resolution_clock::now();
-        min_white_black_diff_.set(min_white_black_diff);
-
-        pipeline_->realize(*output_buf_);
-        auto pipeline_end = std::chrono::high_resolution_clock::now();
-        pipeline_times_.push_back(
-            static_cast<double>(
-                std::chrono::duration_cast<std::chrono::nanoseconds>(pipeline_end - pipeline_start).count()
-            ) / 1e6  // Convert nanoseconds to milliseconds
-        );
-    }
-
-    void copy_output_to_buffer(uint8_t *output_data, int width, int height) {
-        auto copy_to_host_start = std::chrono::high_resolution_clock::now();
-        std::memcpy(output_data, output_buf_->data(), width * height);
-        auto copy_to_host_end = std::chrono::high_resolution_clock::now();
-        copy_to_host_times_.push_back(
-            static_cast<double>(
-                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_host_end - copy_to_host_start).count()
-            ) / 1e6  // Convert nanoseconds to milliseconds
-        );
-    }
-
     void run(int min_white_black_diff, uint8_t *input_data, uint8_t *output_data, int width, int height, int output_stride) {
         compile_once();
 
@@ -178,11 +83,15 @@ public:
         }
 
         copy_input_to_buffer(input_data, width, height);
-        run_pipeline(min_white_black_diff);
+        run_pipeline(min_white_black_diff, input_data, output_data, width, height);
         copy_output_to_buffer(output_data, width, height);
     }
 
 private:
+    void compile_once() {
+        std::call_once(init_flag_, [&]() { build(); });
+    }
+
     void build() {
         Var x("x"), y("y");
 
@@ -478,6 +387,113 @@ private:
         }
     }
 
+    void create_input_buffer(int width, int height) {
+#ifdef APRILTAG_HAVE_CUDA
+        uint8_t *buf_ptr;
+        size_t buf_size = sizeof(uint8_t) * width * height;
+        auto result = cuMemHostAlloc((void**)&buf_ptr, buf_size, CU_MEMHOSTALLOC_DEVICEMAP);
+        if (result != CUDA_SUCCESS) {
+            fprintf(stderr, "cuMemHostAlloc failed: %d\n", result);
+            throw std::runtime_error("cuMemHostAlloc failed");
+        }
+
+        CUdeviceptr gpu_buf_ptr;
+        result = cuMemHostGetDevicePointer(&gpu_buf_ptr, buf_ptr, 0);
+        if (result != CUDA_SUCCESS) {
+            fprintf(stderr, "cuMemHostGetDevicePointer failed: %d\n", result);
+            throw std::runtime_error("cuMemHostGetDevicePointer failed");
+        }
+
+        input_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(buf_ptr,width, height, "input_buffer");
+        input_buf_->device_wrap_native(Halide::DeviceAPI::CUDA, gpu_buf_ptr, target_);
+#else
+        input_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
+        auto *input_raw = input_buf_->raw_buffer();
+        input_raw->dim[0].stride = 1;
+        input_raw->dim[1].stride = width;  // Use width as stride for owned buffer
+        input_raw->dim[0].min = 0;
+        input_raw->dim[1].min = 0;
+#endif
+        input_.set(*input_buf_);
+    }
+
+    void create_output_buffer(int width, int height) {
+#ifdef APRILTAG_HAVE_CUDA
+        uint8_t *buf_ptr;
+        size_t buf_size = sizeof(uint8_t) * width * height;
+        auto result = cuMemHostAlloc((void**)&buf_ptr, buf_size, CU_MEMHOSTALLOC_DEVICEMAP);
+        if (result != CUDA_SUCCESS) {
+            fprintf(stderr, "cuMemHostAlloc failed: %d\n", result);
+            throw std::runtime_error("cuMemHostAlloc failed");
+        }
+
+        CUdeviceptr gpu_buf_ptr;
+        result = cuMemHostGetDevicePointer(&gpu_buf_ptr, buf_ptr, 0);
+        if (result != CUDA_SUCCESS) {
+            fprintf(stderr, "cuMemHostGetDevicePointer failed: %d\n", result);
+            throw std::runtime_error("cuMemHostGetDevicePointer failed");
+        }
+        output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(buf_ptr,width, height, "output_buffer");
+        output_buf_->device_wrap_native(Halide::DeviceAPI::CUDA, gpu_buf_ptr, target_);
+#else
+        output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
+        auto *output_raw = output_buf_->raw_buffer();
+        output_raw->dim[0].stride = 1;
+        output_raw->dim[1].stride = width;  // Use width as stride for owned buffer
+        output_raw->dim[0].min = 0;
+        output_raw->dim[1].min = 0;
+#endif
+    }
+
+    void copy_input_to_buffer(uint8_t *input_data, int width, int height) {
+        if (!input_buf_) {
+            return;
+        }
+
+        auto copy_to_device_start = std::chrono::high_resolution_clock::now();
+        std::memcpy(input_buf_->data(), input_data, width * height);
+        auto copy_to_device_end = std::chrono::high_resolution_clock::now();
+        copy_to_device_times_.push_back(
+            static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_device_end - copy_to_device_start).count()
+            ) / 1e6  // Convert nanoseconds to milliseconds
+        );
+    }
+
+    void run_pipeline(int min_white_black_diff, uint8_t *input_data, uint8_t *output_data, int width, int height) {
+        if (!pipeline_ || !input_buf_ || !output_buf_) {
+            fprintf(stderr, "Error: Pipeline not properly initialized\n");
+            return;
+        }
+
+        auto pipeline_start = std::chrono::high_resolution_clock::now();
+
+        min_white_black_diff_.set(min_white_black_diff);
+        pipeline_->realize(*output_buf_);
+
+        auto pipeline_end = std::chrono::high_resolution_clock::now();
+        pipeline_times_.push_back(
+            static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(pipeline_end - pipeline_start).count()
+            ) / 1e6  // Convert nanoseconds to milliseconds
+        );
+    }
+
+    void copy_output_to_buffer(uint8_t *output_data, int width, int height) {
+        if (!output_buf_) {
+            return;
+        }
+
+        auto copy_to_host_start = std::chrono::high_resolution_clock::now();
+        std::memcpy(output_data, output_buf_->data(), width * height);
+        auto copy_to_host_end = std::chrono::high_resolution_clock::now();
+        copy_to_host_times_.push_back(
+            static_cast<double>(
+                std::chrono::duration_cast<std::chrono::nanoseconds>(copy_to_host_end - copy_to_host_start).count()
+            ) / 1e6  // Convert nanoseconds to milliseconds
+        );
+    }
+
     ImageParam input_;
     Param<int> min_white_black_diff_;
     std::unique_ptr<Halide::Pipeline> pipeline_;
@@ -499,13 +515,12 @@ extern "C" image_u8_t *halide_threshold(apriltag_detector_t *td, image_u8_t *im)
     }
 
     ThresholdPipeline &pipeline = get_pipeline();
-    pipeline.compile_once();
+    pipeline.prepare_buffers(im->width, im->height);
 
     image_u8_t *threshim = image_u8_create_alignment(im->width, im->height, im->stride);
 
     try {
-        pipeline.prepare_buffers(im->width, im->height, im->stride);
-        pipeline.run(td->qtp.min_white_black_diff, im->buf, threshim->buf, im->width, im->height, im->stride);
+        pipeline.run(td->qtp.min_white_black_diff, im->buf, threshim->buf, im->width, im->height);
         // Debugging - used to affirm 'correctness' for different schedules / algorithms
         // image_u8_write_pnm(threshim, "debug_output_buf.pgm");
     } catch (const Halide::RuntimeError &e) {
