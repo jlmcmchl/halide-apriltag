@@ -22,6 +22,7 @@ using Halide::Var;
 using Halide::RVar;
 using Halide::BoundaryConditions::repeat_edge;
 using Halide::TailStrategy;
+using Halide::MemoryType;
 
 Halide::Target find_gpu_target() {
     // Start with a target suitable for the machine you're running this on.
@@ -202,11 +203,6 @@ public:
 
 private:
     void build() {
-        Halide::load_plugin("libautoschedule_mullapudi2016.so");
-        Halide::load_plugin("libautoschedule_li2018.so");
-        Halide::load_plugin("libautoschedule_adams2019.so");
-        Halide::load_plugin("libautoschedule_anderson2021.so");
-
         Var x("x"), y("y");
 
         Func padded = repeat_edge(input_, {{0, input_.width()}, {0, input_.height()}});
@@ -268,10 +264,15 @@ private:
 
 
 #ifdef AUTO_SCHEDULE
+            Halide::load_plugin("libautoschedule_mullapudi2016.so");
+            Halide::load_plugin("libautoschedule_li2018.so");
+            Halide::load_plugin("libautoschedule_adams2019.so");
+            Halide::load_plugin("libautoschedule_anderson2021.so");
+
             printf("AutoScheduling...\n");
-            input_.set_estimates({{0, 1280}, {0, 800}});
+            input_.set_estimates({{0, 1600}, {0, 1304}});
             min_white_black_diff_.set_estimate(5);
-            output.set_estimates({{0, 1280}, {0, 800}});
+            output.set_estimates({{0, 1600}, {0, 1304}});
 
             pipeline_ = std::make_unique<Halide::Pipeline>(output);
             // Parameter specs:
@@ -280,7 +281,7 @@ private:
             // Adams2019: https://github.com/halide/Halide/blob/main/src/autoschedulers/adams2019/CostModel.h#L19
             // Anderson2021: https://github.com/halide/Halide/blob/main/src/autoschedulers/anderson2021/CostModel.h#L18
             // ^ gpu only
-            auto results = pipeline_->apply_autoscheduler(target, {"Anderson2021", {{"parallelism", "32"}, {"beam_size", "64"}}});
+            auto results = pipeline_->apply_autoscheduler(target_, {"Adams2019", {{"parallelism", "32"}, {"beam_size", "64"}}});
             printf("Autoscheduler results: %s\n", results.schedule_source.c_str());
 #else
             if (target.has_gpu_feature()) {
@@ -406,24 +407,84 @@ private:
                     .split(_1i, _1i_serial_outer, _1i, 2, TailStrategy::GuardWithIf)
                     .gpu_threads(_1i);
             } else {
-                // Scheduling tuned for CPU parallelism; GPU scheduling can be
-                // layered on later if desired.
-                Var xo("xo"), yo("yo"), xi("xi"), yi("yi");
-                output.compute_root().tile(x, y, xo, yo, xi, yi, 64, 32)
-                      .parallel(yo)
-                      .vectorize(xi, 16);
-
-                tile_min.compute_root().parallel(ty).vectorize(tx, 16);
-                tile_min.update().parallel(ty);
-
-                tile_max.compute_root().parallel(ty).vectorize(tx, 16);
-                tile_max.update().parallel(ty);
-
-                neigh_min.compute_root().parallel(ty).vectorize(tx, 16);
-                neigh_min.update().parallel(ty);
-
-                neigh_max.compute_root().parallel(ty).vectorize(tx, 16);
-                neigh_max.update().parallel(ty);
+                Var _0(padded.get_schedule().dims()[0].var);
+                Var _0i("_0i");
+                Var _1(padded.get_schedule().dims()[1].var);
+                Var tx(neigh_min.get_schedule().dims()[0].var);
+                Var txi("txi");
+                Var ty(neigh_min.get_schedule().dims()[1].var);
+                Var x(output.get_schedule().dims()[0].var);
+                Var xi("xi");
+                Var y(output.get_schedule().dims()[1].var);
+                Var yi("yi");
+                Var yii("yii");
+                RVar r10_x(tile_min.update(0).get_schedule().dims()[0].var);
+                RVar r10_y(tile_min.update(0).get_schedule().dims()[1].var);
+                RVar r23_x(neigh_min.update(0).get_schedule().dims()[0].var);
+                RVar r23_y(neigh_min.update(0).get_schedule().dims()[1].var);
+                output
+                    .split(y, y, yi, 44, TailStrategy::ShiftInwards)
+                    .split(yi, yi, yii, 11, TailStrategy::ShiftInwards)
+                    .split(x, x, xi, 16, TailStrategy::ShiftInwards)
+                    .vectorize(xi)
+                    .compute_root()
+                    .reorder({xi, x, yii, yi, y})
+                    .parallel(y);
+                min_px
+                    .store_in(MemoryType::Stack)
+                    .split(x, x, xi, 16, TailStrategy::RoundUp)
+                    .vectorize(xi)
+                    .compute_at(output, x)
+                    .reorder({xi, x, y});
+                neigh_min
+                    .store_in(MemoryType::Stack)
+                    .split(tx, tx, txi, 16, TailStrategy::RoundUp)
+                    .vectorize(txi)
+                    .compute_at(output, yi)
+                    .reorder({txi, tx, ty});
+                neigh_min.update(0)
+                    .split(tx, tx, txi, 16, TailStrategy::RoundUp)
+                    .vectorize(txi)
+                    .reorder({txi, r23_x, r23_y, tx, ty});
+                tile_min
+                    .split(tx, tx, txi, 16, TailStrategy::RoundUp)
+                    .vectorize(txi)
+                    .compute_at(output, y)
+                    .reorder({txi, tx, ty});
+                tile_min.update(0)
+                    .split(tx, tx, txi, 16, TailStrategy::RoundUp)
+                    .vectorize(txi)
+                    .reorder({txi, r10_x, r10_y, tx, ty});
+                max_px
+                    .store_in(MemoryType::Stack)
+                    .split(x, x, xi, 16, TailStrategy::RoundUp)
+                    .vectorize(xi)
+                    .compute_at(output, x)
+                    .reorder({xi, x, y});
+                neigh_max
+                    .store_in(MemoryType::Stack)
+                    .split(tx, tx, txi, 16, TailStrategy::RoundUp)
+                    .vectorize(txi)
+                    .compute_at(output, yi)
+                    .reorder({txi, tx, ty});
+                neigh_max.update(0)
+                    .split(tx, tx, txi, 16, TailStrategy::RoundUp)
+                    .vectorize(txi)
+                    .reorder({txi, r23_x, r23_y, tx, ty});
+                tile_max
+                    .split(tx, tx, txi, 16, TailStrategy::RoundUp)
+                    .vectorize(txi)
+                    .compute_at(output, y)
+                    .reorder({txi, tx, ty});
+                tile_max.update(0)
+                    .split(tx, tx, txi, 16, TailStrategy::RoundUp)
+                    .vectorize(txi)
+                    .reorder({txi, r10_x, r10_y, tx, ty});
+                padded
+                    .split(_0, _0, _0i, 16, TailStrategy::ShiftInwards)
+                    .vectorize(_0i)
+                    .compute_at(output, y)
+                    .reorder({_0i, _0, _1});
             }
             
             pipeline_ = std::make_unique<Halide::Pipeline>(output);
