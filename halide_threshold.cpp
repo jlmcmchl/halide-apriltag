@@ -141,6 +141,12 @@ void ThresholdPipeline::copy_input_to_buffer(uint8_t *input_data, int width, int
 
     auto copy_to_device_start = std::chrono::high_resolution_clock::now();
     std::memcpy(input_buf_->data(), input_data, width * height);
+#ifndef APRILTAG_HAVE_CUDA
+    if (target_.has_gpu_feature()) {
+        input_buf_->set_host_dirty();
+        input_buf_->copy_to_device(target_.get_required_device_api(), target_);
+    }
+#endif
     auto copy_to_device_end = std::chrono::high_resolution_clock::now();
     copy_to_device_times_.push_back(
         static_cast<double>(
@@ -174,6 +180,12 @@ void ThresholdPipeline::copy_buffer_to_output(uint8_t *output_data, int width, i
     }
 
     auto copy_to_host_start = std::chrono::high_resolution_clock::now();
+#ifndef APRILTAG_HAVE_CUDA
+    if (target_.has_gpu_feature()) {
+        output_buf_->set_device_dirty();
+        output_buf_->copy_to_host();
+    }
+#endif
     std::memcpy(output_data, output_buf_->data(), width * height);
     auto copy_to_host_end = std::chrono::high_resolution_clock::now();
     copy_to_host_times_.push_back(
