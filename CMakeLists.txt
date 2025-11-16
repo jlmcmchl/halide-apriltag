@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(apriltags_halide
         DESCRIPTION "AprilTag timing harness with optional Halide acceleration"
-        LANGUAGES C CXX CUDA)
+        LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -99,12 +99,7 @@ if (USE_HALIDE)
 
         if (Halide_FOUND)
             target_sources(apriltag_timing PRIVATE halide_threshold.cpp)
-            target_link_libraries(apriltag_timing PRIVATE
-                Halide::Halide
-                Halide::Mullapudi2016
-                Halide::Li2018
-                Halide::Adams2019
-                Halide::Anderson2021)
+            target_link_libraries(apriltag_timing PRIVATE Halide::Halide)
             target_compile_definitions(apriltag_timing PRIVATE APRILTAG_HAVE_HALIDE=1)
             message(STATUS "Halide found - hybrid detector enabled")
         else()
