@@ -26,16 +26,6 @@ using Halide::BoundaryConditions::repeat_edge;
 using Halide::TailStrategy;
 using Halide::MemoryType;
 
-Halide::Target find_gpu_target() {
-    // Start with a target suitable for the machine you're running this on.
-    Halide::Target target = Halide::get_host_target();
-#ifdef APRILTAG_HAVE_CUDA
-    target = target.with_feature(Halide::Target::Feature::CUDA)
-        .with_feature(Halide::Target::Feature::CUDACapability86);
-#endif
-    return target;
-}
-
 void ThresholdPipeline::compile_once() {
     std::call_once(init_flag_, [&]() { build(); });
 }
