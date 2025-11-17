@@ -71,7 +71,7 @@ void ThresholdPipeline::run(int min_white_black_diff, uint8_t *input_data, uint8
     }
 
     copy_input_to_buffer(input_data, width, height);
-    run_pipeline(min_white_black_diff, input_data, output_data, width, height);
+    run_pipeline(min_white_black_diff);
     copy_buffer_to_output(output_data, width, height);
 }
 
@@ -97,11 +97,6 @@ void ThresholdPipeline::create_input_buffer(int width, int height) {
     input_buf_->device_wrap_native(Halide::DeviceAPI::CUDA, gpu_buf_ptr, target_);
 #else
     input_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
-    auto *input_raw = input_buf_->raw_buffer();
-    input_raw->dim[0].stride = 1;
-    input_raw->dim[1].stride = width;  // Use width as stride for owned buffer
-    input_raw->dim[0].min = 0;
-    input_raw->dim[1].min = 0;
 #endif
     input_.set(*input_buf_);
 }
@@ -126,11 +121,6 @@ void ThresholdPipeline::create_output_buffer(int width, int height) {
     output_buf_->device_wrap_native(Halide::DeviceAPI::CUDA, gpu_buf_ptr, target_);
 #else
     output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width, height);
-    auto *output_raw = output_buf_->raw_buffer();
-    output_raw->dim[0].stride = 1;
-    output_raw->dim[1].stride = width;  // Use width as stride for owned buffer
-    output_raw->dim[0].min = 0;
-    output_raw->dim[1].min = 0;
 #endif
 }
 
@@ -155,7 +145,7 @@ void ThresholdPipeline::copy_input_to_buffer(uint8_t *input_data, int width, int
     );
 }
 
-void ThresholdPipeline::run_pipeline(int min_white_black_diff, uint8_t *input_data, uint8_t *output_data, int width, int height) {
+void ThresholdPipeline::run_pipeline(int min_white_black_diff) {
     if (!pipeline_ || !input_buf_ || !output_buf_) {
         fprintf(stderr, "Error: Pipeline not properly initialized\n");
         return;

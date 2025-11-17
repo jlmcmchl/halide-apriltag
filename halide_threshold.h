@@ -49,7 +49,7 @@ private:
     void create_output_buffer(int width, int height);
     void copy_input_to_buffer(uint8_t *input_data, int width, int height);
     void copy_buffer_to_output(uint8_t *output_data, int width, int height);
-    void run_pipeline(int min_white_black_diff, uint8_t *input_data, uint8_t *output_data, int width, int height);
+    void run_pipeline(int min_white_black_diff);
     Halide::ImageParam input_;
     Halide::Param<int> min_white_black_diff_;
     std::unique_ptr<Halide::Pipeline> pipeline_;
