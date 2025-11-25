@@ -1,5 +1,10 @@
 #include "Halide.h"
 
+#include <chrono>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <utility>
 #include <vector>
 
 using namespace Halide;
@@ -670,14 +675,24 @@ Func build_adaptive_threshold_pipeline(ImageParam input) {
 
 int main(int argc, char **argv) {
     try {
+        using Clock = std::chrono::steady_clock;
+        auto to_ms = [](Clock::duration d) {
+            return std::chrono::duration<double, std::milli>(d).count();
+        };
+        std::vector<std::pair<std::string, double>> timings;
+        const auto program_start = Clock::now();
+
         Target target = get_target_from_environment();
 
         // =========================================================================
         // AprilTag-style Adaptive Thresholding Pipeline (no tuning required)
         // =========================================================================
+        auto stage_start = Clock::now();
         ImageParam input_gray(Float(32), 2, "input_gray");
         
         Func edge_detect = build_adaptive_threshold_pipeline(input_gray);
+        auto stage_end = Clock::now();
+        timings.emplace_back("build_adaptive_threshold_pipeline", to_ms(stage_end - stage_start));
         
         std::vector<Argument> edge_detect_args = {input_gray};
 
@@ -687,10 +702,27 @@ int main(int argc, char **argv) {
         gpu_target.set_feature(Target::Profile);
 
         std::cout << "Compiling adaptive threshold pipeline..." << std::endl;
+        stage_start = Clock::now();
         edge_detect.compile_to_static_library("apriltag_edge_detect", edge_detect_args, "atag_edge_detect", gpu_target);
+        stage_end = Clock::now();
+        timings.emplace_back("compile_to_static_library", to_ms(stage_end - stage_start));
+
+        stage_start = Clock::now();
         edge_detect.compile_to_header("apriltag_edge_detect.h", edge_detect_args, "atag_edge_detect", gpu_target);
+        stage_end = Clock::now();
+        timings.emplace_back("compile_to_header", to_ms(stage_end - stage_start));
 
         std::cout << "All pipelines compiled successfully!" << std::endl;
+
+        const auto program_end = Clock::now();
+        std::cout << "\n--- Timing Summary (ms) ---" << std::endl;
+        std::cout << std::fixed << std::setprecision(3);
+        for (const auto& entry : timings) {
+            std::cout << "  " << std::left << std::setw(32) << entry.first
+                      << " : " << entry.second << std::endl;
+        }
+        std::cout << "  " << std::left << std::setw(32) << "total_wall_time"
+                  << " : " << to_ms(program_end - program_start) << std::endl;
         return 0;
     } catch (const Halide::CompileError &e) {
         std::cerr << "Halide compilation error: " << e.what() << std::endl;

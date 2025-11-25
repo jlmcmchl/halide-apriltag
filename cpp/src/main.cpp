@@ -6,9 +6,12 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <numeric>
 #include <queue>
+#include <string>
+#include <utility>
 #include <unordered_map>
 #include <vector>
 
@@ -439,48 +442,67 @@ Buffer<uint8_t> visualize_edges(const Buffer<uint8_t>& edges) {
 
 int main(int argc, char** argv) {
     try {
+        using Clock = std::chrono::steady_clock;
+        auto to_ms = [](Clock::duration d) {
+            return std::chrono::duration<double, std::milli>(d).count();
+        };
+
+        std::vector<std::pair<std::string, double>> timings;
+        const auto program_start = Clock::now();
+
         const char* input_path = (argc > 1) ? argv[1] : "../apriltags.png";
         
         std::cout << "=== AprilTag Adaptive Threshold Pipeline ===" << std::endl;
         std::cout << "Loading: " << input_path << std::endl;
         std::cout << "(No manual tuning required - adapts to image automatically)" << std::endl;
         
+        auto stage_start = Clock::now();
         Buffer<uint8_t> input = load_image(input_path);
+        auto stage_end = Clock::now();
+        timings.emplace_back("load_image", to_ms(stage_end - stage_start));
         std::cout << "Image dimensions: " << input.width() << "x" << input.height() 
                   << "x" << input.channels() << std::endl;
         
         // Convert to grayscale
+        stage_start = Clock::now();
         Buffer<float> gray = convert_to_grayscale(input);
+        stage_end = Clock::now();
+        timings.emplace_back("convert_to_grayscale", to_ms(stage_end - stage_start));
         
         // =================================================================
         // Stage 1: GPU - Adaptive Threshold (binary image)
         // =================================================================
         Buffer<uint8_t> binary(gray.width(), gray.height());
         
-        auto start = std::chrono::high_resolution_clock::now();
+        stage_start = Clock::now();
         int result = atag_edge_detect(gray, binary);
-        auto end = std::chrono::high_resolution_clock::now();
+        stage_end = Clock::now();
+        timings.emplace_back("atag_edge_detect (GPU)", to_ms(stage_end - stage_start));
         
         if (result != 0) {
             throw std::runtime_error("Halide pipeline failed: " + std::to_string(result));
         }
         
         std::cout << "Stage 'threshold (GPU)' completed in "
-                  << std::chrono::duration<double>(end - start).count() * 1000 << " ms" << std::endl;
+                  << timings.back().second << " ms" << std::endl;
         
         // Copy to host
-        start = std::chrono::high_resolution_clock::now();
+        stage_start = Clock::now();
         binary.copy_to_host();
-        end = std::chrono::high_resolution_clock::now();
-        std::cout << "Copy to host: " << std::chrono::duration<double>(end - start).count() * 1000 << " ms" << std::endl;
+        stage_end = Clock::now();
+        timings.emplace_back("copy_to_host", to_ms(stage_end - stage_start));
+        std::cout << "Copy to host: " << timings.back().second << " ms" << std::endl;
         
         // Count black pixels
+        stage_start = Clock::now();
         int black_count = 0;
         for (int y = 0; y < binary.height(); y++) {
             for (int x = 0; x < binary.width(); x++) {
                 if (binary(x, y) > 0) black_count++;
             }
         }
+        stage_end = Clock::now();
+        timings.emplace_back("black_pixel_count", to_ms(stage_end - stage_start));
         std::cout << "Black pixels: " << black_count << " (" 
                   << (100.0f * black_count / (binary.width() * binary.height())) << "%)" << std::endl;
         
@@ -492,12 +514,13 @@ int main(int argc, char** argv) {
         int min_area = img_area / 2000;   // Tags should be at least 0.05% of image
         int max_area = img_area / 4;      // Tags should be at most 25% of image
         
-        start = std::chrono::high_resolution_clock::now();
+        stage_start = Clock::now();
         std::vector<Quad> quads = find_quads_from_binary(binary, min_area, max_area);
-        end = std::chrono::high_resolution_clock::now();
+        stage_end = Clock::now();
+        timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
         
         std::cout << "Stage 'quad_detect (CPU)' completed in "
-                  << std::chrono::duration<double>(end - start).count() * 1000 << " ms" << std::endl;
+                  << timings.back().second << " ms" << std::endl;
         std::cout << "Found " << quads.size() << " quads" << std::endl;
         
         // =================================================================
@@ -514,17 +537,34 @@ int main(int argc, char** argv) {
         }
         
         // Save visualizations
+        stage_start = Clock::now();
         Buffer<uint8_t> binary_vis = visualize_edges(binary);
         save_image(binary_vis, "binary_output.png");
+        stage_end = Clock::now();
+        timings.emplace_back("save_binary_output", to_ms(stage_end - stage_start));
         std::cout << "Saved: binary_output.png" << std::endl;
         
+        stage_start = Clock::now();
         Buffer<uint8_t> quads_vis = visualize_quads(input, quads);
         save_image(quads_vis, "quads_output.png");
+        stage_end = Clock::now();
+        timings.emplace_back("save_quads_output", to_ms(stage_end - stage_start));
         std::cout << "Saved: quads_output.png" << std::endl;
         
         // Cleanup
         gray.device_free();
         binary.device_free();
+
+        const auto program_end = Clock::now();
+
+        std::cout << "\n--- Timing Summary (ms) ---" << std::endl;
+        std::cout << std::fixed << std::setprecision(3);
+        for (const auto& entry : timings) {
+            std::cout << "  " << std::left << std::setw(28) << entry.first
+                      << " : " << entry.second << std::endl;
+        }
+        std::cout << "  " << std::left << std::setw(28) << "total_wall_time"
+                  << " : " << to_ms(program_end - program_start) << std::endl;
         
         return 0;
     } catch (const std::exception& e) {
