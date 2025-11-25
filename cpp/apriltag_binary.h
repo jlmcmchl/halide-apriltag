@@ -1,5 +1,5 @@
-#ifndef HALIDE__apriltag_edge_h
-#define HALIDE__apriltag_edge_h
+#ifndef HALIDE__apriltag_binary_h
+#define HALIDE__apriltag_binary_h
 #include <stdint.h>
 
 // Forward declarations of the types used in the interface
@@ -41,13 +41,13 @@ extern "C" {
 #endif
 
 HALIDE_FUNCTION_ATTRS
-int atag_edge(struct halide_buffer_t *_binary_in_buffer, struct halide_buffer_t *_edge__1_buffer);
+int atag_binary(struct halide_buffer_t *_input_gray_buffer, struct halide_buffer_t *_refine_0_0_buffer);
 
 HALIDE_FUNCTION_ATTRS
-int atag_edge_argv(void **args);
+int atag_binary_argv(void **args);
 
 HALIDE_FUNCTION_ATTRS
-const struct halide_filter_metadata_t *atag_edge_metadata();
+const struct halide_filter_metadata_t *atag_binary_metadata();
 
 #ifdef __cplusplus
 }  // extern "C"

@@ -49,6 +49,131 @@ struct Quad {
     Quad() : error(std::numeric_limits<float>::max()) {}
 };
 
+#include <vector>
+#include <tuple>
+#include <cmath>
+#include <unordered_map>
+#include <algorithm>
+#include "HalideBuffer.h"   // Halide::Runtime::Buffer
+
+struct Rect {
+    float x1, y1, x2, y2, x3, y3, x4, y4; // corners in order
+    float angle; // radians
+};
+
+static inline float sqr(float v) { return v * v; }
+
+static inline float dist(float x1, float y1, float x2, float y2) {
+    return std::sqrt(sqr(x2 - x1) + sqr(y2 - y1));
+}
+
+static inline float dot(float ax, float ay, float bx, float by) {
+    return ax * bx + ay * by;
+}
+
+std::vector<Rect> find_rotated_rects(Buffer<int32_t> &map,
+                                     float aspect_tol = 3.0f,
+                                     float angle_tol_deg = 30.0f)
+{
+    const int W = map.width();
+    const int H = map.height();
+
+    // --- Gather corners ---
+    std::vector<std::pair<int,int>> tl, tr, bl, br;
+    for (int y = 0; y < H; ++y) {
+        for (int x = 0; x < W; ++x) {
+            switch (map(x, y)) {
+                case 1: tl.emplace_back(x, y); break;
+                case 2: tr.emplace_back(x, y); break;
+                case 3: bl.emplace_back(x, y); break;
+                case 4: br.emplace_back(x, y); break;
+                default: break;
+            }
+        }
+    }
+
+    // Hash map for quick lookup of BR corners
+    std::unordered_map<int, bool> br_map;
+    br_map.reserve(br.size() * 2);
+    for (auto &[x, y] : br)
+        br_map[y * W + x] = true;
+
+    std::vector<Rect> rects;
+    float angle_tol = angle_tol_deg * M_PI / 180.0f;
+
+    // --- Match candidates ---
+    for (auto &[x1, y1] : tl) {
+        for (auto &[x2, y2] : tr) {
+            // top edge vector
+            float dx1 = x2 - x1, dy1 = y2 - y1;
+            if (dx1 == 0 && dy1 == 0) continue;
+            float len_top = std::sqrt(dx1*dx1 + dy1*dy1);
+
+            // find a BL candidate
+            for (auto &[x3, y3] : bl) {
+                float dx2 = x3 - x1, dy2 = y3 - y1;
+                if (dx2 == 0 && dy2 == 0) continue;
+                float len_left = std::sqrt(dx2*dx2 + dy2*dy2);
+
+                // Check angle between edges ≈ 90°
+                float cosang = dot(dx1, dy1, dx2, dy2) / (len_top * len_left);
+                if (std::abs(cosang) > std::cos(angle_tol)) continue;
+
+                // Expected BR position
+                float x4 = x3 + dx1;
+                float y4 = y3 + dy1;
+
+                int xi4 = std::round(x4);
+                int yi4 = std::round(y4);
+                if (xi4 < 0 || xi4 >= W || yi4 < 0 || yi4 >= H) continue;
+                if (!br_map.count(yi4 * W + xi4)) continue;
+
+                // Aspect ratio check
+                float ratio = len_top / len_left;
+                if (ratio < 1.0f / aspect_tol || ratio > aspect_tol) continue;
+
+                rects.push_back({(float)x1, (float)y1, (float)x2, (float)y2,
+                                 (float)x3, (float)y3, x4, y4,
+                                 std::atan2(dy1, dx1)});
+            }
+        }
+    }
+
+    return rects;
+}
+
+void draw_line(Halide::Runtime::Buffer<int32_t> &buf,
+               float x0, float y0, float x1, float y1, uint8_t val)
+{
+    int W = buf.width(), H = buf.height();
+    int dx = std::abs((int)(x1 - x0)), dy = std::abs((int)(y1 - y0));
+    int sx = x0 < x1 ? 1 : -1;
+    int sy = y0 < y1 ? 1 : -1;
+    int err = dx - dy;
+
+    while (true) {
+        if (x0 >= 0 && x0 < W && y0 >= 0 && y0 < H)
+            buf((int)x0, (int)y0) = val;
+        if ((int)x0 == (int)x1 && (int)y0 == (int)y1) break;
+        int e2 = 2 * err;
+        if (e2 > -dy) { err -= dy; x0 += sx; }
+        if (e2 < dx)  { err += dx; y0 += sy; }
+    }
+}
+
+void draw_rects(Halide::Runtime::Buffer<int32_t> &buf,
+                const std::vector<Rect> &rects,
+                uint8_t color = 255)
+{
+    for (auto &r : rects) {
+        draw_line(buf, r.x1, r.y1, r.x2, r.y2, color);
+        draw_line(buf, r.x2, r.y2, r.x4, r.y4, color);
+        draw_line(buf, r.x4, r.y4, r.x3, r.y3, color);
+        draw_line(buf, r.x3, r.y3, r.x1, r.y1, color);
+    }
+}
+
+
 // Helper function to record equivalence between two labels (optimized)
 inline void record_equivalence(std::vector<int>& parent, int label1, int label2) {
     int max_label = std::max(label1, label2);
@@ -369,20 +494,103 @@ void check_halide(int result, const char *stage, std::chrono::duration<double> d
 int main(int argc, char **argv) {
     try {
         const char *input_path = (argc > 1) ? argv[1] : "../apriltags.png";
+        
+        // Parse density filter parameters
+        int density_size = 7;           // Default 3x3 neighborhood
+        float density_ratio = 0.75f;      // Default 50% threshold
+        
+        if (argc > 2) density_size = std::atoi(argv[2]);
+        if (argc > 3) density_ratio = std::atof(argv[3]);
+        
         std::cout << "Loading " << input_path << std::endl;
+        std::cout << "Density filter: " << density_size << "x" << density_size 
+                  << " neighborhood, " << (density_ratio * 100) << "% threshold" << std::endl;
         Buffer<uint8_t> input = load_image(input_path);
 
         std::cout << "Input dimensions: " << input.width() << "x" << input.height() << "x" << input.channels() << std::endl;
 
         Buffer<float> gray = convert_to_grayscale(input);
 
-        Buffer<uint8_t> binary(gray.width(), gray.height());
+        Buffer<int32_t> binary(gray.width(), gray.height());
         auto start = std::chrono::high_resolution_clock::now();
         int result = atag_binary(gray, binary);
         auto end = std::chrono::high_resolution_clock::now();
+
+        auto start_copy = std::chrono::high_resolution_clock::now();
+        binary.copy_to_host();
+        auto end_copy = std::chrono::high_resolution_clock::now();
+        std::cout << "Copy to host completed in " << std::chrono::duration_cast<std::chrono::milliseconds>(end_copy - start_copy).count() << " milliseconds" << std::endl;
+
+        auto start_label = std::chrono::high_resolution_clock::now();
+        // for(int y = binary.height() - 1; y > 0; y--) {
+        //     for(int x = binary.width() - 1; x > 0; x--) {
+        //         if(__builtin_expect(binary(x, y) > 0, 0)) {
+        //             if(__builtin_expect(binary(x+1, y) > 0, 0)) {
+        //                 int32_t maximum = std::max(binary(x, y), binary(x+1, y));
+        //                 maximum = std::max(maximum, binary(x, y+1));
+        //                 maximum = std::max(maximum, binary(x+1, y+1));
+        //                 maximum = std::max(maximum, binary(x, y-1));
+        //                 maximum = std::max(maximum, binary(x+1, y-1));
+        //                 maximum = std::max(maximum, binary(x-1, y));
+        //                 maximum = std::max(maximum, binary(x-1, y+1));
+        //                 maximum = std::max(maximum, binary(x-1, y-1));
+        //                 binary(x, y) = maximum;
+        //             }
+        //         }
+        //     }
+        // }
+        // for(int x = binary.width() - 1; x > 0; x--) {
+        //     for(int y = binary.height() - 1; y > 0; y--) {
+        //         if(__builtin_expect(binary(x, y) > 0, 0)) {
+        //             if(__builtin_expect(binary(x, y+1) > 0, 0)) {
+        //                 binary(x, y) = binary(x, y+1);
+        //             }
+        //         }
+        //     }
+        // }
+        auto end_label = std::chrono::high_resolution_clock::now();
+        std::cout << "Labeling completed in " << std::chrono::duration_cast<std::chrono::milliseconds>(end_label - start_label).count() << " milliseconds" << std::endl;
         check_halide(result, "binary", end - start);
+
+        gray.device_free();
+        input.device_free();
+ 
+
+        Buffer<uint8_t> binary_vis(binary.width(), binary.height());
+        binary_vis.device_free();
+        binary_vis.copy_to_host();
+        // for (int y = 0; y < binary.height(); ++y) {
+        //     for (int x = 0; x < binary.width(); ++x) {
+        //         if (binary(x, y) > 0) {
+        //             binary_vis(x, y, 0) = binary(x, y) % 255;
+        //         }else{
+        //             binary_vis(x, y, 0) = 0;
+        //         }
+        //     }
+        // }
+
+        auto rects = find_rotated_rects(binary);
+
+        printf("Detected %zu rectangles\n", rects.size());
+
+        draw_rects(binary, rects, 200);
+
+        for (int y = 0; y < binary.height(); ++y) {
+            for (int x = 0; x < binary.width(); ++x) {
+                if (binary(x, y) > 0) {
+                    binary_vis(x, y, 0) = binary(x, y) % 255;
+                }else{
+                    binary_vis(x, y, 0) = 0;
+                }
+            }
+        }
         
-        save_image(binary, "gradient_otsu.png");
+        save_image(binary_vis, "gradient_otsu.png");
+
+        return 0;
+
+        binary.device_free();
+        binary_vis.device_free();
 
         Buffer<int32_t> edges(gray.width(), gray.height());
         start = std::chrono::high_resolution_clock::now();
@@ -401,11 +609,12 @@ int main(int argc, char **argv) {
 
         save_image(edges_vis, "edge.png");
 
+        // Ultra-fast density filter with configurable parameters
         // Buffer<int32_t> density(gray.width(), gray.height());
         // start = std::chrono::high_resolution_clock::now();
-        // result = atag_density(edges, density);
+        // result = atag_density(edges, density_size, density_ratio, density);
         // end = std::chrono::high_resolution_clock::now();
-        // check_halide(result, "density", end - start);
+        // check_halide(result, "ultra_fast_density", end - start);
 
         Buffer<int32_t> lut(gray.width(), gray.height());
         start = std::chrono::high_resolution_clock::now();
@@ -416,7 +625,7 @@ int main(int argc, char **argv) {
         // Use fast union-find connected components labeling
         start = std::chrono::high_resolution_clock::now();
         
-        // Apply ultra-fast connected components labeling directly on edges
+        // Apply ultra-fast connected components labeling on density-filtered edges
         Buffer<int32_t> labels = ultra_fast_connected_components(edges);
         
         end = std::chrono::high_resolution_clock::now();

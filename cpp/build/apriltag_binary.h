@@ -41,7 +41,7 @@ extern "C" {
 #endif
 
 HALIDE_FUNCTION_ATTRS
-int atag_binary(struct halide_buffer_t *_input_gray_buffer, struct halide_buffer_t *_binary_buffer);
+int atag_binary(struct halide_buffer_t *_input_gray_buffer, struct halide_buffer_t *_corners_buffer);
 
 HALIDE_FUNCTION_ATTRS
 int atag_binary_argv(void **args);
