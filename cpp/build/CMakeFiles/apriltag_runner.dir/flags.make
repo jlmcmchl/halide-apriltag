@@ -4,9 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/include -isystem /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/share/tools -isystem /opt/homebrew/include -isystem /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4
+CXX_INCLUDES = -I/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build -F/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks -isystem /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/include -isystem /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/share/tools -isystem /opt/homebrew/include
 
-CXX_FLAGSarm64 = -std=gnu++17 -arch arm64
-
-CXX_FLAGS = -std=gnu++17 -arch arm64
+CXX_FLAGS = -std=gnu++17
 

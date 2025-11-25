@@ -8,6 +8,8 @@ file(REMOVE_RECURSE
   "apriltag_edge.h"
   "apriltag_lut.a"
   "apriltag_lut.h"
+  "apriltag_tilemap.a"
+  "apriltag_tilemap.h"
 )
 
 # Per-language clean rules from dependency scanning.

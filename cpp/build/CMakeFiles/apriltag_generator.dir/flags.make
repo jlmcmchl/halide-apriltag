@@ -6,7 +6,5 @@ CXX_DEFINES = -DHALIDE_ENABLE_RTTI -DHALIDE_VERSION_MAJOR=21 -DHALIDE_VERSION_MI
 
 CXX_INCLUDES = -isystem /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/include
 
-CXX_FLAGSarm64 = -std=gnu++17 -arch arm64
-
-CXX_FLAGS = -std=gnu++17 -arch arm64
+CXX_FLAGS = -std=gnu++17
 

@@ -721,13 +721,11 @@ CMakeFiles/apriltag_runner.dir/src/main.cpp.o: /Users/eeshwarkrishnan/Documents/
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cassert \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cctype \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cerrno \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cfloat \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/chrono \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/climits \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/clocale \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cmath \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/compare \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/complex \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/concepts \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cstdarg \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cstddef \
@@ -739,14 +737,11 @@ CMakeFiles/apriltag_runner.dir/src/main.cpp.o: /Users/eeshwarkrishnan/Documents/
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/ctype.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cwchar \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cwctype \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/deque \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/errno.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/exception \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/execution \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/float.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/functional \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/initializer_list \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iomanip \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iosfwd \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
@@ -754,7 +749,6 @@ CMakeFiles/apriltag_runner.dir/src/main.cpp.o: /Users/eeshwarkrishnan/Documents/
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iterator \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/limits \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/limits.h \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/list \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/locale \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/locale.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/map \
@@ -765,11 +759,9 @@ CMakeFiles/apriltag_runner.dir/src/main.cpp.o: /Users/eeshwarkrishnan/Documents/
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/numeric \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/optional \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/ostream \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/queue \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/ratio \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/set \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/setjmp.h \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/sstream \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/stdexcept \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/stdint.h \
@@ -792,7 +784,6 @@ CMakeFiles/apriltag_runner.dir/src/main.cpp.o: /Users/eeshwarkrishnan/Documents/
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/wctype.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/ctype.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/errno.h \
-  /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/float.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/libkern/_OSByteOrder.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/libkern/arm/OSByteOrder.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/limits.h \
@@ -920,9 +911,6 @@ CMakeFiles/apriltag_runner.dir/src/main.cpp.o: /Users/eeshwarkrishnan/Documents/
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/xlocale/_wchar.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/xlocale/_wctype.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/__stddef_max_align_t.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/arm_bf16.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/arm_neon.h \
-  /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/float.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/limits.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/stddef.h \
@@ -930,120 +918,7 @@ CMakeFiles/apriltag_runner.dir/src/main.cpp.o: /Users/eeshwarkrishnan/Documents/
   /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/include/HalideBuffer.h \
   /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/include/HalideRuntime.h \
   /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/share/tools/halide_image_io.h \
-  apriltag_binary.h \
-  apriltag_density.h \
-  apriltag_edge.h \
-  apriltag_lut.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/imgproc/segmentation.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/calib3d.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/affine.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/async.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/base.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/bufferpool.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/check.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cuda.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cuda.inl.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cuda_types.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cv_cpu_dispatch.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cvdef.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cvstd.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cvstd.inl.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cvstd_wrapper.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/fast_math.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/hal/interface.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/mat.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/mat.inl.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/matx.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/matx.inl.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/neon_utils.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/operations.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/optim.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/ovx.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/persistence.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/saturate.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/traits.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/types.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/utility.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/utils/logger.defines.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/utils/logger.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/utils/logtag.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/version.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/vsx_utils.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/version.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/dict.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/dnn.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/dnn.inl.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/layer.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/dnn.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/utils/inference_engine.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/features2d.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/all_indices.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/allocator.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/any.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/autotuned_index.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/composite_index.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/config.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/defines.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/dist.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/dynamic_bitset.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/flann_base.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/general.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/ground_truth.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/heap.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/hierarchical_clustering_index.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/index_testing.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/kdtree_index.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/kdtree_single_index.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/kmeans_index.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/linear_index.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/logger.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/lsh_index.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/lsh_table.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/matrix.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/miniflann.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/nn_index.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/params.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/random.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/result_set.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/sampling.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/saving.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/timer.h \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/highgui.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/imgcodecs.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/imgproc.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/ml.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/ml/ml.inl.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/aruco_board.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/aruco_detector.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/aruco_dictionary.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/barcode.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/charuco_detector.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/detection_based_tracker.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/face.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/graphical_code_detector.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/opencv.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/opencv_modules.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/photo.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/blenders.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/camera.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/exposure_compensate.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/matchers.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/motion_estimators.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/seam_finders.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/util.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/util_inl.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/warpers.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/warpers_inl.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/warpers.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/video.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/video/background_segm.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/video/tracking.hpp \
-  /opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/videoio.hpp \
+  apriltag_tilemap.h \
   /opt/homebrew/include/jconfig.h \
   /opt/homebrew/include/jmorecfg.h \
   /opt/homebrew/include/jpeglib.h \
@@ -1054,133 +929,11 @@ CMakeFiles/apriltag_runner.dir/src/main.cpp.o: /Users/eeshwarkrishnan/Documents/
 
 /opt/homebrew/include/pngconf.h:
 
-/opt/homebrew/include/jconfig.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/videoio.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/warpers.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/warpers_inl.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/util.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/seam_finders.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/motion_estimators.hpp:
-
 /opt/homebrew/include/png.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/matchers.hpp:
+/opt/homebrew/include/jconfig.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/blenders.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/photo.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/opencv.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/graphical_code_detector.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/face.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/detection_based_tracker.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/barcode.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/video.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/aruco_dictionary.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/aruco_board.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/imgcodecs.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/highgui.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/sampling.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/result_set.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/matrix.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/lsh_index.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/logger.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/kmeans_index.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/kdtree_index.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/index_testing.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/ground_truth.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/dist.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/config.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/composite_index.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/any.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/all_indices.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/utils/inference_engine.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/layer.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/dnn.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/version.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/version.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/utils/logtag.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/utils/logger.defines.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/miniflann.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/utility.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/types.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/general.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/saturate.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/persistence.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/neon_utils.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cvstd.inl.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cvdef.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cv_cpu_dispatch.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/ml/ml.inl.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cuda.inl.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/check.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/bufferpool.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/async.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/util_inl.hpp:
-
-apriltag_lut.h:
-
-apriltag_edge.h:
-
-apriltag_density.h:
-
-apriltag_binary.h:
+apriltag_tilemap.h:
 
 /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/include/HalideRuntime.h:
 
@@ -1191,10 +944,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/stdarg.h:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/limits.h:
-
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/float.h:
-
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/arm_neon.h:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/__stddef_max_align_t.h:
 
@@ -1220,9 +969,9 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/flann_base.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_wint_t.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_wchar_t.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_va_list.h:
 
@@ -1268,13 +1017,9 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_in_port_t.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/imgproc/segmentation.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_in_addr_t.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_id_t.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/matx.inl.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_gid_t.h:
 
@@ -1299,8 +1044,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_blksize_t.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/traits.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_symbol_aliasing.h:
 
@@ -1340,15 +1083,11 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/malloc/_ptrcheck.h:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/malloc/_malloc_type.h:
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/prev.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/malloc/_malloc.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/machine/types.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/machine/limits.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/machine/_types.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/machine/_mcontext.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/mach/machine/_structs.h:
 
@@ -1372,17 +1111,9 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/string_view:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/kdtree_single_index.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/string.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/stdlib.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/imgproc.hpp:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__utility/terminate_on_exception.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/queue:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/ostream:
 
@@ -1410,17 +1141,9 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_wchar_t.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iomanip:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_unique.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/functional:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_copy_n.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/float.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/exception:
 
@@ -1438,15 +1161,11 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cstddef:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/float.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/clocale:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cassert:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/bitset:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/ovx.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_fill_n.h:
 
@@ -1457,6 +1176,8 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/bit:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__utility/unreachable.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__utility/terminate_on_exception.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_signed.h:
 
@@ -1560,8 +1281,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_void.h:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/deque:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_valid_expansion.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_constant_evaluated.h:
@@ -1580,8 +1299,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_trivially_move_assignable.h:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/sstream:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_trivially_lexicographically_comparable.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_trivially_assignable.h:
@@ -1593,8 +1310,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_swappable.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/system_error:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/dynamic_bitset.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_standard_layout.h:
 
@@ -1619,8 +1334,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_stable_partition.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/make_const_lvalue_ref.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/nn_index.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_set_union.h:
 
@@ -1674,8 +1387,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_volatile.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/linear_index.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/chrono:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/pstl_backends/cpu_backends/backend.h:
@@ -1707,6 +1418,10 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_allocator.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_aggregate.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_remove_copy_if.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/machine/signal.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/integral_constant.h:
 
@@ -1740,8 +1455,6 @@ apriltag_binary.h:
 
 /opt/homebrew/include/jmorecfg.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/params.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/aligned_storage.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/binary_search.h:
@@ -1754,10 +1467,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/add_lvalue_reference.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/operations.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cvstd.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/add_cv.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/limits:
@@ -1765,8 +1474,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/add_const.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__tuple/tuple_like_ext.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/fast_math.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__tuple/tuple_like.h:
 
@@ -1817,8 +1524,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__string/constexpr_c_functions.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__std_mbstate_t.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cfloat:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__split_buffer:
 
@@ -1928,8 +1633,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/allocator_arg_t.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/opencv_modules.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/swap_allocator.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/allocator.h:
@@ -1939,8 +1642,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_find.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/align.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/camera.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/in_found_result.h:
 
@@ -1962,13 +1663,7 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/ranges_iterator_traits.h:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/malloc/_malloc.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/prev.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/permutable.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/vsx_utils.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__chrono/month_weekday.h:
 
@@ -2002,13 +1697,9 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/enable_if.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/features2d.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/concepts.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/erase_if_container.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/dnn.inl.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/swap_ranges.h:
 
@@ -2052,8 +1743,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/subrange.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/lsh_table.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cstring:
 
 /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/share/tools/halide_image_io.h:
@@ -2071,8 +1760,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/replace_if.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/ostream.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_destructible.h:
 
@@ -2144,10 +1831,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__format/formatter_bool.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cvstd_wrapper.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cuda_types.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cctype:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__format/enable_insertable.h:
@@ -2176,8 +1859,6 @@ apriltag_binary.h:
 
 /opt/homebrew/include/jpeglib.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/cuda.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__concepts/totally_ordered.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_replace_copy_if.h:
@@ -2187,8 +1868,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_final.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/next.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/base.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__concepts/swappable.h:
 
@@ -2226,8 +1905,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/ratio:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/video/tracking.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/remove_if.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/nth_element.h:
@@ -2252,8 +1929,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/boyer_moore_searcher.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/optim.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/reverse_iterator.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/remove_copy.h:
@@ -2273,8 +1948,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_key_t.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/dependent_type.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/hal/interface.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/next_permutation.h:
 
@@ -2354,6 +2027,8 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__compare/three_way_comparable.h:
 
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/malloc/_malloc_type.h:
+
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/make_unsigned.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/tables.h:
@@ -2424,8 +2099,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__atomic/cxx_atomic_impl.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/allocator.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_remove_copy.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__atomic/atomic_sync.h:
@@ -2445,8 +2118,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_trivially_copyable.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__atomic/atomic_base.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/list:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/common_type.h:
 
@@ -2484,17 +2155,11 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__exception/operations.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/aruco_detector.hpp:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/dnn/dict.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_is_partitioned.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/uniform_random_bit_generator_adaptor.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/copy_backward.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/mat.inl.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/transform.h:
 
@@ -2503,8 +2168,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_blkcnt_t.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/pstl_frontend_dispatch.h:
-
-/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/arm_bf16.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/stable_sort.h:
 
@@ -2582,9 +2245,9 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/perfect_forward.h:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_starts_with.h:
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/machine/limits.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/utils/logger.hpp:
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_starts_with.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/reduce.h:
 
@@ -2640,12 +2303,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_search.h:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/make_projected.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_clamp.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/complex:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__atomic/atomic.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__chrono/convert_to_timespec.h:
@@ -2669,8 +2326,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/ios.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/for_each_segment.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/heap.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/wctype.h:
 
@@ -2703,6 +2358,8 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/can_extract_key.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_generate_n.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/machine/_mcontext.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/disjunction.h:
 
@@ -2742,9 +2399,9 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/cerrno:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/mat.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__format/buffer.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_copy_n.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/math.h:
 
@@ -2765,6 +2422,8 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_reverse_copy.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__string/extern_template_lists.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/machine/_types.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/all_of.h:
 
@@ -2806,13 +2465,15 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_mismatch.h:
 
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/make_projected.h:
+
+/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_clamp.h:
+
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__chrono/convert_to_tm.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__charconv/to_chars_result.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_binary_search.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/affine.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/move_backward.h:
 
@@ -2828,11 +2489,7 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/AvailabilityVersions.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/exposure_compensate.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_adjacent_find.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/saving.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/pstl_sort.h:
 
@@ -2841,8 +2498,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/_wctype.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/pstl_is_partitioned.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core/matx.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/uninitialized_algorithms.h:
 
@@ -2871,8 +2526,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/pstl_fill.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__memory/builtin_new_allocator.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/random.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/pstl_replace.h:
 
@@ -2922,8 +2575,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/make_heap.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/timer.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/vector:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/pstl_any_all_none_of.h:
@@ -2954,8 +2605,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_generate.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/defines.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__format/format_to_n_result.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/min_element.h:
@@ -2965,8 +2614,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__concepts/common_reference_with.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/accumulate.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/sys/_types/_dev_t.h:
 
@@ -3028,8 +2675,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_move_backward.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/video/background_segm.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/copy.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_default_constructible.h:
@@ -3046,10 +2691,6 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/compose.h:
 
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/machine/signal.h:
-
-/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_remove_copy_if.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/unordered_map:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/partial_sort_copy.h:
@@ -3061,8 +2702,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_sort.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/is_partitioned.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/stitching/detail/warpers.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/types.h:
 
@@ -3084,19 +2723,13 @@ apriltag_binary.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/is_sorted.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/hierarchical_clustering_index.h:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__compare/strong_order.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/pstl_generate.h:
 
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/calib3d.hpp:
-
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__numeric/midpoint.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_abstract.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/flann/autotuned_index.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/arm/_limits.h:
 
@@ -3105,8 +2738,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/algorithm:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/is_unsigned.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/objdetect/charuco_detector.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/fstream.h:
 
@@ -3117,8 +2748,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/pop_heap.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__iterator/indirectly_comparable.h:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/ml.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/operations.h:
 
@@ -3141,8 +2770,6 @@ apriltag_binary.h:
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_is_permutation.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/iosfwd:
-
-/opt/homebrew/Cellar/opencv/4.12.0_13/include/opencv4/opencv2/core.hpp:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/stable_partition.h:
 
