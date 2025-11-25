@@ -1,5 +1,5 @@
-#ifndef HALIDE__apriltag_tilemap_h
-#define HALIDE__apriltag_tilemap_h
+#ifndef HALIDE__apriltag_edge_detect_h
+#define HALIDE__apriltag_edge_detect_h
 #include <stdint.h>
 
 // Forward declarations of the types used in the interface
@@ -41,13 +41,13 @@ extern "C" {
 #endif
 
 HALIDE_FUNCTION_ATTRS
-int atag_tilemap(struct halide_buffer_t *_input_gray_buffer, float _grad_threshold, struct halide_buffer_t *_tilemap_buffer);
+int atag_edge_detect(struct halide_buffer_t *_input_gray_buffer, struct halide_buffer_t *_binary_buffer);
 
 HALIDE_FUNCTION_ATTRS
-int atag_tilemap_argv(void **args);
+int atag_edge_detect_argv(void **args);
 
 HALIDE_FUNCTION_ATTRS
-const struct halide_filter_metadata_t *atag_tilemap_metadata();
+const struct halide_filter_metadata_t *atag_edge_detect_metadata();
 
 #ifdef __cplusplus
 }  // extern "C"

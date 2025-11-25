@@ -95,7 +95,7 @@ apriltag_runner_EXTERNAL_OBJECTS =
 
 apriltag_runner: CMakeFiles/apriltag_runner.dir/src/main.cpp.o
 apriltag_runner: CMakeFiles/apriltag_runner.dir/build.make
-apriltag_runner: apriltag_tilemap.a
+apriltag_runner: apriltag_edge_detect.a
 apriltag_runner: /opt/homebrew/lib/libpng.dylib
 apriltag_runner: /opt/homebrew/lib/libjpeg.dylib
 apriltag_runner: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libz.tbd

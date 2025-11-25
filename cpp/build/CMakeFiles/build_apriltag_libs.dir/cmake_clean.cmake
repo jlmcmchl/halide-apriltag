@@ -1,15 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/build_apriltag_libs"
-  "apriltag_binary.a"
-  "apriltag_binary.h"
-  "apriltag_density.a"
-  "apriltag_density.h"
-  "apriltag_edge.a"
-  "apriltag_edge.h"
-  "apriltag_lut.a"
-  "apriltag_lut.h"
-  "apriltag_tilemap.a"
-  "apriltag_tilemap.h"
+  "apriltag_edge_detect.a"
+  "apriltag_edge_detect.h"
 )
 
 # Per-language clean rules from dependency scanning.

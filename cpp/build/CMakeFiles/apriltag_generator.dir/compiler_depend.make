@@ -934,8 +934,10 @@ CMakeFiles/apriltag_generator.dir/src/apriltag_generator.cpp.o: /Users/eeshwarkr
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/stddef.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/stdint.h \
-  /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/include/Halide.h
+  /opt/homebrew/include/Halide.h
 
+
+/opt/homebrew/include/Halide.h:
 
 /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/15.0.0/include/stdint.h:
 
@@ -1256,8 +1258,6 @@ CMakeFiles/apriltag_generator.dir/src/apriltag_generator.cpp.o: /Users/eeshwarkr
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/remove_cvref.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__type_traits/remove_all_extents.h:
-
-/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/include/Halide.h:
 
 /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/ranges_partial_sort_copy.h:
 

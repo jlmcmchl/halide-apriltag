@@ -66,62 +66,22 @@ include CMakeFiles/build_apriltag_libs.dir/compiler_depend.make
 # Include the progress variables for this target.
 include CMakeFiles/build_apriltag_libs.dir/progress.make
 
-CMakeFiles/build_apriltag_libs: apriltag_tilemap.a
-CMakeFiles/build_apriltag_libs: apriltag_binary.a
-CMakeFiles/build_apriltag_libs: apriltag_edge.a
-CMakeFiles/build_apriltag_libs: apriltag_density.a
-CMakeFiles/build_apriltag_libs: apriltag_lut.a
-CMakeFiles/build_apriltag_libs: apriltag_tilemap.h
-CMakeFiles/build_apriltag_libs: apriltag_binary.h
-CMakeFiles/build_apriltag_libs: apriltag_edge.h
-CMakeFiles/build_apriltag_libs: apriltag_density.h
-CMakeFiles/build_apriltag_libs: apriltag_lut.h
+CMakeFiles/build_apriltag_libs: apriltag_edge_detect.a
+CMakeFiles/build_apriltag_libs: apriltag_edge_detect.h
 
-apriltag_tilemap.a: apriltag_generator
+apriltag_edge_detect.a: apriltag_generator
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Halide AOT libraries"
 	/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build/apriltag_generator
 
-apriltag_binary.a: apriltag_tilemap.a
-	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_binary.a
-
-apriltag_edge.a: apriltag_tilemap.a
-	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_edge.a
-
-apriltag_density.a: apriltag_tilemap.a
-	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_density.a
-
-apriltag_lut.a: apriltag_tilemap.a
-	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_lut.a
-
-apriltag_tilemap.h: apriltag_tilemap.a
-	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_tilemap.h
-
-apriltag_binary.h: apriltag_tilemap.a
-	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_binary.h
-
-apriltag_edge.h: apriltag_tilemap.a
-	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_edge.h
-
-apriltag_density.h: apriltag_tilemap.a
-	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_density.h
-
-apriltag_lut.h: apriltag_tilemap.a
-	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_lut.h
+apriltag_edge_detect.h: apriltag_edge_detect.a
+	@$(CMAKE_COMMAND) -E touch_nocreate apriltag_edge_detect.h
 
 CMakeFiles/build_apriltag_libs.dir/codegen:
 .PHONY : CMakeFiles/build_apriltag_libs.dir/codegen
 
 build_apriltag_libs: CMakeFiles/build_apriltag_libs
-build_apriltag_libs: apriltag_binary.a
-build_apriltag_libs: apriltag_binary.h
-build_apriltag_libs: apriltag_density.a
-build_apriltag_libs: apriltag_density.h
-build_apriltag_libs: apriltag_edge.a
-build_apriltag_libs: apriltag_edge.h
-build_apriltag_libs: apriltag_lut.a
-build_apriltag_libs: apriltag_lut.h
-build_apriltag_libs: apriltag_tilemap.a
-build_apriltag_libs: apriltag_tilemap.h
+build_apriltag_libs: apriltag_edge_detect.a
+build_apriltag_libs: apriltag_edge_detect.h
 build_apriltag_libs: CMakeFiles/build_apriltag_libs.dir/build.make
 .PHONY : build_apriltag_libs
 

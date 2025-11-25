@@ -576,61 +576,94 @@ Func build_full_pipeline(ImageParam input) {
     // );
 }
 
-Func build_full_pipeline2(ImageParam input) {
+// =============================================================================
+// AprilTag-style Adaptive Thresholding Pipeline
+// =============================================================================
+// Like the original AprilTag: uses local min/max for adaptive thresholding
+// No manual tuning required - automatically adapts to image contrast
+
+constexpr int TILE_SIZE = 4;  // Local neighborhood for adaptive threshold
+constexpr int MIN_CONTRAST = 30;  // Minimum contrast to consider an edge (fixed, robust)
+
+Func build_adaptive_threshold_pipeline(ImageParam input) {
     Var x("x"), y("y");
-    Var xo("xo"), yo("yo"), xi("xi"), yi("yi"); // Add GPU tile variables
+    Var xo("xo"), yo("yo"), xi("xi"), yi("yi");
 
     Expr width = input.width();
     Expr height = input.height();
+    Expr max_x = width - 1;
+    Expr max_y = height - 1;
 
+    // Step 1: Clamp input
+    Func clamped("clamped");
+    clamped(x, y) = input(clamp(x, 0, max_x), clamp(y, 0, max_y));
+
+    // Step 2: Compute local min/max in TILE_SIZE x TILE_SIZE neighborhoods
+    // This is the key to adaptive thresholding - no manual tuning needed
+    Var tx("tx"), ty("ty");
+    Expr tiles_x = (width + TILE_SIZE - 1) / TILE_SIZE;
+    Expr tiles_y = (height + TILE_SIZE - 1) / TILE_SIZE;
+    
+    RDom r(0, TILE_SIZE, 0, TILE_SIZE, "tile_minmax");
+    
+    Func tile_min("tile_min"), tile_max("tile_max");
+    tile_min(tx, ty) = 255.0f;
+    tile_max(tx, ty) = 0.0f;
+    
+    Expr px = clamp(tx * TILE_SIZE + r.x, 0, max_x);
+    Expr py = clamp(ty * TILE_SIZE + r.y, 0, max_y);
+    tile_min(tx, ty) = min(tile_min(tx, ty), clamped(px, py));
+    tile_max(tx, ty) = max(tile_max(tx, ty), clamped(px, py));
+
+    // Step 3: For each pixel, look up the min/max from surrounding tiles
+    // and compute adaptive threshold
+    Expr tile_x = clamp(x / TILE_SIZE, 0, tiles_x - 1);
+    Expr tile_y = clamp(y / TILE_SIZE, 0, tiles_y - 1);
+    
+    // Sample 3x3 neighborhood of tiles for smoother thresholding
+    Func local_min("local_min"), local_max("local_max");
+    Expr lmin = cast<float>(255.0f);
+    Expr lmax = cast<float>(0.0f);
+    
+    for (int dy = -1; dy <= 1; ++dy) {
+        Expr ty_n = clamp(tile_y + dy, 0, tiles_y - 1);
+        for (int dx = -1; dx <= 1; ++dx) {
+            Expr tx_n = clamp(tile_x + dx, 0, tiles_x - 1);
+            lmin = min(lmin, tile_min(tx_n, ty_n));
+            lmax = max(lmax, tile_max(tx_n, ty_n));
+        }
+    }
+    
+    local_min(x, y) = lmin;
+    local_max(x, y) = lmax;
+
+    // Step 4: Adaptive threshold
+    // threshold = (min + max) / 2
+    // Only mark as foreground if contrast is sufficient
+    Func threshold("threshold");
+    Expr thresh = (local_min(x, y) + local_max(x, y)) / 2.0f;
+    Expr contrast = local_max(x, y) - local_min(x, y);
+    
+    // Binary: 255 if dark (below threshold), 0 if light, with contrast check
     Func binary("binary");
-    binary(x, y) = cast<int32_t>(select(input(x, y) > 75, 50, 0));
+    binary(x, y) = cast<uint8_t>(select(
+        contrast > MIN_CONTRAST && clamped(x, y) < thresh,
+        255,
+        0
+    ));
 
-    Var x2("x2"), y2("y2");
+    // Output the binary image directly - let CPU find boundaries of connected components
+    // This is more like the original AprilTag algorithm
+    
+    // Schedule for GPU
+    tile_min.compute_root().gpu_tile(tx, ty, xo, yo, xi, yi, 16, 16);
+    tile_min.update().unscheduled();
+    tile_max.compute_root().gpu_tile(tx, ty, xo, yo, xi, yi, 16, 16);
+    tile_max.update().unscheduled();
+    
+    binary.compute_root().gpu_tile(x, y, xo, yo, xi, yi, 16, 16);
 
-    Expr max_x = input.width() - 1;
-    Expr max_y = input.height() - 1;
-
-    Expr center = binary(x2, y2);
-    Expr left = binary(clamp(x2 - 1, 0, max_x), y2);
-    Expr right = binary(clamp(x2 + 1, 0, max_x), y2);
-    Expr up = binary(x2, clamp(y2 - 1, 0, max_y));
-    Expr down = binary(x2, clamp(y2 + 1, 0, max_y));
-
-    Expr is_edge_x_1 = (center > left);
-    Expr is_edge_x_2 = (center > right);
-    Expr is_edge_y_1 = (center > up);
-    Expr is_edge_y_2 = (center > down);
-
-    Func edge("edge");
-    edge(x2, y2) = binary(x2, y2);
-
-    Func edge_x_1("edge_x_1");
-    edge_x_1(x2, y2) = select(is_edge_x_1, 1, 0); //right edges
-    Func edge_x_2("edge_x_2");
-    edge_x_2(x2, y2) = select(is_edge_x_2, 2, 0); //left edges
-    Func edge_y_1("edge_y_1");
-    edge_y_1(x2, y2) = select(is_edge_y_1, 3, 0); //down edges
-    Func edge_y_2("edge_y_2");
-    edge_y_2(x2, y2) = select(is_edge_y_2, 4, 0); //up edges
-
-    edge_x_1.compute_root().gpu_tile(x2, y2, xo, yo, xi, yi, 16, 16);
-    edge_x_2.compute_root().gpu_tile(x2, y2, xo, yo, xi, yi, 16, 16);
-    edge_y_1.compute_root().gpu_tile(x2, y2, xo, yo, xi, yi, 16, 16);
-    edge_y_2.compute_root().gpu_tile(x2, y2, xo, yo, xi, yi, 16, 16);
-
-    Func combined_edge("combined_edge");
-    combined_edge(x2, y2) = max(edge_x_1(x2, y2), max(edge_x_2(x2, y2), max(edge_y_1(x2, y2), edge_y_2(x2, y2))));
-
-    combined_edge.compute_root().gpu_tile(x2, y2, xo, yo, xi, yi, 16, 16);
-
-    Func corners("corners");
-    corners(x2, y2) = select(combined_edge(x2, clamp(y2-1, 0, max_y)) == 1 && combined_edge(clamp(x2-1, 0, max_x), y2) == 3, 4, 0);
-    corners(x2, y2) = select(combined_edge(x2, clamp(y2-1, 0, max_y)) == 2 && combined_edge(clamp(x2+1, 0, max_x), y2) == 3, 3, corners(x2, y2));
-    corners(x2, y2) = select(combined_edge(x2, clamp(y2+1, 0, max_y)) == 1 && combined_edge(clamp(x2-1, 0, max_x), y2) == 4, 2, corners(x2, y2));
-    corners(x2, y2) = select(combined_edge(x2, clamp(y2+1, 0, max_y)) == 2 && combined_edge(clamp(x2+1, 0, max_x), y2) == 4, 1, corners(x2, y2));
-
-    return corners;
+    return binary;
 }
 
 } // namespace
@@ -639,48 +672,26 @@ int main(int argc, char **argv) {
     try {
         Target target = get_target_from_environment();
 
-    ImageParam input_gray(Float(32), 2, "input_gray");
-    ImageParam binary_in(UInt(8), 2, "binary_in");
-    ImageParam edge_in(Int(32), 2, "edge_in");
-    ImageParam density_in(Int(32), 2, "density_in");
-    ImageParam labels_in(Int(32), 2, "labels_in");
+        // =========================================================================
+        // AprilTag-style Adaptive Thresholding Pipeline (no tuning required)
+        // =========================================================================
+        ImageParam input_gray(Float(32), 2, "input_gray");
+        
+        Func edge_detect = build_adaptive_threshold_pipeline(input_gray);
+        
+        std::vector<Argument> edge_detect_args = {input_gray};
 
-    // Configurable parameters for density filter
-    Param<int> density_neighborhood_size("density_neighborhood_size");
-    Param<float> density_threshold_ratio("density_threshold_ratio");
+        // Configure GPU target
+        Target gpu_target = target;
+        gpu_target.set_feature(Target::Metal);
+        gpu_target.set_feature(Target::Profile);
 
-    // Set default values
-    density_neighborhood_size.set(3);      // 3x3 neighborhood by default
-    density_threshold_ratio.set(1.0f);     // 50% threshold by default
+        std::cout << "Compiling adaptive threshold pipeline..." << std::endl;
+        edge_detect.compile_to_static_library("apriltag_edge_detect", edge_detect_args, "atag_edge_detect", gpu_target);
+        edge_detect.compile_to_header("apriltag_edge_detect.h", edge_detect_args, "atag_edge_detect", gpu_target);
 
-    Func binary = build_full_pipeline2(input_gray);
-    Func edge = build_edge_pipeline(binary_in);
-    Func density = build_density_pipeline(edge_in, density_neighborhood_size, density_threshold_ratio);
-    Func lut = build_lut_pipeline(density_in);
-
-    std::vector<Argument> binary_args = {input_gray};
-    std::vector<Argument> edge_args = {binary_in};
-    std::vector<Argument> density_args = {edge_in, density_neighborhood_size, density_threshold_ratio};
-    std::vector<Argument> lut_args = {density_in};
-
-    // Compile all pipelines together to avoid duplicate Metal runtime symbols
-    // but expose them as separate functions by compiling each individually with the same target
-    Target gpu_target = target;
-    gpu_target.set_feature(Target::Metal);
-    gpu_target.set_feature(Target::Profile);
-
-    // Compile each pipeline separately but with the same target to share runtime
-    binary.compile_to_static_library("apriltag_binary", binary_args, "atag_binary", gpu_target);
-    edge.compile_to_static_library("apriltag_edge", edge_args, "atag_edge", gpu_target);
-    density.compile_to_static_library("apriltag_density", density_args, "atag_density", gpu_target);
-    lut.compile_to_static_library("apriltag_lut", lut_args, "atag_lut", gpu_target);
-
-    binary.compile_to_header("apriltag_binary.h", binary_args, "atag_binary", gpu_target);
-    edge.compile_to_header("apriltag_edge.h", edge_args, "atag_edge", gpu_target);
-    density.compile_to_header("apriltag_density.h", density_args, "atag_density", gpu_target);
-    lut.compile_to_header("apriltag_lut.h", lut_args, "atag_lut", gpu_target);
-
-    return 0;
+        std::cout << "All pipelines compiled successfully!" << std::endl;
+        return 0;
     } catch (const Halide::CompileError &e) {
         std::cerr << "Halide compilation error: " << e.what() << std::endl;
         return 1;

@@ -95,7 +95,7 @@ apriltag_generator_EXTERNAL_OBJECTS =
 
 apriltag_generator: CMakeFiles/apriltag_generator.dir/src/apriltag_generator.cpp.o
 apriltag_generator: CMakeFiles/apriltag_generator.dir/build.make
-apriltag_generator: /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/lib/libHalide.dylib
+apriltag_generator: /opt/homebrew/lib/libHalide.21.0.0.dylib
 apriltag_generator: CMakeFiles/apriltag_generator.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable apriltag_generator"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/apriltag_generator.dir/link.txt --verbose=$(VERBOSE)

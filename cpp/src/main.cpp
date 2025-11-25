@@ -1,371 +1,353 @@
 #include "HalideBuffer.h"
 #include "halide_image_io.h"
 
-#include "apriltag_binary.h"
-#include "apriltag_edge.h"
-#include "apriltag_density.h"
-#include "apriltag_lut.h"
-
-#include <opencv2/opencv.hpp>
+#include "apriltag_edge_detect.h"
 
 #include <algorithm>
-#include <array>
 #include <chrono>
+#include <cmath>
 #include <iostream>
-#include <stdexcept>
+#include <numeric>
+#include <queue>
 #include <unordered_map>
 #include <vector>
-#include <cmath>
-#include <numeric>
 
 using Halide::Runtime::Buffer;
 using namespace Halide::Tools;
 
-namespace {
+// =============================================================================
+// Data Structures
+// =============================================================================
 
-// Fast quad detection structures
 struct Point2D {
     float x, y;
     Point2D(float x = 0, float y = 0) : x(x), y(y) {}
-    Point2D operator+(const Point2D& other) const { return Point2D(x + other.x, y + other.y); }
-    Point2D operator-(const Point2D& other) const { return Point2D(x - other.x, y - other.y); }
-    Point2D operator*(float s) const { return Point2D(x * s, y * s); }
-    float dot(const Point2D& other) const { return x * other.x + y * other.y; }
+    Point2D operator+(const Point2D& o) const { return {x + o.x, y + o.y}; }
+    Point2D operator-(const Point2D& o) const { return {x - o.x, y - o.y}; }
+    Point2D operator*(float s) const { return {x * s, y * s}; }
+    float dot(const Point2D& o) const { return x * o.x + y * o.y; }
+    float cross(const Point2D& o) const { return x * o.y - y * o.x; }
     float norm() const { return std::sqrt(x * x + y * y); }
-    
-    // Comparison operators for std::sort
-    bool operator<(const Point2D& other) const {
-        if (x != other.x) return x < other.x;
-        return y < other.y;
-    }
-    bool operator==(const Point2D& other) const {
-        return x == other.x && y == other.y;
-    }
+    Point2D normalized() const { float n = norm(); return n > 0 ? Point2D(x/n, y/n) : Point2D(); }
 };
 
 struct Quad {
     Point2D corners[4];
-    float error;
-    Quad() : error(std::numeric_limits<float>::max()) {}
+    float confidence;
+    
+    bool is_valid() const {
+        float side_lengths[4];
+        for (int i = 0; i < 4; i++) {
+            side_lengths[i] = (corners[(i+1)%4] - corners[i]).norm();
+        }
+        
+        float min_side = *std::min_element(side_lengths, side_lengths + 4);
+        float max_side = *std::max_element(side_lengths, side_lengths + 4);
+        
+        if (min_side < 15.0f) return false;
+        if (max_side / min_side > 4.0f) return false;
+        
+        // Check convexity
+        for (int i = 0; i < 4; i++) {
+            Point2D v1 = corners[(i+1)%4] - corners[i];
+            Point2D v2 = corners[(i+2)%4] - corners[(i+1)%4];
+            if (v1.cross(v2) < 0) return false;
+        }
+        return true;
+    }
 };
 
-#include <vector>
-#include <tuple>
-#include <cmath>
-#include <unordered_map>
-#include <algorithm>
-#include "HalideBuffer.h"   // Halide::Runtime::Buffer
+// =============================================================================
+// Union-Find for Connected Components
+// =============================================================================
 
-struct Rect {
-    float x1, y1, x2, y2, x3, y3, x4, y4; // corners in order
-    float angle; // radians
+class UnionFind {
+public:
+    std::vector<int> parent, rank_vec;
+    
+    UnionFind(int n) : parent(n), rank_vec(n, 0) {
+        std::iota(parent.begin(), parent.end(), 0);
+    }
+    
+    int find(int x) {
+        if (parent[x] != x) parent[x] = find(parent[x]);
+        return parent[x];
+    }
+    
+    void unite(int x, int y) {
+        int px = find(x), py = find(y);
+        if (px == py) return;
+        if (rank_vec[px] < rank_vec[py]) std::swap(px, py);
+        parent[py] = px;
+        if (rank_vec[px] == rank_vec[py]) rank_vec[px]++;
+    }
 };
 
-static inline float sqr(float v) { return v * v; }
+// =============================================================================
+// Convex Hull (Andrew's Monotone Chain)
+// =============================================================================
 
-static inline float dist(float x1, float y1, float x2, float y2) {
-    return std::sqrt(sqr(x2 - x1) + sqr(y2 - y1));
-}
-
-static inline float dot(float ax, float ay, float bx, float by) {
-    return ax * bx + ay * by;
-}
-
-std::vector<Rect> find_rotated_rects(Buffer<int32_t> &map,
-                                     float aspect_tol = 3.0f,
-                                     float angle_tol_deg = 30.0f)
-{
-    const int W = map.width();
-    const int H = map.height();
-
-    // --- Gather corners ---
-    std::vector<std::pair<int,int>> tl, tr, bl, br;
-    for (int y = 0; y < H; ++y) {
-        for (int x = 0; x < W; ++x) {
-            switch (map(x, y)) {
-                case 1: tl.emplace_back(x, y); break;
-                case 2: tr.emplace_back(x, y); break;
-                case 3: bl.emplace_back(x, y); break;
-                case 4: br.emplace_back(x, y); break;
-                default: break;
-            }
+std::vector<Point2D> convex_hull(std::vector<Point2D> points) {
+    int n = points.size();
+    if (n < 3) return points;
+    
+    std::sort(points.begin(), points.end(), [](const Point2D& a, const Point2D& b) {
+        return a.x < b.x || (a.x == b.x && a.y < b.y);
+    });
+    
+    std::vector<Point2D> hull;
+    
+    // Lower hull
+    for (int i = 0; i < n; i++) {
+        while (hull.size() >= 2) {
+            Point2D a = hull[hull.size() - 2];
+            Point2D b = hull[hull.size() - 1];
+            if ((b - a).cross(points[i] - a) <= 0) hull.pop_back();
+            else break;
         }
+        hull.push_back(points[i]);
     }
-
-    // Hash map for quick lookup of BR corners
-    std::unordered_map<int, bool> br_map;
-    br_map.reserve(br.size() * 2);
-    for (auto &[x, y] : br)
-        br_map[y * W + x] = true;
-
-    std::vector<Rect> rects;
-    float angle_tol = angle_tol_deg * M_PI / 180.0f;
-
-    // --- Match candidates ---
-    for (auto &[x1, y1] : tl) {
-        for (auto &[x2, y2] : tr) {
-            // top edge vector
-            float dx1 = x2 - x1, dy1 = y2 - y1;
-            if (dx1 == 0 && dy1 == 0) continue;
-            float len_top = std::sqrt(dx1*dx1 + dy1*dy1);
-
-            // find a BL candidate
-            for (auto &[x3, y3] : bl) {
-                float dx2 = x3 - x1, dy2 = y3 - y1;
-                if (dx2 == 0 && dy2 == 0) continue;
-                float len_left = std::sqrt(dx2*dx2 + dy2*dy2);
-
-                // Check angle between edges ≈ 90°
-                float cosang = dot(dx1, dy1, dx2, dy2) / (len_top * len_left);
-                if (std::abs(cosang) > std::cos(angle_tol)) continue;
-
-                // Expected BR position
-                float x4 = x3 + dx1;
-                float y4 = y3 + dy1;
-
-                int xi4 = std::round(x4);
-                int yi4 = std::round(y4);
-                if (xi4 < 0 || xi4 >= W || yi4 < 0 || yi4 >= H) continue;
-                if (!br_map.count(yi4 * W + xi4)) continue;
-
-                // Aspect ratio check
-                float ratio = len_top / len_left;
-                if (ratio < 1.0f / aspect_tol || ratio > aspect_tol) continue;
-
-                rects.push_back({(float)x1, (float)y1, (float)x2, (float)y2,
-                                 (float)x3, (float)y3, x4, y4,
-                                 std::atan2(dy1, dx1)});
-            }
+    
+    // Upper hull
+    int lower_size = hull.size();
+    for (int i = n - 2; i >= 0; i--) {
+        while (hull.size() > lower_size) {
+            Point2D a = hull[hull.size() - 2];
+            Point2D b = hull[hull.size() - 1];
+            if ((b - a).cross(points[i] - a) <= 0) hull.pop_back();
+            else break;
         }
+        hull.push_back(points[i]);
     }
-
-    return rects;
+    
+    hull.pop_back();
+    return hull;
 }
 
-void draw_line(Halide::Runtime::Buffer<int32_t> &buf,
-               float x0, float y0, float x1, float y1, uint8_t val)
-{
-    int W = buf.width(), H = buf.height();
-    int dx = std::abs((int)(x1 - x0)), dy = std::abs((int)(y1 - y0));
-    int sx = x0 < x1 ? 1 : -1;
-    int sy = y0 < y1 ? 1 : -1;
-    int err = dx - dy;
+// =============================================================================
+// Quad Fitting from Hull
+// =============================================================================
 
-    while (true) {
-        if (x0 >= 0 && x0 < W && y0 >= 0 && y0 < H)
-            buf((int)x0, (int)y0) = val;
-        if ((int)x0 == (int)x1 && (int)y0 == (int)y1) break;
-        int e2 = 2 * err;
-        if (e2 > -dy) { err -= dy; x0 += sx; }
-        if (e2 < dx)  { err += dx; y0 += sy; }
-    }
-}
-
-void draw_rects(Halide::Runtime::Buffer<int32_t> &buf,
-                const std::vector<Rect> &rects,
-                uint8_t color = 255)
-{
-    for (auto &r : rects) {
-        draw_line(buf, r.x1, r.y1, r.x2, r.y2, color);
-        draw_line(buf, r.x2, r.y2, r.x4, r.y4, color);
-        draw_line(buf, r.x4, r.y4, r.x3, r.y3, color);
-        draw_line(buf, r.x3, r.y3, r.x1, r.y1, color);
-    }
-}
-
-
-// Helper function to record equivalence between two labels (optimized)
-inline void record_equivalence(std::vector<int>& parent, int label1, int label2) {
-    int max_label = std::max(label1, label2);
-    int min_label = std::min(label1, label2);
+Quad fit_quad_to_hull(const std::vector<Point2D>& hull, float total_perimeter) {
+    Quad quad;
+    quad.confidence = total_perimeter;
     
-    // Only resize if absolutely necessary
-    if (max_label >= parent.size()) {
-        int old_size = parent.size();
-        parent.resize(max_label + 1);
-        // Initialize new entries as self-parents
-        for (int i = old_size; i <= max_label; ++i) {
-            parent[i] = i;
-        }
-    }
-    parent[max_label] = min_label;
-}
-
-// Maximum performance connected components with SIMD hints and branch prediction
-Buffer<int32_t> ultra_fast_connected_components(const Buffer<int32_t> &edges) {
-    int width = edges.width();
-    int height = edges.height();
+    if (hull.size() < 4) return quad;
     
-    Buffer<int32_t> labels(width, height);
+    int n = hull.size();
     
-    // Initialize labels to 0 using memset for speed
-    memset(labels.data(), 0, width * height * sizeof(int32_t));
+    // Find 4 corners with maximum curvature
+    std::vector<std::pair<float, int>> curvatures;
     
-    // Union-find structure for label equivalences - pre-allocate for speed
-    std::vector<int> parent;
-    parent.reserve(width * height / 2); // More conservative estimate for 8-connectivity
-    int current_label = 1;
-    
-    // First pass: assign initial labels and build equivalence table
-    for (int y = 0; y < height; ++y) {
-        int32_t* label_row = &labels(0, y);
-        const int32_t* edge_row = &edges(0, y);
+    for (int i = 0; i < n; i++) {
+        Point2D prev = hull[(i - 1 + n) % n];
+        Point2D curr = hull[i];
+        Point2D next = hull[(i + 1) % n];
         
-        for (int x = 0; x < width; ++x) {
-            // Branch prediction hint: most pixels are background
-            if (__builtin_expect(edge_row[x] > 0, 0)) {
-                // Check 8-connectivity: left, top-left, top, top-right
-                int left_label = (x > 0) ? label_row[x - 1] : 0;
-                int top_label = (y > 0) ? labels(x, y - 1) : 0;
-                int top_left_label = (x > 0 && y > 0) ? labels(x - 1, y - 1) : 0;
-                int top_right_label = (x < width - 1 && y > 0) ? labels(x + 1, y - 1) : 0;
-                
-                // Find the minimum non-zero label among neighbors (optimized)
-                int min_neighbor_label = 0;
-                if (left_label > 0) min_neighbor_label = left_label;
-                if (top_label > 0) {
-                    min_neighbor_label = (min_neighbor_label == 0) ? top_label : std::min(min_neighbor_label, top_label);
-                }
-                if (top_left_label > 0) {
-                    min_neighbor_label = (min_neighbor_label == 0) ? top_left_label : std::min(min_neighbor_label, top_left_label);
-                }
-                if (top_right_label > 0) {
-                    min_neighbor_label = (min_neighbor_label == 0) ? top_right_label : std::min(min_neighbor_label, top_right_label);
-                }
-                
-                // Optimize the most common case first
-                if (__builtin_expect(min_neighbor_label == 0, 1)) {
-                    // New component
-                    label_row[x] = current_label;
-                    // Ensure parent vector is large enough and initialize self-parent
-                    if (current_label >= parent.size()) {
-                        parent.resize(current_label + 1);
-                    }
-                    parent[current_label] = current_label; // Self-parent
-                    current_label++;
-                } else {
-                    // We have at least one neighbor with a label
-                    label_row[x] = min_neighbor_label;
-                    
-                    // Record equivalences for all neighbors that have different labels
-                    // Use a more efficient approach - check all neighbors at once
-                    int neighbors[4] = {left_label, top_label, top_left_label, top_right_label};
-                    for (int i = 0; i < 4; ++i) {
-                        if (neighbors[i] > 0 && neighbors[i] != min_neighbor_label) {
-                            record_equivalence(parent, neighbors[i], min_neighbor_label);
-                        }
-                    }
+        Point2D v1 = (curr - prev).normalized();
+        Point2D v2 = (next - curr).normalized();
+        
+        float angle = std::atan2(std::abs(v1.cross(v2)), v1.dot(v2));
+        curvatures.push_back({angle, i});
+    }
+    
+    std::sort(curvatures.begin(), curvatures.end(),
+              [](const auto& a, const auto& b) { return a.first > b.first; });
+    
+    std::vector<int> corner_indices;
+    for (int i = 0; i < std::min(4, (int)curvatures.size()); i++) {
+        corner_indices.push_back(curvatures[i].second);
+    }
+    
+    std::sort(corner_indices.begin(), corner_indices.end());
+    
+    if (corner_indices.size() < 4) {
+        // Fallback to extreme points
+        Point2D centroid(0, 0);
+        for (const auto& p : hull) { centroid.x += p.x; centroid.y += p.y; }
+        centroid.x /= n; centroid.y /= n;
+        
+        float best_score[4] = {-1e9f, -1e9f, -1e9f, -1e9f};
+        int best_idx[4] = {0, 0, 0, 0};
+        Point2D dirs[4] = {{1, -1}, {1, 1}, {-1, 1}, {-1, -1}};
+        
+        for (int i = 0; i < n; i++) {
+            Point2D delta = hull[i] - centroid;
+            for (int d = 0; d < 4; d++) {
+                float score = delta.dot(dirs[d]);
+                if (score > best_score[d]) {
+                    best_score[d] = score;
+                    best_idx[d] = i;
                 }
             }
         }
+        
+        corner_indices.clear();
+        for (int d = 0; d < 4; d++) corner_indices.push_back(best_idx[d]);
+        std::sort(corner_indices.begin(), corner_indices.end());
     }
     
-    // Resolve equivalences using iterative path compression (faster than recursive)
-    // This ensures all labels point directly to their root
-    for (int i = 1; i < parent.size(); ++i) {
-        if (parent[i] != i) {
-            // Find root with path compression
-            int root = i;
-            while (parent[root] != root) {
-                root = parent[root];
-            }
-            // Path compression: make all nodes on path point directly to root
-            int current = i;
-            while (parent[current] != root) {
-                int next = parent[current];
-                parent[current] = root;
-                current = next;
-            }
-        }
+    for (int i = 0; i < 4; i++) {
+        quad.corners[i] = hull[corner_indices[i]];
     }
     
-    // Second pass: resolve all labels to their root labels
-    for (int y = 0; y < height; ++y) {
-        int32_t* label_row = &labels(0, y);
-        for (int x = 0; x < width; ++x) {
-            if (__builtin_expect(label_row[x] > 0, 0)) {
-                // Safety check: ensure label is within parent array bounds
-                if (label_row[x] < parent.size()) {
-                    label_row[x] = parent[label_row[x]];
-                }
-                // If somehow out of bounds, keep original label (shouldn't happen)
-            }
-        }
-    }
-    
-    return labels;
+    return quad;
 }
 
-// Ultra-fast quad detection with clean bounding boxes
-std::vector<Quad> ultra_fast_quad_detection(const Buffer<int32_t> &labels) {
-    std::vector<Quad> quads;
-    int width = labels.width();
-    int height = labels.height();
+// =============================================================================
+// Find Quads from Binary Image (like original AprilTag)
+// =============================================================================
+
+// Check if pixel is on boundary of a black region
+inline bool is_boundary_pixel(const Buffer<uint8_t>& binary, int x, int y) {
+    if (binary(x, y) == 0) return false;  // Not black
     
-    // Find all unique labels and their boundary points
-    std::unordered_map<int32_t, std::vector<Point2D>> component_points;
+    // Boundary if any 4-connected neighbor is white (0)
+    int w = binary.width(), h = binary.height();
+    if (x > 0 && binary(x-1, y) == 0) return true;
+    if (x < w-1 && binary(x+1, y) == 0) return true;
+    if (y > 0 && binary(x, y-1) == 0) return true;
+    if (y < h-1 && binary(x, y+1) == 0) return true;
+    return false;
+}
+
+std::vector<Quad> find_quads_from_binary(const Buffer<uint8_t>& binary, int min_area, int max_area) {
+    int width = binary.width();
+    int height = binary.height();
     
-    // Extract boundary points for each component (4-connectivity for speed)
-    for (int y = 1; y < height - 1; ++y) {
-        const int32_t* label_row = &labels(0, y);
-        
-        for (int x = 1; x < width - 1; ++x) {
-            int32_t current_label = label_row[x];
-            if (current_label == 0) continue;
+    // Find connected components of BLACK pixels using Union-Find
+    UnionFind uf(width * height);
+    
+    // 4-connectivity for black pixels
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            if (binary(x, y) == 0) continue;  // Skip white
             
-            // Check if this is a boundary point
-            if (label_row[x - 1] != current_label || label_row[x + 1] != current_label ||
-                labels(x, y - 1) != current_label || labels(x, y + 1) != current_label) {
-                component_points[current_label].emplace_back(x, y);
+            int idx = y * width + x;
+            
+            if (x + 1 < width && binary(x + 1, y) > 0) {
+                uf.unite(idx, idx + 1);
+            }
+            if (y + 1 < height && binary(x, y + 1) > 0) {
+                uf.unite(idx, idx + width);
             }
         }
     }
     
-    // Process each component for quad detection
-    for (auto& [label, points] : component_points) {
-        if (points.size() < 4) continue; // Minimum for quad
-        
-        // Find bounding box
-        float min_x = points[0].x, max_x = points[0].x;
-        float min_y = points[0].y, max_y = points[0].y;
-        
-        for (const auto& p : points) {
-            if (p.x < min_x) min_x = p.x;
-            if (p.x > max_x) max_x = p.x;
-            if (p.y < min_y) min_y = p.y;
-            if (p.y > max_y) max_y = p.y;
+    // Gather BOUNDARY points for each component
+    std::unordered_map<int, std::vector<Point2D>> component_boundary;
+    std::unordered_map<int, int> component_area;
+    
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            if (binary(x, y) == 0) continue;
+            
+            int idx = y * width + x;
+            int root = uf.find(idx);
+            
+            component_area[root]++;
+            
+            // Only add boundary pixels
+            if (is_boundary_pixel(binary, x, y)) {
+                component_boundary[root].push_back({(float)x, (float)y});
+            }
         }
-        
-        float width_bb = max_x - min_x;
-        float height_bb = max_y - min_y;
-        
-        // Better filtering for AprilTag-like objects
-        if (width_bb < 15 || height_bb < 15) continue; // Too small
-        if (width_bb > width/2 || height_bb > height/2) continue; // Too large
-        
-        // Check aspect ratio (AprilTags are roughly square)
-        float aspect_ratio = width_bb / height_bb;
-        if (aspect_ratio < 0.5f || aspect_ratio > 2.0f) continue; // Not square enough
-        
-        // Create clean quad from bounding box
-        Quad quad;
-        quad.corners[0] = Point2D(min_x, min_y); // Top-left
-        quad.corners[1] = Point2D(max_x, min_y); // Top-right
-        quad.corners[2] = Point2D(max_x, max_y); // Bottom-right
-        quad.corners[3] = Point2D(min_x, max_y); // Bottom-left
-        
-        // Simple error metric
-        quad.error = width_bb + height_bb;
-        
-        quads.push_back(quad);
     }
     
-    return quads;
+    std::vector<Quad> quads;
+    
+    for (auto& [root, boundary_points] : component_boundary) {
+        int area = component_area[root];
+        
+        // Filter by area
+        if (area < min_area || area > max_area) continue;
+        
+        // Need enough boundary points
+        if (boundary_points.size() < 20) continue;
+        
+        // Compute bounding box
+        float min_x = 1e9f, max_x = -1e9f, min_y = 1e9f, max_y = -1e9f;
+        for (const auto& p : boundary_points) {
+            min_x = std::min(min_x, p.x);
+            max_x = std::max(max_x, p.x);
+            min_y = std::min(min_y, p.y);
+            max_y = std::max(max_y, p.y);
+        }
+        
+        float box_width = max_x - min_x;
+        float box_height = max_y - min_y;
+        
+        // Must be reasonably sized
+        if (box_width < 15 || box_height < 15) continue;
+        if (box_width > width * 0.8f || box_height > height * 0.8f) continue;
+        
+        // Aspect ratio check (AprilTags are roughly square)
+        float aspect = std::max(box_width, box_height) / std::max(1.0f, std::min(box_width, box_height));
+        if (aspect > 3.0f) continue;
+        
+        // Check "rectangularity" - boundary should have points distributed around all 4 sides
+        bool has_top = false, has_bottom = false, has_left = false, has_right = false;
+        float margin = 0.25f;
+        
+        for (const auto& p : boundary_points) {
+            float rel_x = (p.x - min_x) / box_width;
+            float rel_y = (p.y - min_y) / box_height;
+            
+            if (rel_y < margin) has_top = true;
+            if (rel_y > 1.0f - margin) has_bottom = true;
+            if (rel_x < margin) has_left = true;
+            if (rel_x > 1.0f - margin) has_right = true;
+        }
+        
+        if (!has_top || !has_bottom || !has_left || !has_right) continue;
+        
+        // Compute convex hull of boundary
+        std::vector<Point2D> hull = convex_hull(boundary_points);
+        if (hull.size() < 4) continue;
+        
+        // Fit quad
+        Quad quad = fit_quad_to_hull(hull, (float)area);
+        
+        if (quad.is_valid()) {
+            quads.push_back(quad);
+        }
+    }
+    
+    // Sort by area (larger is better confidence for AprilTags)
+    std::sort(quads.begin(), quads.end(), [](const Quad& a, const Quad& b) {
+        return a.confidence > b.confidence;
+    });
+    
+    // Non-maximum suppression
+    std::vector<bool> suppressed(quads.size(), false);
+    std::vector<Quad> result;
+    
+    for (size_t i = 0; i < quads.size(); i++) {
+        if (suppressed[i]) continue;
+        result.push_back(quads[i]);
+        
+        Point2D ci = (quads[i].corners[0] + quads[i].corners[2]) * 0.5f;
+        float ri = (quads[i].corners[2] - quads[i].corners[0]).norm() / 2;
+        
+        for (size_t j = i + 1; j < quads.size(); j++) {
+            if (suppressed[j]) continue;
+            Point2D cj = (quads[j].corners[0] + quads[j].corners[2]) * 0.5f;
+            if ((cj - ci).norm() < ri * 0.5f) {
+                suppressed[j] = true;
+            }
+        }
+    }
+    
+    return result;
 }
 
-Buffer<float> convert_to_grayscale(const Buffer<uint8_t> &input) {
-    Buffer<float> gray(input.width(), input.height());
+// =============================================================================
+// Visualization
+// =============================================================================
 
+Buffer<float> convert_to_grayscale(const Buffer<uint8_t>& input) {
+    Buffer<float> gray(input.width(), input.height());
+    
     if (input.channels() == 1) {
         for (int y = 0; y < input.height(); ++y) {
             for (int x = 0; x < input.width(); ++x) {
@@ -375,101 +357,55 @@ Buffer<float> convert_to_grayscale(const Buffer<uint8_t> &input) {
     } else {
         for (int y = 0; y < input.height(); ++y) {
             for (int x = 0; x < input.width(); ++x) {
-                float r = static_cast<float>(input(x, y, 0));
-                float g = static_cast<float>(input(x, y, 1));
-                float b = static_cast<float>(input(x, y, 2));
+                float r = input(x, y, 0);
+                float g = input(x, y, 1);
+                float b = input(x, y, 2);
                 gray(x, y) = 0.299f * r + 0.587f * g + 0.114f * b;
             }
         }
     }
-
     return gray;
 }
 
-Buffer<uint8_t> visualize_labels(const Buffer<int32_t> &labels) {
-    Buffer<uint8_t> vis(labels.width(), labels.height(), 3);
-
-    auto label_to_color = [](int32_t label) -> std::array<uint8_t, 3> {
-        uint32_t h = static_cast<uint32_t>(label) * 2654435761u;
-        uint8_t r = static_cast<uint8_t>(h & 0xFF);
-        uint8_t g = static_cast<uint8_t>((h >> 8) & 0xFF);
-        uint8_t b = static_cast<uint8_t>((h >> 16) & 0xFF);
-        if (label != 0 && (r == 0 && g == 0 && b == 0)) {
-            r = g = b = 128;
-        }
-        return {r, g, b};
-    };
-
-    for (int y = 0; y < labels.height(); ++y) {
-        for (int x = 0; x < labels.width(); ++x) {
-            int32_t label = labels(x, y);
-            if (label == 0) {
-                vis(x, y, 0) = 0;
-                vis(x, y, 1) = 0;
-                vis(x, y, 2) = 0;
-            } else {
-                auto color = label_to_color(label);
-                vis(x, y, 0) = color[0];
-                vis(x, y, 1) = color[1];
-                vis(x, y, 2) = color[2];
-            }
+void draw_line(Buffer<uint8_t>& buf, Point2D p1, Point2D p2, uint8_t r, uint8_t g, uint8_t b) {
+    int steps = std::max(1, (int)(std::abs(p2.x - p1.x) + std::abs(p2.y - p1.y)));
+    for (int i = 0; i <= steps; ++i) {
+        float t = (float)i / steps;
+        int x = (int)(p1.x + t * (p2.x - p1.x));
+        int y = (int)(p1.y + t * (p2.y - p1.y));
+        if (x >= 0 && x < buf.width() && y >= 0 && y < buf.height()) {
+            buf(x, y, 0) = r;
+            buf(x, y, 1) = g;
+            buf(x, y, 2) = b;
         }
     }
-
-    return vis;
 }
 
-Buffer<uint8_t> visualize_quads(const Buffer<uint8_t> &input, const std::vector<Quad> &quads) {
+Buffer<uint8_t> visualize_quads(const Buffer<uint8_t>& input, const std::vector<Quad>& quads) {
     Buffer<uint8_t> vis(input.width(), input.height(), 3);
     
-    // Copy input image
     for (int y = 0; y < input.height(); ++y) {
         for (int x = 0; x < input.width(); ++x) {
-            if (input.channels() == 1) {
-                vis(x, y, 0) = vis(x, y, 1) = vis(x, y, 2) = input(x, y);
-            } else {
-                vis(x, y, 0) = input(x, y, 0);
-                vis(x, y, 1) = input(x, y, 1);
-                vis(x, y, 2) = input(x, y, 2);
-            }
+            uint8_t v = (input.channels() == 1) ? input(x, y) :
+                        (uint8_t)(0.299f * input(x, y, 0) + 0.587f * input(x, y, 1) + 0.114f * input(x, y, 2));
+            vis(x, y, 0) = vis(x, y, 1) = vis(x, y, 2) = v;
         }
     }
     
-    // Draw quads in bright colors
-    for (const auto& quad : quads) {
-        // Draw quad outline
+    for (const auto& q : quads) {
         for (int i = 0; i < 4; ++i) {
-            Point2D p1 = quad.corners[i];
-            Point2D p2 = quad.corners[(i + 1) % 4];
-            
-            // Draw line between p1 and p2
-            int steps = std::max(1, (int)std::abs(p2.x - p1.x) + (int)std::abs(p2.y - p1.y));
-            for (int step = 0; step <= steps; ++step) {
-                float t = (float)step / steps;
-                int x = (int)(p1.x + t * (p2.x - p1.x));
-                int y = (int)(p1.y + t * (p2.y - p1.y));
-                
-                if (x >= 0 && x < vis.width() && y >= 0 && y < vis.height()) {
-                    vis(x, y, 0) = 255; // Red
-                    vis(x, y, 1) = 0;
-                    vis(x, y, 2) = 0;
-                }
-            }
+            draw_line(vis, q.corners[i], q.corners[(i+1)%4], 255, 0, 0);
         }
         
-        // Draw corner points
         for (int i = 0; i < 4; ++i) {
-            int x = (int)quad.corners[i].x;
-            int y = (int)quad.corners[i].y;
-            
-            // Draw small circle around corner
-            for (int dy = -2; dy <= 2; ++dy) {
-                for (int dx = -2; dx <= 2; ++dx) {
-                    int px = x + dx;
-                    int py = y + dy;
-                    if (px >= 0 && px < vis.width() && py >= 0 && py < vis.height()) {
-                        if (dx * dx + dy * dy <= 4) {
-                            vis(px, py, 0) = 0;   // Green corners
+            int cx = (int)q.corners[i].x;
+            int cy = (int)q.corners[i].y;
+            for (int dy = -3; dy <= 3; ++dy) {
+                for (int dx = -3; dx <= 3; ++dx) {
+                    if (dx*dx + dy*dy <= 9) {
+                        int px = cx + dx, py = cy + dy;
+                        if (px >= 0 && px < vis.width() && py >= 0 && py < vis.height()) {
+                            vis(px, py, 0) = 0;
                             vis(px, py, 1) = 255;
                             vis(px, py, 2) = 0;
                         }
@@ -482,174 +418,116 @@ Buffer<uint8_t> visualize_quads(const Buffer<uint8_t> &input, const std::vector<
     return vis;
 }
 
-void check_halide(int result, const char *stage, std::chrono::duration<double> duration) {
-    if (result != 0) {
-        throw std::runtime_error(std::string("Halide pipeline failure at ") + stage + ": " + std::to_string(result));
+Buffer<uint8_t> visualize_edges(const Buffer<uint8_t>& edges) {
+    Buffer<uint8_t> vis(edges.width(), edges.height(), 3);
+    
+    for (int y = 0; y < edges.height(); ++y) {
+        for (int x = 0; x < edges.width(); ++x) {
+            uint8_t v = edges(x, y);
+            vis(x, y, 0) = v;
+            vis(x, y, 1) = v;
+            vis(x, y, 2) = v;
+        }
     }
-    std::cout << "Stage '" << stage << "' completed in " << duration.count() * 1000 << " milliseconds" << std::endl;
+    
+    return vis;
 }
 
-} // namespace
+// =============================================================================
+// Main
+// =============================================================================
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
     try {
-        const char *input_path = (argc > 1) ? argv[1] : "../apriltags.png";
+        const char* input_path = (argc > 1) ? argv[1] : "../apriltags.png";
         
-        // Parse density filter parameters
-        int density_size = 7;           // Default 3x3 neighborhood
-        float density_ratio = 0.75f;      // Default 50% threshold
+        std::cout << "=== AprilTag Adaptive Threshold Pipeline ===" << std::endl;
+        std::cout << "Loading: " << input_path << std::endl;
+        std::cout << "(No manual tuning required - adapts to image automatically)" << std::endl;
         
-        if (argc > 2) density_size = std::atoi(argv[2]);
-        if (argc > 3) density_ratio = std::atof(argv[3]);
-        
-        std::cout << "Loading " << input_path << std::endl;
-        std::cout << "Density filter: " << density_size << "x" << density_size 
-                  << " neighborhood, " << (density_ratio * 100) << "% threshold" << std::endl;
         Buffer<uint8_t> input = load_image(input_path);
-
-        std::cout << "Input dimensions: " << input.width() << "x" << input.height() << "x" << input.channels() << std::endl;
-
+        std::cout << "Image dimensions: " << input.width() << "x" << input.height() 
+                  << "x" << input.channels() << std::endl;
+        
+        // Convert to grayscale
         Buffer<float> gray = convert_to_grayscale(input);
-
-        Buffer<int32_t> binary(gray.width(), gray.height());
+        
+        // =================================================================
+        // Stage 1: GPU - Adaptive Threshold (binary image)
+        // =================================================================
+        Buffer<uint8_t> binary(gray.width(), gray.height());
+        
         auto start = std::chrono::high_resolution_clock::now();
-        int result = atag_binary(gray, binary);
+        int result = atag_edge_detect(gray, binary);
         auto end = std::chrono::high_resolution_clock::now();
-
-        auto start_copy = std::chrono::high_resolution_clock::now();
+        
+        if (result != 0) {
+            throw std::runtime_error("Halide pipeline failed: " + std::to_string(result));
+        }
+        
+        std::cout << "Stage 'threshold (GPU)' completed in "
+                  << std::chrono::duration<double>(end - start).count() * 1000 << " ms" << std::endl;
+        
+        // Copy to host
+        start = std::chrono::high_resolution_clock::now();
         binary.copy_to_host();
-        auto end_copy = std::chrono::high_resolution_clock::now();
-        std::cout << "Copy to host completed in " << std::chrono::duration_cast<std::chrono::milliseconds>(end_copy - start_copy).count() << " milliseconds" << std::endl;
-
-        auto start_label = std::chrono::high_resolution_clock::now();
-        // for(int y = binary.height() - 1; y > 0; y--) {
-        //     for(int x = binary.width() - 1; x > 0; x--) {
-        //         if(__builtin_expect(binary(x, y) > 0, 0)) {
-        //             if(__builtin_expect(binary(x+1, y) > 0, 0)) {
-        //                 int32_t maximum = std::max(binary(x, y), binary(x+1, y));
-        //                 maximum = std::max(maximum, binary(x, y+1));
-        //                 maximum = std::max(maximum, binary(x+1, y+1));
-        //                 maximum = std::max(maximum, binary(x, y-1));
-        //                 maximum = std::max(maximum, binary(x+1, y-1));
-        //                 maximum = std::max(maximum, binary(x-1, y));
-        //                 maximum = std::max(maximum, binary(x-1, y+1));
-        //                 maximum = std::max(maximum, binary(x-1, y-1));
-        //                 binary(x, y) = maximum;
-        //             }
-        //         }
-        //     }
-        // }
-        // for(int x = binary.width() - 1; x > 0; x--) {
-        //     for(int y = binary.height() - 1; y > 0; y--) {
-        //         if(__builtin_expect(binary(x, y) > 0, 0)) {
-        //             if(__builtin_expect(binary(x, y+1) > 0, 0)) {
-        //                 binary(x, y) = binary(x, y+1);
-        //             }
-        //         }
-        //     }
-        // }
-        auto end_label = std::chrono::high_resolution_clock::now();
-        std::cout << "Labeling completed in " << std::chrono::duration_cast<std::chrono::milliseconds>(end_label - start_label).count() << " milliseconds" << std::endl;
-        check_halide(result, "binary", end - start);
-
-        gray.device_free();
-        input.device_free();
- 
-
-        Buffer<uint8_t> binary_vis(binary.width(), binary.height());
-        binary_vis.device_free();
-        binary_vis.copy_to_host();
-        // for (int y = 0; y < binary.height(); ++y) {
-        //     for (int x = 0; x < binary.width(); ++x) {
-        //         if (binary(x, y) > 0) {
-        //             binary_vis(x, y, 0) = binary(x, y) % 255;
-        //         }else{
-        //             binary_vis(x, y, 0) = 0;
-        //         }
-        //     }
-        // }
-
-        auto rects = find_rotated_rects(binary);
-
-        printf("Detected %zu rectangles\n", rects.size());
-
-        draw_rects(binary, rects, 200);
-
-        for (int y = 0; y < binary.height(); ++y) {
-            for (int x = 0; x < binary.width(); ++x) {
-                if (binary(x, y) > 0) {
-                    binary_vis(x, y, 0) = binary(x, y) % 255;
-                }else{
-                    binary_vis(x, y, 0) = 0;
-                }
+        end = std::chrono::high_resolution_clock::now();
+        std::cout << "Copy to host: " << std::chrono::duration<double>(end - start).count() * 1000 << " ms" << std::endl;
+        
+        // Count black pixels
+        int black_count = 0;
+        for (int y = 0; y < binary.height(); y++) {
+            for (int x = 0; x < binary.width(); x++) {
+                if (binary(x, y) > 0) black_count++;
             }
         }
+        std::cout << "Black pixels: " << black_count << " (" 
+                  << (100.0f * black_count / (binary.width() * binary.height())) << "%)" << std::endl;
         
-        save_image(binary_vis, "gradient_otsu.png");
-
-        return 0;
-
-        binary.device_free();
-        binary_vis.device_free();
-
-        Buffer<int32_t> edges(gray.width(), gray.height());
+        // =================================================================
+        // Stage 2: CPU - Connected Components + Quad Fitting
+        // =================================================================
+        // Min/max area based on expected tag sizes (adaptive to image size)
+        int img_area = binary.width() * binary.height();
+        int min_area = img_area / 2000;   // Tags should be at least 0.05% of image
+        int max_area = img_area / 4;      // Tags should be at most 25% of image
+        
         start = std::chrono::high_resolution_clock::now();
-        result = atag_edge(binary, edges);
+        std::vector<Quad> quads = find_quads_from_binary(binary, min_area, max_area);
         end = std::chrono::high_resolution_clock::now();
-        check_halide(result, "edge", end - start);
-
-        Buffer<uint8_t> edges_vis(edges.width(), edges.height(), 3);
-        for (int y = 0; y < edges.height(); ++y) {
-            for (int x = 0; x < edges.width(); ++x) {
-                if (edges(x, y) > 0) {
-                    edges_vis(x, y, 0) = 255;
-                }
+        
+        std::cout << "Stage 'quad_detect (CPU)' completed in "
+                  << std::chrono::duration<double>(end - start).count() * 1000 << " ms" << std::endl;
+        std::cout << "Found " << quads.size() << " quads" << std::endl;
+        
+        // =================================================================
+        // Output
+        // =================================================================
+        for (size_t i = 0; i < quads.size(); ++i) {
+            const auto& q = quads[i];
+            std::cout << "Quad " << i << ": [";
+            for (int j = 0; j < 4; ++j) {
+                std::cout << "(" << (int)q.corners[j].x << ", " << (int)q.corners[j].y << ")";
+                if (j < 3) std::cout << ", ";
             }
+            std::cout << "] perimeter=" << (int)q.confidence << std::endl;
         }
-
-        save_image(edges_vis, "edge.png");
-
-        // Ultra-fast density filter with configurable parameters
-        // Buffer<int32_t> density(gray.width(), gray.height());
-        // start = std::chrono::high_resolution_clock::now();
-        // result = atag_density(edges, density_size, density_ratio, density);
-        // end = std::chrono::high_resolution_clock::now();
-        // check_halide(result, "ultra_fast_density", end - start);
-
-        Buffer<int32_t> lut(gray.width(), gray.height());
-        start = std::chrono::high_resolution_clock::now();
-        result = atag_lut(edges, lut);
-        end = std::chrono::high_resolution_clock::now();
-        check_halide(result, "lut", end - start);
-
-        // Use fast union-find connected components labeling
-        start = std::chrono::high_resolution_clock::now();
         
-        // Apply ultra-fast connected components labeling on density-filtered edges
-        Buffer<int32_t> labels = ultra_fast_connected_components(edges);
+        // Save visualizations
+        Buffer<uint8_t> binary_vis = visualize_edges(binary);
+        save_image(binary_vis, "binary_output.png");
+        std::cout << "Saved: binary_output.png" << std::endl;
         
-        end = std::chrono::high_resolution_clock::now();
-        check_halide(0, "fast_connected_components", end - start);
-        
-        std::cout << "Fast connected components completed" << std::endl;
-
-        Buffer<uint8_t> labels_vis = visualize_labels(labels);
-        save_image(labels_vis, "labelling_output.png");
-
-        // Ultra-fast quad detection
-        start = std::chrono::high_resolution_clock::now();
-        std::vector<Quad> quads = ultra_fast_quad_detection(labels);
-        end = std::chrono::high_resolution_clock::now();
-        check_halide(0, "quad_detection", end - start);
-        
-        std::cout << "Found " << quads.size() << " candidate quads" << std::endl;
-
-        // Visualize quads on original image
         Buffer<uint8_t> quads_vis = visualize_quads(input, quads);
-        save_image(quads_vis, "quad_detection_output.png");
-
+        save_image(quads_vis, "quads_output.png");
+        std::cout << "Saved: quads_output.png" << std::endl;
+        
+        // Cleanup
+        gray.device_free();
+        binary.device_free();
+        
         return 0;
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }

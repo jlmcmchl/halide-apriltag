@@ -202,13 +202,13 @@ CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 FOUNDATION_LIBRARY:FILEPATH=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Foundation.framework
 
 //The directory containing a CMake configuration file for HalideHelpers.
-HalideHelpers_DIR:PATH=/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/lib/cmake/HalideHelpers
+HalideHelpers_DIR:PATH=/opt/homebrew/lib/cmake/HalideHelpers
 
 //Halide target triple matching the CMake target
 Halide_CMAKE_TARGET:STRING=arm-64-osx
 
 //The directory containing a CMake configuration file for Halide.
-Halide_DIR:PATH=/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/share/cmake/Halide
+Halide_DIR:PATH=/opt/homebrew/lib/cmake/Halide
 
 //Halide target triple matching the Halide library
 Halide_HOST_TARGET:STRING=arm-64-osx
@@ -217,7 +217,7 @@ Halide_HOST_TARGET:STRING=arm-64-osx
 Halide_NO_DEFAULT_FLAGS:BOOL=OFF
 
 //The directory containing a CMake configuration file for Halide_Python.
-Halide_Python_DIR:PATH=/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/lib/cmake/Halide_Python
+Halide_Python_DIR:PATH=/opt/homebrew/lib/cmake/Halide_Python
 
 //The default target to use when AOT compiling
 Halide_TARGET:STRING=host
@@ -263,15 +263,6 @@ apriltag_halide_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 apriltag_halide_SOURCE_DIR:STATIC=/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp
-
-//Value Computed by CMake
-halide_gpu_starter_BINARY_DIR:STATIC=/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build
-
-//Value Computed by CMake
-halide_gpu_starter_IS_TOP_LEVEL:STATIC=ON
-
-//Value Computed by CMake
-halide_gpu_starter_SOURCE_DIR:STATIC=/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp
 
 
 ########################
@@ -414,7 +405,7 @@ FIND_PACKAGE_MESSAGE_DETAILS_OpenCV:INTERNAL=[/opt/homebrew/Cellar/opencv/4.12.0
 //Details about finding PNG
 FIND_PACKAGE_MESSAGE_DETAILS_PNG:INTERNAL=[/opt/homebrew/lib/libpng.dylib][/opt/homebrew/include][v1.6.50()]
 //Details about finding Python
-FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/bin/python3.9][/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/include/python3.9][found components: Interpreter Development.Module ][v3.9.6(3)]
+FIND_PACKAGE_MESSAGE_DETAILS_Python:INTERNAL=[/opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14][/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14][found components: Interpreter Development.Module ][v3.14.0(3)]
 //Details about finding ZLIB
 FIND_PACKAGE_MESSAGE_DETAILS_ZLIB:INTERNAL=[/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib/libz.tbd][/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include][ ][v1.2.12()]
 //ADVANCED property for variable: JPEG_INCLUDE_DIR
@@ -437,15 +428,16 @@ ZLIB_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 ZLIB_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //Compiler reason failure
 _Python_Compiler_REASON_FAILURE:INTERNAL=
-_Python_DEVELOPMENT_MODULE_SIGNATURE:INTERNAL=5aa1a37d846a96b6ed233f72e77e197e
+_Python_DEVELOPMENT_MODULE_SIGNATURE:INTERNAL=fbf0eba23be45a76450bb2da0d8512af
 //Development reason failure
 _Python_Development_REASON_FAILURE:INTERNAL=
-_Python_EXECUTABLE:INTERNAL=/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/bin/python3.9
+//Path to a program.
+_Python_EXECUTABLE:INTERNAL=/opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14
 //Path to a file.
-_Python_INCLUDE_DIR:INTERNAL=/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/include/python3.9
+_Python_INCLUDE_DIR:INTERNAL=/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/include/python3.14
 //Python Properties
-_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;9;6;64;<none>;cpython-39-darwin;abi3;/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9;/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9;/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages;/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages
-_Python_INTERPRETER_SIGNATURE:INTERNAL=4467265bff5f4af9eee2852646074df9
+_Python_INTERPRETER_PROPERTIES:INTERNAL=Python;3;14;0;64;<none>;cpython-314-darwin;abi3;/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/lib/python3.14;/opt/homebrew/opt/python@3.14/Frameworks/Python.framework/Versions/3.14/lib/python3.14;/opt/homebrew/lib/python3.14/site-packages;/opt/homebrew/lib/python3.14/site-packages
+_Python_INTERPRETER_SIGNATURE:INTERNAL=ff51e67373f329cbcbee6a4ac96f4784
 //Interpreter reason failure
 _Python_Interpreter_REASON_FAILURE:INTERNAL=
 //NumPy reason failure

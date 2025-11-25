@@ -1,6 +1,6 @@
 CMakeFiles/apriltag_generator.dir/src/apriltag_generator.cpp.o: \
   /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/src/apriltag_generator.cpp \
-  /Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/.venv/lib/python3.9/site-packages/halide/include/Halide.h \
+  /opt/homebrew/include/Halide.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/functional \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/search.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/comp.h \

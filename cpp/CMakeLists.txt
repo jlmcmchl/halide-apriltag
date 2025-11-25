@@ -19,14 +19,8 @@ add_executable(apriltag_generator src/apriltag_generator.cpp)
 target_link_libraries(apriltag_generator PRIVATE Halide::Halide)
 
 set(GENERATED_LIBS
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_binary.a
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_edge.a
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_density.a
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_lut.a
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_binary.h
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_edge.h
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_density.h
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_lut.h
+    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_edge_detect.a
+    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_edge_detect.h
 )
 
 add_custom_command(
@@ -39,21 +33,9 @@ add_custom_command(
 
 add_custom_target(build_apriltag_libs DEPENDS ${GENERATED_LIBS})
 
-add_library(apriltag_binary STATIC IMPORTED GLOBAL)
-set_target_properties(apriltag_binary PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/apriltag_binary.a)
-add_dependencies(apriltag_binary build_apriltag_libs)
-
-add_library(apriltag_edge STATIC IMPORTED GLOBAL)
-set_target_properties(apriltag_edge PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/apriltag_edge.a)
-add_dependencies(apriltag_edge build_apriltag_libs)
-
-add_library(apriltag_density STATIC IMPORTED GLOBAL)
-set_target_properties(apriltag_density PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/apriltag_density.a)
-add_dependencies(apriltag_density build_apriltag_libs)
-
-add_library(apriltag_lut STATIC IMPORTED GLOBAL)
-set_target_properties(apriltag_lut PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/apriltag_lut.a)
-add_dependencies(apriltag_lut build_apriltag_libs)
+add_library(apriltag_edge_detect STATIC IMPORTED GLOBAL)
+set_target_properties(apriltag_edge_detect PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/apriltag_edge_detect.a)
+add_dependencies(apriltag_edge_detect build_apriltag_libs)
 
 add_executable(apriltag_runner src/main.cpp)
 add_dependencies(apriltag_runner build_apriltag_libs)
@@ -65,17 +47,13 @@ find_library(FOUNDATION_LIBRARY Foundation)
 # Link against the Halide runtime, generated pipelines, and image IO helpers.
 # Link libraries directly to avoid duplicate symbol issues
 target_link_libraries(apriltag_runner PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_binary.a
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_edge.a
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_density.a
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_lut.a
+    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_edge_detect.a
     Halide::Runtime
     Halide::ImageIO
     PNG::PNG
     JPEG::JPEG
     ${METAL_LIBRARY}
     ${FOUNDATION_LIBRARY}
-    ${OpenCV_LIBS}
 )
 
 # Add linker flags to handle duplicate symbols
