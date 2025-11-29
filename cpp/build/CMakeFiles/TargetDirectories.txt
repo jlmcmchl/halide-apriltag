@@ -1,5 +1,0 @@
-/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build/CMakeFiles/apriltag_generator.dir
-/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build/CMakeFiles/build_apriltag_libs.dir
-/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build/CMakeFiles/apriltag_runner.dir
-/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build/CMakeFiles/edit_cache.dir
-/Users/eeshwarkrishnan/Documents/Projects/apriltags-halide/cpp/build/CMakeFiles/rebuild_cache.dir

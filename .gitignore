@@ -1,0 +1,85 @@
+# Build directories
+build/
+bin/
+generator/bin/
+
+# CMake generated files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+*.cmake
+!CMakeLists.txt
+!*.cmake.in
+*.ninja
+
+# Compiled object files
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+
+# Executables
+apriltag_timing
+*.exe
+
+# Debug output directories
+cpu_debug/
+halide_debug/
+
+# Temporary directories
+temp/
+tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Log files
+*.log
+out.log
+
+# Generated images and output files (if these are test outputs)
+# Uncomment if you want to ignore specific generated outputs:
+*.pgm
+# *.pnm
+# *.png
+# (Note: Keeping some PNGs might be useful for documentation/tests)
+
+# Halide generated files
+*.generator
+*.h.generator
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
