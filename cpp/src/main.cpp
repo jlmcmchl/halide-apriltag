@@ -345,6 +345,151 @@ std::vector<Quad> find_quads_from_binary(const Buffer<uint8_t>& binary, int min_
 }
 
 // =============================================================================
+// FAST Quad Detection (Decimation + Raw Pointers)
+// =============================================================================
+
+// Optimized Union-Find with path compression only (rank is overkill for image grids)
+struct FastUnionFind {
+    std::vector<int> parent;
+    FastUnionFind(int n) : parent(n) {
+        std::iota(parent.begin(), parent.end(), 0);
+    }
+    int find(int x) {
+        int root = x;
+        while (root != parent[root]) root = parent[root];
+        // Path compression
+        int curr = x;
+        while (curr != root) {
+            int next = parent[curr];
+            parent[curr] = root;
+            curr = next;
+        }
+        return root;
+    }
+    void unite(int x, int y) {
+        int px = find(x);
+        int py = find(y);
+        parent[py] = px; // Simple link, fast enough for grid
+    }
+};
+
+std::vector<Quad> find_quads_fast(const Buffer<uint8_t>& binary, int min_area, int max_area, int decimation = 1) {
+    int w = binary.width();
+    int h = binary.height();
+    int s_w = w / decimation;
+    int s_h = h / decimation;
+    
+    const uint8_t* ptr = binary.data();
+    int stride_row = binary.stride(1);
+
+    // 1. Union Find on Decimated Grid
+    FastUnionFind uf(s_w * s_h);
+    
+    for (int sy = 0; sy < s_h; sy++) {
+        int y = sy * decimation;
+        const uint8_t* row_ptr = ptr + y * stride_row;
+        
+        for (int sx = 0; sx < s_w; sx++) {
+            int x = sx * decimation;
+            
+            // FIX: Skip ZERO pixels (background), process NON-ZERO (tag)
+            if (row_ptr[x] == 0) continue; 
+
+            int idx = sy * s_w + sx;
+
+            // Connect Right (if neighbor is also TAG)
+            if (sx + 1 < s_w) {
+                if (row_ptr[x + decimation] != 0) {
+                    uf.unite(idx, idx + 1);
+                }
+            }
+            // Connect Down (if neighbor is also TAG)
+            if (sy + 1 < s_h) {
+                const uint8_t* next_row_ptr = ptr + (y + decimation) * stride_row;
+                if (next_row_ptr[x] != 0) {
+                    uf.unite(idx, idx + s_w);
+                }
+            }
+        }
+    }
+
+    // 2. Cluster Aggregation
+    std::vector<std::vector<Point2D>> clusters(s_w * s_h); 
+    std::vector<int> area_counts(s_w * s_h, 0);
+    std::vector<int> active_roots;
+
+    // Iterate with 1-pixel margin to safely check neighbors
+    for (int sy = 1; sy < s_h - 1; sy++) {
+        int y = sy * decimation;
+        const uint8_t* row = ptr + y * stride_row;
+        const uint8_t* row_up = ptr + (y - decimation) * stride_row;
+        const uint8_t* row_down = ptr + (y + decimation) * stride_row;
+
+        for (int sx = 1; sx < s_w - 1; sx++) {
+            int x = sx * decimation;
+            
+            // FIX: Skip background
+            if (row[x] == 0) continue;
+
+            int idx = sy * s_w + sx;
+            int root = uf.find(idx);
+            
+            area_counts[root]++;
+
+            // Boundary Check: Is any neighbor BACKGROUND (0)?
+            bool is_boundary = (row[x - decimation] == 0) || // Left
+                               (row[x + decimation] == 0) || // Right
+                               (row_up[x] == 0) ||           // Up
+                               (row_down[x] == 0);           // Down
+
+            if (is_boundary) {
+                clusters[root].emplace_back((float)x, (float)y);
+                if (area_counts[root] == 1) active_roots.push_back(root);
+            }
+        }
+    }
+
+    // 3. Fit Quads
+    std::vector<Quad> quads;
+    int scaled_min_area = min_area / (decimation * decimation);
+    int scaled_max_area = max_area / (decimation * decimation);
+
+    for (int root : active_roots) {
+        int area = area_counts[root];
+        if (area < scaled_min_area || area > scaled_max_area) continue;
+
+        std::vector<Point2D>& boundary = clusters[root];
+        if (boundary.size() < 10) continue; // Noise filter
+
+        // Bounding Box Reject
+        float min_x = 1e9f, max_x = -1e9f, min_y = 1e9f, max_y = -1e9f;
+        for (const auto& p : boundary) {
+            if (p.x < min_x) min_x = p.x;
+            if (p.x > max_x) max_x = p.x;
+            if (p.y < min_y) min_y = p.y;
+            if (p.y > max_y) max_y = p.y;
+        }
+        
+        if ((max_x - min_x) < 15 || (max_y - min_y) < 15) continue;
+        
+        std::vector<Point2D> hull = convex_hull(boundary);
+        if (hull.size() < 4) continue;
+
+        // Pass full area (scaled back up) to scoring
+        Quad quad = fit_quad_to_hull(hull, (float)area * decimation * decimation);
+        if (quad.is_valid()) {
+            quads.push_back(quad);
+        }
+    }
+    
+    std::sort(quads.begin(), quads.end(), [](const Quad& a, const Quad& b) {
+        return a.confidence > b.confidence;
+    });
+
+    return quads;
+}
+
+// =============================================================================
 // Visualization
 // =============================================================================
 
@@ -515,7 +660,7 @@ int main(int argc, char** argv) {
         int max_area = img_area / 4;      // Tags should be at most 25% of image
         
         stage_start = Clock::now();
-        std::vector<Quad> quads = find_quads_from_binary(binary, min_area, max_area);
+        std::vector<Quad> quads = find_quads_fast(binary, min_area, max_area, 2);
         stage_end = Clock::now();
         timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
         
