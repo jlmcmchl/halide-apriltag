@@ -44,10 +44,28 @@ target_include_directories(apriltag_runner PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 find_library(METAL_LIBRARY Metal)
 find_library(FOUNDATION_LIBRARY Foundation)
 
+add_executable(apriltag_gen src/apriltag_halide_generator.cpp)
+target_link_libraries(apriltag_gen PRIVATE Halide::Generator)
+
+add_halide_library(greyscale FROM apriltag_gen
+                    TARGETS host
+                    AUTOSCHEDULER Halide::Adams2019
+#                    AUTOSCHEDULER Halide::Anderson2021
+                    GENERATOR greyscale_gen)
+
+add_halide_library(adaptive_thredhold FROM apriltag_gen
+                    TARGETS host-metal
+#                    AUTOSCHEDULER Halide::Adams2019
+                    AUTOSCHEDULER Halide::Anderson2021
+                    GENERATOR adaptive_threshold_gen)
+
+
 # Link against the Halide runtime, generated pipelines, and image IO helpers.
 # Link libraries directly to avoid duplicate symbol issues
 target_link_libraries(apriltag_runner PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}/apriltag_edge_detect.a
+    adaptive_thredhold
+    greyscale
+    Halide::Tools
     Halide::Runtime
     Halide::ImageIO
     PNG::PNG

@@ -1,7 +1,9 @@
 #include "HalideBuffer.h"
 #include "halide_image_io.h"
 
-#include "apriltag_edge_detect.h"
+// #include "apriltag_edge_detect.h"
+#include "adaptive_thredhold.h"
+#include "greyscale.h"
 
 #include <algorithm>
 #include <chrono>
@@ -609,8 +611,10 @@ int main(int argc, char** argv) {
                   << "x" << input.channels() << std::endl;
         
         // Convert to grayscale
+        Buffer<float> gray(input.width(), input.height());
+
         stage_start = Clock::now();
-        Buffer<float> gray = convert_to_grayscale(input);
+        int result = greyscale(input, gray);
         stage_end = Clock::now();
         timings.emplace_back("convert_to_grayscale", to_ms(stage_end - stage_start));
         
@@ -620,7 +624,7 @@ int main(int argc, char** argv) {
         Buffer<uint8_t> binary(gray.width(), gray.height());
         
         stage_start = Clock::now();
-        int result = atag_edge_detect(gray, binary);
+        result = adaptive_thredhold(gray, 4, 30.0f, binary);
         stage_end = Clock::now();
         timings.emplace_back("atag_edge_detect (GPU)", to_ms(stage_end - stage_start));
         
