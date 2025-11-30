@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type" FORCE)
+
 option(USE_HALIDE "Build the Halide-backed threshold pipeline" ON)
 set(HALIDE_ROOT "" CACHE PATH "Root path to a Halide installation (used when auto-detection fails)")
 
