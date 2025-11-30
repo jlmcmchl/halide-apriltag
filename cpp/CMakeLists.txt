@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type" FORCE)
+
 # Halide provides a CMake config package. Set Halide_DIR if CMake cannot find it automatically.
 find_package(Halide REQUIRED)
 
@@ -54,9 +56,9 @@ add_halide_library(greyscale FROM apriltag_gen
                     GENERATOR greyscale_gen)
 
 add_halide_library(adaptive_thredhold FROM apriltag_gen
-                    TARGETS host-metal
-#                    AUTOSCHEDULER Halide::Adams2019
-                    AUTOSCHEDULER Halide::Anderson2021
+                    TARGETS host
+                    AUTOSCHEDULER Halide::Adams2019
+#                    AUTOSCHEDULER Halide::Anderson2021
                     GENERATOR adaptive_threshold_gen)
 
 
@@ -70,13 +72,8 @@ target_link_libraries(apriltag_runner PRIVATE
     Halide::ImageIO
     PNG::PNG
     JPEG::JPEG
-    ${METAL_LIBRARY}
-    ${FOUNDATION_LIBRARY}
-)
-
-# Add linker flags to handle duplicate symbols
-target_link_options(apriltag_runner PRIVATE
-    "-Wl,-dead_strip"
+#    ${METAL_LIBRARY}
+#    ${FOUNDATION_LIBRARY}
 )
 
 if (NOT DEFINED CMAKE_BUILD_TYPE)
