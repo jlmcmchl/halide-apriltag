@@ -472,7 +472,7 @@ std::vector<Quad> find_quads_fast(const Buffer<uint8_t>& binary, int min_area, i
             if (p.y > max_y) max_y = p.y;
         }
         
-        if ((max_x - min_x) < 15 || (max_y - min_y) < 15) continue;
+        if ((max_x - min_x) < 10 || (max_y - min_y) < 10) continue;
         
         std::vector<Point2D> hull = convex_hull(boundary);
         if (hull.size() < 4) continue;
@@ -599,121 +599,151 @@ int main(int argc, char** argv) {
 
         const char* input_path = (argc > 1) ? argv[1] : "../apriltags.png";
         
-        std::cout << "=== AprilTag Adaptive Threshold Pipeline ===" << std::endl;
-        std::cout << "Loading: " << input_path << std::endl;
-        std::cout << "(No manual tuning required - adapts to image automatically)" << std::endl;
+        // std::cout << "=== AprilTag Adaptive Threshold Pipeline ===" << std::endl;
+        // std::cout << "Loading: " << input_path << std::endl;
+        // std::cout << "(No manual tuning required - adapts to image automatically)" << std::endl;
         
         auto stage_start = Clock::now();
         Buffer<uint8_t> input = load_image(input_path);
         auto stage_end = Clock::now();
         timings.emplace_back("load_image", to_ms(stage_end - stage_start));
-        std::cout << "Image dimensions: " << input.width() << "x" << input.height() 
-                  << "x" << input.channels() << std::endl;
-        
-        // Convert to grayscale
-        Buffer<float> gray(input.width(), input.height());
+        // std::cout << "Image dimensions: " << input.width() << "x" << input.height() 
+        //           << "x" << input.channels() << std::endl;
 
-        stage_start = Clock::now();
-        int result = greyscale(input, gray);
-        stage_end = Clock::now();
-        timings.emplace_back("convert_to_grayscale", to_ms(stage_end - stage_start));
-        
-        // =================================================================
-        // Stage 1: GPU - Adaptive Threshold (binary image)
-        // =================================================================
-        Buffer<uint8_t> binary(gray.width(), gray.height());
-        
-        stage_start = Clock::now();
-        result = adaptive_thredhold(gray, 4, 30.0f, binary);
-        stage_end = Clock::now();
-        timings.emplace_back("atag_edge_detect (GPU)", to_ms(stage_end - stage_start));
-        
-        if (result != 0) {
-            throw std::runtime_error("Halide pipeline failed: " + std::to_string(result));
-        }
-        
-        std::cout << "Stage 'threshold (GPU)' completed in "
-                  << timings.back().second << " ms" << std::endl;
-        
-        // Copy to host
-        stage_start = Clock::now();
-        binary.copy_to_host();
-        stage_end = Clock::now();
-        timings.emplace_back("copy_to_host", to_ms(stage_end - stage_start));
-        std::cout << "Copy to host: " << timings.back().second << " ms" << std::endl;
-        
-        // Count black pixels
-        stage_start = Clock::now();
-        int black_count = 0;
-        for (int y = 0; y < binary.height(); y++) {
-            for (int x = 0; x < binary.width(); x++) {
-                if (binary(x, y) > 0) black_count++;
+        for (int i = 0; i < 100; i++) {
+            // Convert to grayscale
+            Buffer<float> gray(input.width(), input.height());
+
+            stage_start = Clock::now();
+            int result = greyscale(input, gray);
+            stage_end = Clock::now();
+            timings.emplace_back("convert_to_grayscale", to_ms(stage_end - stage_start));
+            
+            // =================================================================
+            // Stage 1: GPU - Adaptive Threshold (binary image)
+            // =================================================================
+            Buffer<uint8_t> binary(gray.width(), gray.height());
+            
+            stage_start = Clock::now();
+            result = adaptive_thredhold(gray, 4, 30.0f, binary);
+            stage_end = Clock::now();
+            timings.emplace_back("atag_edge_detect (GPU)", to_ms(stage_end - stage_start));
+            
+            if (result != 0) {
+                throw std::runtime_error("Halide pipeline failed: " + std::to_string(result));
             }
-        }
-        stage_end = Clock::now();
-        timings.emplace_back("black_pixel_count", to_ms(stage_end - stage_start));
-        std::cout << "Black pixels: " << black_count << " (" 
-                  << (100.0f * black_count / (binary.width() * binary.height())) << "%)" << std::endl;
-        
-        // =================================================================
-        // Stage 2: CPU - Connected Components + Quad Fitting
-        // =================================================================
-        // Min/max area based on expected tag sizes (adaptive to image size)
-        int img_area = binary.width() * binary.height();
-        int min_area = img_area / 2000;   // Tags should be at least 0.05% of image
-        int max_area = img_area / 4;      // Tags should be at most 25% of image
-        
-        stage_start = Clock::now();
-        std::vector<Quad> quads = find_quads_fast(binary, min_area, max_area, 2);
-        stage_end = Clock::now();
-        timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
-        
-        std::cout << "Stage 'quad_detect (CPU)' completed in "
-                  << timings.back().second << " ms" << std::endl;
-        std::cout << "Found " << quads.size() << " quads" << std::endl;
-        
-        // =================================================================
-        // Output
-        // =================================================================
-        for (size_t i = 0; i < quads.size(); ++i) {
-            const auto& q = quads[i];
-            std::cout << "Quad " << i << ": [";
-            for (int j = 0; j < 4; ++j) {
-                std::cout << "(" << (int)q.corners[j].x << ", " << (int)q.corners[j].y << ")";
-                if (j < 3) std::cout << ", ";
+            
+            // std::cout << "Stage 'threshold (GPU)' completed in "
+            //           << timings.back().second << " ms" << std::endl;
+            
+            // Copy to host
+            stage_start = Clock::now();
+            binary.copy_to_host();
+            stage_end = Clock::now();
+            timings.emplace_back("copy_to_host", to_ms(stage_end - stage_start));
+            // std::cout << "Copy to host: " << timings.back().second << " ms" << std::endl;
+            
+            // Count black pixels
+            stage_start = Clock::now();
+            int black_count = 0;
+            for (int y = 0; y < binary.height(); y++) {
+                for (int x = 0; x < binary.width(); x++) {
+                    if (binary(x, y) > 0) black_count++;
+                }
             }
-            std::cout << "] perimeter=" << (int)q.confidence << std::endl;
+            stage_end = Clock::now();
+            timings.emplace_back("black_pixel_count", to_ms(stage_end - stage_start));
+            // std::cout << "Black pixels: " << black_count << " (" 
+            //           << (100.0f * black_count / (binary.width() * binary.height())) << "%)" << std::endl;
+            
+            // =================================================================
+            // Stage 2: CPU - Connected Components + Quad Fitting
+            // =================================================================
+            // Min/max area based on expected tag sizes (adaptive to image size)
+            int img_area = binary.width() * binary.height();
+            int min_area = img_area / 2000;   // Tags should be at least 0.05% of image
+            int max_area = img_area / 4;      // Tags should be at most 25% of image
+            
+            stage_start = Clock::now();
+            std::vector<Quad> quads = find_quads_fast(binary, min_area, max_area, 2);
+            stage_end = Clock::now();
+            timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
+            
+            // std::cout << "Stage 'quad_detect (CPU)' completed in "
+            //           << timings.back().second << " ms" << std::endl;
+            // std::cout << "Found " << quads.size() << " quads" << std::endl;
+            
+            // =================================================================
+            // Output
+            // =================================================================
+            for (size_t i = 0; i < quads.size(); ++i) {
+                const auto& q = quads[i];
+                // std::cout << "Quad " << i << ": [";
+                for (int j = 0; j < 4; ++j) {
+                    // std::cout << "(" << (int)q.corners[j].x << ", " << (int)q.corners[j].y << ")";
+                    // if (j < 3) std::cout << ", ";
+                }
+                // std::cout << "] perimeter=" << (int)q.confidence << std::endl;
+            }
+            
+            // Save visualizations
+            stage_start = Clock::now();
+            //Buffer<uint8_t> binary_vis = visualize_edges(binary);
+            //save_image(binary_vis, "binary_output.png");
+            stage_end = Clock::now();
+            timings.emplace_back("save_binary_output", to_ms(stage_end - stage_start));
+            // std::cout << "Saved: binary_output.png" << std::endl;
+            
+            stage_start = Clock::now();
+            //Buffer<uint8_t> quads_vis = visualize_quads(input, quads);
+            //save_image(quads_vis, "quads_output.png");
+            stage_end = Clock::now();
+            timings.emplace_back("save_quads_output", to_ms(stage_end - stage_start));
+            // std::cout << "Saved: quads_output.png" << std::endl;
+            
+            // Cleanup
+            gray.device_free();
+            binary.device_free();
         }
-        
-        // Save visualizations
-        stage_start = Clock::now();
-        Buffer<uint8_t> binary_vis = visualize_edges(binary);
-        save_image(binary_vis, "binary_output.png");
-        stage_end = Clock::now();
-        timings.emplace_back("save_binary_output", to_ms(stage_end - stage_start));
-        std::cout << "Saved: binary_output.png" << std::endl;
-        
-        stage_start = Clock::now();
-        Buffer<uint8_t> quads_vis = visualize_quads(input, quads);
-        save_image(quads_vis, "quads_output.png");
-        stage_end = Clock::now();
-        timings.emplace_back("save_quads_output", to_ms(stage_end - stage_start));
-        std::cout << "Saved: quads_output.png" << std::endl;
-        
-        // Cleanup
-        gray.device_free();
-        binary.device_free();
 
         const auto program_end = Clock::now();
 
-        std::cout << "\n--- Timing Summary (ms) ---" << std::endl;
-        std::cout << std::fixed << std::setprecision(3);
+        // std::cout << "\n--- Timing Summary (ms) ---" << std::endl;
+        // std::cout << std::fixed << std::setprecision(3);
         for (const auto& entry : timings) {
-            std::cout << "  " << std::left << std::setw(28) << entry.first
-                      << " : " << entry.second << std::endl;
+            // std::cout << "  " << std::left << std::setw(28) << entry.first
+            //           << " : " << entry.second << std::endl;
         }
-        std::cout << "  " << std::left << std::setw(28) << "total_wall_time"
-                  << " : " << to_ms(program_end - program_start) << std::endl;
+
+        // Calculate sum, mean, and stdev for 'convert_to_grayscale', 'atag_edge_detect (GPU)', 'quad_detect (CPU)'
+        auto compute_sum_mean_stdev = [](const std::vector<std::pair<std::string, double>>& timings, const std::string& key) {
+            std::vector<double> values;
+            for (const auto& entry : timings) {
+                if (entry.first == key) {
+                    values.push_back(entry.second);
+                }
+            }
+            double sum = 0.0;
+            for (double v : values) sum += v;
+            double mean = (values.empty()) ? 0.0 : sum / values.size();
+            double stdev = 0.0;
+            if (!values.empty()) {
+                for (double v : values) stdev += (v - mean) * (v - mean);
+                stdev = std::sqrt(stdev / values.size());
+            }
+            return std::make_tuple(sum, mean, stdev);
+        };
+
+        auto [grayscale_sum, grayscale_mean, grayscale_stdev] = compute_sum_mean_stdev(timings, "convert_to_grayscale");
+        auto [edge_sum, edge_mean, edge_stdev] = compute_sum_mean_stdev(timings, "atag_edge_detect (GPU)");
+        auto [quad_sum, quad_mean, quad_stdev] = compute_sum_mean_stdev(timings, "quad_detect (CPU)");
+
+        std::cout << "Grayscale: sum=" << grayscale_sum << ", mean=" << grayscale_mean << ", stdev=" << grayscale_stdev << std::endl;
+        std::cout << "Edge: sum=" << edge_sum << ", mean=" << edge_mean << ", stdev=" << edge_stdev << std::endl;
+        std::cout << "Quad: sum=" << quad_sum << ", mean=" << quad_mean << ", stdev=" << quad_stdev << std::endl;
+
+        // std::cout << "  " << std::left << std::setw(28) << "total_wall_time"
+        //           << " : " << to_ms(program_end - program_start) << std::endl;
         
         return 0;
     } catch (const std::exception& e) {
