@@ -1,10 +1,7 @@
 #include "HalideBuffer.h"
 #include "halide_image_io.h"
 
-// #include "apriltag_edge_detect.h"
-#include "adaptive_thredhold.h"
-#include "greyscale.h"
-
+#include "greyscale_and_adaptive_threshold.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -49,8 +46,8 @@ struct Quad {
         float min_side = *std::min_element(side_lengths, side_lengths + 4);
         float max_side = *std::max_element(side_lengths, side_lengths + 4);
         
-        if (min_side < 15.0f) return false;
-        if (max_side / min_side > 4.0f) return false;
+        if (min_side < 6.0f) return false;
+        if (max_side / min_side > 7.0f) return false;
         
         // Check convexity
         for (int i = 0; i < 4; i++) {
@@ -347,137 +344,133 @@ std::vector<Quad> find_quads_from_binary(const Buffer<uint8_t>& binary, int min_
 }
 
 // =============================================================================
-// FAST Quad Detection (Decimation + Raw Pointers)
+// FAST Quad Detection (Decimation + Raw Pointers + Flattened Union-Find)
 // =============================================================================
 
-// Optimized Union-Find with path compression only (rank is overkill for image grids)
-struct FastUnionFind {
-    std::vector<int> parent;
-    FastUnionFind(int n) : parent(n) {
-        std::iota(parent.begin(), parent.end(), 0);
+struct FastUF {
+    int* parent;
+    int n;
+    
+    FastUF(int size) : n(size) {
+        parent = new int[size];
+        for (int i = 0; i < size; i++) parent[i] = i;
     }
-    int find(int x) {
+    ~FastUF() { delete[] parent; }
+    
+    inline int find(int x) {
         int root = x;
         while (root != parent[root]) root = parent[root];
-        // Path compression
-        int curr = x;
-        while (curr != root) {
-            int next = parent[curr];
-            parent[curr] = root;
-            curr = next;
-        }
+        while (x != root) { int next = parent[x]; parent[x] = root; x = next; }
         return root;
     }
-    void unite(int x, int y) {
-        int px = find(x);
-        int py = find(y);
-        parent[py] = px; // Simple link, fast enough for grid
+    
+    inline void unite(int x, int y) {
+        int rx = find(x), ry = find(y);
+        if (rx != ry) parent[ry] = rx;
+    }
+    
+    void flatten() {
+        for (int i = 0; i < n; i++) {
+            parent[i] = find(i);
+        }
     }
 };
 
 std::vector<Quad> find_quads_fast(const Buffer<uint8_t>& binary, int min_area, int max_area, int decimation = 1) {
-    int w = binary.width();
-    int h = binary.height();
-    int s_w = w / decimation;
-    int s_h = h / decimation;
+    const int w = binary.width();
+    const int h = binary.height();
+    const int s_w = w / decimation;
+    const int s_h = h / decimation;
     
-    const uint8_t* ptr = binary.data();
-    int stride_row = binary.stride(1);
+    const uint8_t* __restrict__ ptr = binary.data();
+    const int stride = binary.stride(1);
 
-    // 1. Union Find on Decimated Grid
-    FastUnionFind uf(s_w * s_h);
+    // Pass 1: Union-Find on decimated grid
+    FastUF uf(s_w * s_h);
     
     for (int sy = 0; sy < s_h; sy++) {
-        int y = sy * decimation;
-        const uint8_t* row_ptr = ptr + y * stride_row;
+        const int y = sy * decimation;
+        const uint8_t* row = ptr + y * stride;
         
         for (int sx = 0; sx < s_w; sx++) {
-            int x = sx * decimation;
+            const int x = sx * decimation;
+            if (row[x] == 0) continue;
             
-            // FIX: Skip ZERO pixels (background), process NON-ZERO (tag)
-            if (row_ptr[x] == 0) continue; 
-
-            int idx = sy * s_w + sx;
-
-            // Connect Right (if neighbor is also TAG)
-            if (sx + 1 < s_w) {
-                if (row_ptr[x + decimation] != 0) {
-                    uf.unite(idx, idx + 1);
-                }
+            const int idx = sy * s_w + sx;
+            
+            // Connect right
+            if (sx + 1 < s_w && row[x + decimation] != 0) {
+                uf.unite(idx, idx + 1);
             }
-            // Connect Down (if neighbor is also TAG)
-            if (sy + 1 < s_h) {
-                const uint8_t* next_row_ptr = ptr + (y + decimation) * stride_row;
-                if (next_row_ptr[x] != 0) {
-                    uf.unite(idx, idx + s_w);
-                }
+            // Connect down
+            if (sy + 1 < s_h && ptr[(y + decimation) * stride + x] != 0) {
+                uf.unite(idx, idx + s_w);
             }
         }
     }
+    
+    // KEY OPTIMIZATION: Flatten all parents for O(1) lookup in pass 2
+    uf.flatten();
 
-    // 2. Cluster Aggregation
-    std::vector<std::vector<Point2D>> clusters(s_w * s_h); 
+    // Pass 2: Collect boundary points + count area
+    // Use vectors indexed by root (sparse, but fast)
+    std::vector<std::vector<Point2D>> clusters(s_w * s_h);
     std::vector<int> area_counts(s_w * s_h, 0);
     std::vector<int> active_roots;
+    active_roots.reserve(256);
 
-    // Iterate with 1-pixel margin to safely check neighbors
     for (int sy = 1; sy < s_h - 1; sy++) {
-        int y = sy * decimation;
-        const uint8_t* row = ptr + y * stride_row;
-        const uint8_t* row_up = ptr + (y - decimation) * stride_row;
-        const uint8_t* row_down = ptr + (y + decimation) * stride_row;
+        const int y = sy * decimation;
+        const uint8_t* row = ptr + y * stride;
+        const uint8_t* row_up = ptr + (y - decimation) * stride;
+        const uint8_t* row_down = ptr + (y + decimation) * stride;
 
         for (int sx = 1; sx < s_w - 1; sx++) {
-            int x = sx * decimation;
-            
-            // FIX: Skip background
+            const int x = sx * decimation;
             if (row[x] == 0) continue;
 
-            int idx = sy * s_w + sx;
-            int root = uf.find(idx);
+            const int root = uf.parent[sy * s_w + sx];  // O(1) - already flattened!
             
+            if (area_counts[root] == 0) {
+                active_roots.push_back(root);
+            }
             area_counts[root]++;
 
-            // Boundary Check: Is any neighbor BACKGROUND (0)?
-            bool is_boundary = (row[x - decimation] == 0) || // Left
-                               (row[x + decimation] == 0) || // Right
-                               (row_up[x] == 0) ||           // Up
-                               (row_down[x] == 0);           // Down
-
-            if (is_boundary) {
+            // Boundary check
+            if ((row[x - decimation] == 0) | (row[x + decimation] == 0) |
+                (row_up[x] == 0) | (row_down[x] == 0)) {
                 clusters[root].emplace_back((float)x, (float)y);
-                if (area_counts[root] == 1) active_roots.push_back(root);
             }
         }
     }
 
-    // 3. Fit Quads
+    // Pass 3: Fit quads
+    const int scaled_min_area = min_area / (decimation * decimation);
+    const int scaled_max_area = max_area / (decimation * decimation);
+    
     std::vector<Quad> quads;
-    int scaled_min_area = min_area / (decimation * decimation);
-    int scaled_max_area = max_area / (decimation * decimation);
+    quads.reserve(active_roots.size());
 
     for (int root : active_roots) {
-        int area = area_counts[root];
+        const int area = area_counts[root];
         if (area < scaled_min_area || area > scaled_max_area) continue;
 
         std::vector<Point2D>& boundary = clusters[root];
-        if (boundary.size() < 10) continue; // Noise filter
+        if (boundary.size() < 10) continue;
 
-        // Bounding Box Reject
+        // Bounding box check
         float min_x = 1e9f, max_x = -1e9f, min_y = 1e9f, max_y = -1e9f;
         for (const auto& p : boundary) {
-            if (p.x < min_x) min_x = p.x;
-            if (p.x > max_x) max_x = p.x;
-            if (p.y < min_y) min_y = p.y;
-            if (p.y > max_y) max_y = p.y;
+            min_x = std::min(min_x, p.x);
+            max_x = std::max(max_x, p.x);
+            min_y = std::min(min_y, p.y);
+            max_y = std::max(max_y, p.y);
         }
-        
-        if ((max_x - min_x) < 10 || (max_y - min_y) < 10) continue;
-        
+        if ((max_x - min_x) < 6 || (max_y - min_y) < 6) continue;
+
         std::vector<Point2D> hull = convex_hull(boundary);
         if (hull.size() < 4) continue;
 
-        // Pass full area (scaled back up) to scoring
         Quad quad = fit_quad_to_hull(hull, (float)area * decimation * decimation);
         if (quad.is_valid()) {
             quads.push_back(quad);
@@ -599,151 +592,128 @@ int main(int argc, char** argv) {
 
         const char* input_path = (argc > 1) ? argv[1] : "../apriltags.png";
         
-        // std::cout << "=== AprilTag Adaptive Threshold Pipeline ===" << std::endl;
-        // std::cout << "Loading: " << input_path << std::endl;
-        // std::cout << "(No manual tuning required - adapts to image automatically)" << std::endl;
+        std::cout << "=== AprilTag Adaptive Threshold Pipeline ===" << std::endl;
+        std::cout << "Loading: " << input_path << std::endl;
+        std::cout << "(No manual tuning required - adapts to image automatically)" << std::endl;
         
         auto stage_start = Clock::now();
         Buffer<uint8_t> input = load_image(input_path);
         auto stage_end = Clock::now();
         timings.emplace_back("load_image", to_ms(stage_end - stage_start));
-        // std::cout << "Image dimensions: " << input.width() << "x" << input.height() 
-        //           << "x" << input.channels() << std::endl;
-
-        for (int i = 0; i < 100; i++) {
-            // Convert to grayscale
-            Buffer<float> gray(input.width(), input.height());
-
-            stage_start = Clock::now();
-            int result = greyscale(input, gray);
-            stage_end = Clock::now();
-            timings.emplace_back("convert_to_grayscale", to_ms(stage_end - stage_start));
-            
-            // =================================================================
-            // Stage 1: GPU - Adaptive Threshold (binary image)
-            // =================================================================
-            Buffer<uint8_t> binary(gray.width(), gray.height());
-            
-            stage_start = Clock::now();
-            result = adaptive_thredhold(gray, 4, 30.0f, binary);
-            stage_end = Clock::now();
-            timings.emplace_back("atag_edge_detect (GPU)", to_ms(stage_end - stage_start));
-            
-            if (result != 0) {
-                throw std::runtime_error("Halide pipeline failed: " + std::to_string(result));
-            }
-            
-            // std::cout << "Stage 'threshold (GPU)' completed in "
-            //           << timings.back().second << " ms" << std::endl;
-            
-            // Copy to host
-            stage_start = Clock::now();
-            binary.copy_to_host();
-            stage_end = Clock::now();
-            timings.emplace_back("copy_to_host", to_ms(stage_end - stage_start));
-            // std::cout << "Copy to host: " << timings.back().second << " ms" << std::endl;
-            
-            // Count black pixels
-            stage_start = Clock::now();
-            int black_count = 0;
-            for (int y = 0; y < binary.height(); y++) {
-                for (int x = 0; x < binary.width(); x++) {
-                    if (binary(x, y) > 0) black_count++;
-                }
-            }
-            stage_end = Clock::now();
-            timings.emplace_back("black_pixel_count", to_ms(stage_end - stage_start));
-            // std::cout << "Black pixels: " << black_count << " (" 
-            //           << (100.0f * black_count / (binary.width() * binary.height())) << "%)" << std::endl;
-            
-            // =================================================================
-            // Stage 2: CPU - Connected Components + Quad Fitting
-            // =================================================================
-            // Min/max area based on expected tag sizes (adaptive to image size)
-            int img_area = binary.width() * binary.height();
-            int min_area = img_area / 2000;   // Tags should be at least 0.05% of image
-            int max_area = img_area / 4;      // Tags should be at most 25% of image
-            
-            stage_start = Clock::now();
-            std::vector<Quad> quads = find_quads_fast(binary, min_area, max_area, 2);
-            stage_end = Clock::now();
-            timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
-            
-            // std::cout << "Stage 'quad_detect (CPU)' completed in "
-            //           << timings.back().second << " ms" << std::endl;
-            // std::cout << "Found " << quads.size() << " quads" << std::endl;
-            
-            // =================================================================
-            // Output
-            // =================================================================
-            for (size_t i = 0; i < quads.size(); ++i) {
-                const auto& q = quads[i];
-                // std::cout << "Quad " << i << ": [";
-                for (int j = 0; j < 4; ++j) {
-                    // std::cout << "(" << (int)q.corners[j].x << ", " << (int)q.corners[j].y << ")";
-                    // if (j < 3) std::cout << ", ";
-                }
-                // std::cout << "] perimeter=" << (int)q.confidence << std::endl;
-            }
-            
-            // Save visualizations
-            stage_start = Clock::now();
-            //Buffer<uint8_t> binary_vis = visualize_edges(binary);
-            //save_image(binary_vis, "binary_output.png");
-            stage_end = Clock::now();
-            timings.emplace_back("save_binary_output", to_ms(stage_end - stage_start));
-            // std::cout << "Saved: binary_output.png" << std::endl;
-            
-            stage_start = Clock::now();
-            //Buffer<uint8_t> quads_vis = visualize_quads(input, quads);
-            //save_image(quads_vis, "quads_output.png");
-            stage_end = Clock::now();
-            timings.emplace_back("save_quads_output", to_ms(stage_end - stage_start));
-            // std::cout << "Saved: quads_output.png" << std::endl;
-            
-            // Cleanup
-            gray.device_free();
-            binary.device_free();
+        std::cout << "Image dimensions: " << input.width() << "x" << input.height() 
+                  << "x" << input.channels() << std::endl;
+        
+        // =================================================================
+        // Stage 1: GPU - Grayscale + Adaptive Threshold (binary image)
+        // Grayscale conversion is now fused into the Halide pipeline
+        // =================================================================
+        Buffer<uint8_t> binary(input.width(), input.height());
+        
+        // Cold call - includes Metal shader JIT compilation + context setup
+        stage_start = Clock::now();
+        int result = greyscale_and_adaptive_threshold(input, 4, 30.0f, binary);
+        stage_end = Clock::now();
+        double cold_time = to_ms(stage_end - stage_start);
+        timings.emplace_back("GPU cold (incl. shader compile)", cold_time);
+        
+        if (result != 0) {
+            throw std::runtime_error("Halide pipeline failed: " + std::to_string(result));
         }
+        
+        // Warm call - shaders cached, context ready
+        stage_start = Clock::now();
+        result = greyscale_and_adaptive_threshold(input, 4, 30.0f, binary);
+        stage_end = Clock::now();
+        double warm_time = to_ms(stage_end - stage_start);
+        timings.emplace_back("GPU warm (cached)", warm_time);
+        
+        if (result != 0) {
+            throw std::runtime_error("Halide pipeline failed: " + std::to_string(result));
+        }
+        
+        std::cout << "GPU Pipeline Timing:" << std::endl;
+        std::cout << "  Cold (first call):  " << std::fixed << std::setprecision(2) << cold_time << " ms" << std::endl;
+        std::cout << "  Warm (second call): " << std::fixed << std::setprecision(2) << warm_time << " ms" << std::endl;
+        std::cout << "  Speedup:            " << std::fixed << std::setprecision(1) << (cold_time / warm_time) << "x" << std::endl;
+        
+        // Copy to host
+        stage_start = Clock::now();
+        binary.copy_to_host();
+        stage_end = Clock::now();
+        timings.emplace_back("copy_to_host", to_ms(stage_end - stage_start));
+        std::cout << "Copy to host: " << timings.back().second << " ms" << std::endl;
+        
+        // Count black pixels
+        stage_start = Clock::now();
+        int black_count = 0;
+        for (int y = 0; y < binary.height(); y++) {
+            for (int x = 0; x < binary.width(); x++) {
+                if (binary(x, y) > 0) black_count++;
+            }
+        }
+        stage_end = Clock::now();
+        timings.emplace_back("black_pixel_count", to_ms(stage_end - stage_start));
+        std::cout << "Black pixels: " << black_count << " (" 
+                  << (100.0f * black_count / (binary.width() * binary.height())) << "%)" << std::endl;
+        
+        // =================================================================
+        // Stage 2: CPU - Connected Components + Quad Fitting
+        // =================================================================
+        // Min/max area based on expected tag sizes (adaptive to image size)
+        int img_area = binary.width() * binary.height();
+        int min_area = img_area / 60000;   // Tags should be at least 0.05% of image
+        int max_area = img_area / 8;      // Tags should be at most 25% of image
+        
+        stage_start = Clock::now();
+        std::vector<Quad> quads = find_quads_fast(binary, min_area, max_area, 1);
+        stage_end = Clock::now();
+        timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
+        
+        std::cout << "Stage 'quad_detect (CPU)' completed in "
+                  << timings.back().second << " ms" << std::endl;
+        std::cout << "Found " << quads.size() << " quads" << std::endl;
+        
+        // =================================================================
+        // Output
+        // =================================================================
+        for (size_t i = 0; i < quads.size(); ++i) {
+            const auto& q = quads[i];
+            std::cout << "Quad " << i << ": [";
+            for (int j = 0; j < 4; ++j) {
+                std::cout << "(" << (int)q.corners[j].x << ", " << (int)q.corners[j].y << ")";
+                if (j < 3) std::cout << ", ";
+            }
+            std::cout << "] perimeter=" << (int)q.confidence << std::endl;
+        }
+        
+        // Save visualizations
+        stage_start = Clock::now();
+        Buffer<uint8_t> binary_vis = visualize_edges(binary);
+        save_image(binary_vis, "binary_output.png");
+        stage_end = Clock::now();
+        timings.emplace_back("save_binary_output", to_ms(stage_end - stage_start));
+        std::cout << "Saved: binary_output.png" << std::endl;
+        
+        stage_start = Clock::now();
+        Buffer<uint8_t> quads_vis = visualize_quads(input, quads);
+        save_image(quads_vis, "quads_output.png");
+        stage_end = Clock::now();
+        timings.emplace_back("save_quads_output", to_ms(stage_end - stage_start));
+        std::cout << "Saved: quads_output.png" << std::endl;
+        
+        // Cleanup
+        binary.device_free();
 
         const auto program_end = Clock::now();
 
-        // std::cout << "\n--- Timing Summary (ms) ---" << std::endl;
-        // std::cout << std::fixed << std::setprecision(3);
+        std::cout << "\n--- Timing Summary (ms) ---" << std::endl;
+        std::cout << std::fixed << std::setprecision(3);
         for (const auto& entry : timings) {
-            // std::cout << "  " << std::left << std::setw(28) << entry.first
-            //           << " : " << entry.second << std::endl;
+            std::cout << "  " << std::left << std::setw(28) << entry.first
+                      << " : " << entry.second << std::endl;
         }
-
-        // Calculate sum, mean, and stdev for 'convert_to_grayscale', 'atag_edge_detect (GPU)', 'quad_detect (CPU)'
-        auto compute_sum_mean_stdev = [](const std::vector<std::pair<std::string, double>>& timings, const std::string& key) {
-            std::vector<double> values;
-            for (const auto& entry : timings) {
-                if (entry.first == key) {
-                    values.push_back(entry.second);
-                }
-            }
-            double sum = 0.0;
-            for (double v : values) sum += v;
-            double mean = (values.empty()) ? 0.0 : sum / values.size();
-            double stdev = 0.0;
-            if (!values.empty()) {
-                for (double v : values) stdev += (v - mean) * (v - mean);
-                stdev = std::sqrt(stdev / values.size());
-            }
-            return std::make_tuple(sum, mean, stdev);
-        };
-
-        auto [grayscale_sum, grayscale_mean, grayscale_stdev] = compute_sum_mean_stdev(timings, "convert_to_grayscale");
-        auto [edge_sum, edge_mean, edge_stdev] = compute_sum_mean_stdev(timings, "atag_edge_detect (GPU)");
-        auto [quad_sum, quad_mean, quad_stdev] = compute_sum_mean_stdev(timings, "quad_detect (CPU)");
-
-        std::cout << "Grayscale: sum=" << grayscale_sum << ", mean=" << grayscale_mean << ", stdev=" << grayscale_stdev << std::endl;
-        std::cout << "Edge: sum=" << edge_sum << ", mean=" << edge_mean << ", stdev=" << edge_stdev << std::endl;
-        std::cout << "Quad: sum=" << quad_sum << ", mean=" << quad_mean << ", stdev=" << quad_stdev << std::endl;
-
-        // std::cout << "  " << std::left << std::setw(28) << "total_wall_time"
-        //           << " : " << to_ms(program_end - program_start) << std::endl;
+        std::cout << "  " << std::left << std::setw(28) << "total_wall_time"
+                  << " : " << to_ms(program_end - program_start) << std::endl;
         
         return 0;
     } catch (const std::exception& e) {
