@@ -13,6 +13,8 @@ extern "C" {
 #include "apriltag/common/image_u8.h"
 }
 
+#include "basic_adaptive_threshold.h"
+
 using Halide::Func;
 using Halide::ImageParam;
 using Halide::Param;
@@ -47,7 +49,7 @@ public:
         std::call_once(init_flag_, [&]() { build(); });
     }
 
-    void run(const Halide::Buffer<uint8_t> &input_buf,
+    void run(Halide::Buffer<uint8_t> &input_buf,
              int min_white_black_diff,
              Halide::Buffer<uint8_t> &output_buf) {
         compile_once();
@@ -63,8 +65,10 @@ public:
 
         Halide::Buffer<int32_t> tile_edge_buf(tile_width_, tile_height_);
         Halide::Buffer<int32_t> tile_fg_buf(tile_width_, tile_height_);
-        Halide::Realization outputs({output_buf, tile_edge_buf, tile_fg_buf});
-        pipeline_->realize(outputs);
+        basic_adaptive_threshold(input_buf.raw_buffer(), min_white_black_diff, tile_size_, roi_tile_size_, output_buf.raw_buffer(), tile_edge_buf.raw_buffer(), tile_fg_buf.raw_buffer());
+        output_buf.copy_to_host();
+        tile_edge_buf.copy_to_host();
+        tile_fg_buf.copy_to_host();
 
         if (enable_roi_filter_) {
             compute_candidates_and_mask(output_buf, tile_edge_buf, tile_fg_buf);
@@ -78,103 +82,7 @@ public:
     }
 
 private:
-    void build() {
-        Var x("x"), y("y");
-        Var tx("tx"), ty("ty");
-
-        Func padded = repeat_edge(input_, {{0, input_.width()}, {0, input_.height()}});
-
-        const int tilesz = tile_size_;
-
-        Halide::Expr tile_w = (input_.width() + tilesz - 1) / tilesz;
-        Halide::Expr tile_h = (input_.height() + tilesz - 1) / tilesz;
-
-        Halide::Expr clamped_tile_w = tile_w - 1;
-        Halide::Expr clamped_tile_h = tile_h - 1;
-
-        Halide::RDom tile_dom(0, tilesz, 0, tilesz);
-
-        Func tile_min("tile_min"), tile_max("tile_max");
-        Halide::Expr sx = Halide::min(tx * tilesz + tile_dom.x, input_.width() - 1);
-        Halide::Expr sy = Halide::min(ty * tilesz + tile_dom.y, input_.height() - 1);
-        tile_min(tx, ty) = Halide::cast<uint8_t>(255);
-        tile_max(tx, ty) = Halide::cast<uint8_t>(0);
-        tile_min(tx, ty) = Halide::min(tile_min(tx, ty), padded(sx, sy));
-        tile_max(tx, ty) = Halide::max(tile_max(tx, ty), padded(sx, sy));
-
-        Halide::RDom neigh_dom(-1, 3, -1, 3);
-        Func neigh_min("neigh_min"), neigh_max("neigh_max");
-        Halide::Expr ntx = Halide::clamp(tx + neigh_dom.x, 0, clamped_tile_w);
-        Halide::Expr nty = Halide::clamp(ty + neigh_dom.y, 0, clamped_tile_h);
-        neigh_min(tx, ty) = Halide::cast<uint8_t>(255);
-        neigh_max(tx, ty) = Halide::cast<uint8_t>(0);
-        neigh_min(tx, ty) = Halide::min(neigh_min(tx, ty), tile_min(ntx, nty));
-        neigh_max(tx, ty) = Halide::max(neigh_max(tx, ty), tile_max(ntx, nty));
-
-        Func min_px("min_px"), max_px("max_px");
-        Halide::Expr tile_x = Halide::min(x / tilesz, clamped_tile_w);
-        Halide::Expr tile_y = Halide::min(y / tilesz, clamped_tile_h);
-        min_px(x, y) = neigh_min(tile_x, tile_y);
-        max_px(x, y) = neigh_max(tile_x, tile_y);
-
-        Func output("halide_threshold_output");
-        Halide::Expr diff = Halide::cast<int>(max_px(x, y)) - Halide::cast<int>(min_px(x, y));
-        Halide::Expr threshold = Halide::cast<uint8_t>(
-            Halide::cast<int>(min_px(x, y)) + diff / 2);
-        output(x, y) = Halide::cast<uint8_t>(
-            Halide::select(diff < min_white_black_diff_,
-                           127,
-                           Halide::select(padded(x, y) > threshold, 255, 0)));
-
-        Var xo("xo"), yo("yo"), xi("xi"), yi("yi");
-        output.compute_root().tile(x, y, xo, yo, xi, yi, 64, 32)
-              .parallel(yo)
-              .vectorize(xi, 16);
-
-        tile_min.compute_root().parallel(ty).vectorize(tx, 16);
-        tile_min.update().parallel(ty);
-
-        tile_max.compute_root().parallel(ty).vectorize(tx, 16);
-        tile_max.update().parallel(ty);
-
-        neigh_min.compute_root().parallel(ty).vectorize(tx, 16);
-        neigh_min.update().parallel(ty);
-
-        neigh_max.compute_root().parallel(ty).vectorize(tx, 16);
-        neigh_max.update().parallel(ty);
-
-        const int roi_tilesz = roi_tile_size_;
-
-        Halide::Expr roi_tile_w = (input_.width() + roi_tilesz - 1) / roi_tilesz;
-        Halide::Expr roi_tile_h = (input_.height() + roi_tilesz - 1) / roi_tilesz;
-
-        Halide::RDom roi_dom(0, roi_tilesz, 0, roi_tilesz);
-        Func tile_edge_count("tile_edge_count"), tile_fg_count("tile_fg_count");
-        tile_edge_count(tx, ty) = 0;
-        tile_fg_count(tx, ty) = 0;
-
-        Halide::Expr rx = Halide::min(tx * roi_tilesz + roi_dom.x, input_.width() - 1);
-        Halide::Expr ry = Halide::min(ty * roi_tilesz + roi_dom.y, input_.height() - 1);
-        Halide::Expr center_v = output(rx, ry);
-        Halide::Expr valid = center_v != 127;
-        Halide::Expr right_v = output(Halide::min(rx + 1, input_.width() - 1), ry);
-        Halide::Expr down_v = output(rx, Halide::min(ry + 1, input_.height() - 1));
-        Halide::Expr edge = Halide::select(valid && right_v != 127 && center_v != right_v, 1, 0) +
-                            Halide::select(valid && down_v != 127 && center_v != down_v, 1, 0);
-        tile_edge_count(tx, ty) += edge;
-        tile_fg_count(tx, ty) += Halide::select(valid, 1, 0);
-
-        tile_edge_count.compute_root().parallel(ty);
-        tile_edge_count.update().parallel(ty);
-
-        tile_fg_count.compute_root().parallel(ty);
-        tile_fg_count.update().parallel(ty);
-
-        pipeline_ = std::make_unique<Halide::Pipeline>(std::vector<Func>{output, tile_edge_count, tile_fg_count});
-        Halide::Target target = Halide::get_host_target();
-        target.set_feature(Halide::Target::Metal);
-        pipeline_->compile_jit(target);
-    }
+    void build() {}
 
     void compute_candidates_and_mask(Halide::Buffer<uint8_t> &output_buf,
                                      const Halide::Buffer<int32_t> &tile_edge_buf,
@@ -382,7 +290,6 @@ private:
 
     ImageParam input_;
     Param<int> min_white_black_diff_;
-    std::unique_ptr<Halide::Pipeline> pipeline_;
     std::once_flag init_flag_;
     const int tile_size_;
     const int roi_tile_size_;

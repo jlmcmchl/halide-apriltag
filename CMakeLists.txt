@@ -137,3 +137,30 @@ if (USE_HALIDE)
         message(WARNING "Halide not found. Re-run CMake with -DUSE_HALIDE=OFF or set HALIDE_ROOT to your Halide install.")
     endif()
 endif()
+
+if (Halide_FOUND)
+
+    add_executable(apriltag_gen apriltag_halide_generator.cpp)
+    target_link_libraries(apriltag_gen PRIVATE Halide::Generator)
+
+
+    add_halide_library(basic_adaptive_threshold FROM apriltag_gen
+                        TARGETS host
+                        AUTOSCHEDULER Halide::Adams2019
+#                        AUTOSCHEDULER Halide::Anderson2021
+                        GENERATOR basic_adaptive_threshold_gen)
+
+add_halide_library(metal_basic_adaptive_threshold FROM apriltag_gen
+                        TARGETS host
+                        AUTOSCHEDULER Halide::Adams2019
+#                        AUTOSCHEDULER Halide::Anderson2021
+                        GENERATOR metal_basic_adaptive_threshold_gen
+                        PARAMS pointer_jump_iterations=8)
+
+    target_link_libraries(apriltag_timing PRIVATE
+        basic_adaptive_threshold
+        metal_basic_adaptive_threshold
+        Halide::Tools
+        Halide::Runtime
+    )
+endif()
