@@ -130,63 +130,104 @@ std::vector<Point2D> convex_hull(std::vector<Point2D> points) {
 // Quad Fitting from Hull
 // =============================================================================
 
+std::tuple<int, int> farthest_points(const std::vector<Point2D>& hull) {
+    int n = hull.size();
+    float best_distance = 0;
+    int best_index1 = 0;
+    int best_index2 = 0;
+    for (int i = 0; i < n; i++) {
+        for (int j = i + 1; j < n; j++) {
+            float distance = (hull[i] - hull[j]).norm();
+            if (distance > best_distance) {
+                best_distance = distance;
+                best_index1 = i;
+                best_index2 = j;
+            }
+        }
+    }
+    return std::make_tuple(best_index1, best_index2);
+}
+
+int point_making_largest_triangle(const std::vector<Point2D>& hull, int index1, int index2) {
+    int n = hull.size();
+    float best_area = 0;
+    int best_index = -1;
+    for (int i = (index1 + 1) % n; i != index2; i = (i + 1) % n) {
+        float area = std::abs((hull[i] - hull[index1]).cross(hull[index2] - hull[index1]));
+        if (area > best_area) {
+            best_area = area;
+            best_index = i;
+        }
+    }
+    return best_index;
+}
+
 Quad fit_quad_to_hull(const std::vector<Point2D>& hull, float total_perimeter) {
     Quad quad;
     quad.confidence = total_perimeter;
     
     if (hull.size() < 4) return quad;
-    
-    int n = hull.size();
-    
-    // Find 4 corners with maximum curvature
-    std::vector<std::pair<float, int>> curvatures;
-    
-    for (int i = 0; i < n; i++) {
-        Point2D prev = hull[(i - 1 + n) % n];
-        Point2D curr = hull[i];
-        Point2D next = hull[(i + 1) % n];
-        
-        Point2D v1 = (curr - prev).normalized();
-        Point2D v2 = (next - curr).normalized();
-        
-        float angle = std::atan2(std::abs(v1.cross(v2)), v1.dot(v2));
-        curvatures.push_back({angle, i});
-    }
-    
-    std::sort(curvatures.begin(), curvatures.end(),
-              [](const auto& a, const auto& b) { return a.first > b.first; });
-    
+
     std::vector<int> corner_indices;
-    for (int i = 0; i < std::min(4, (int)curvatures.size()); i++) {
-        corner_indices.push_back(curvatures[i].second);
-    }
-    
-    std::sort(corner_indices.begin(), corner_indices.end());
-    
-    if (corner_indices.size() < 4) {
-        // Fallback to extreme points
-        Point2D centroid(0, 0);
-        for (const auto& p : hull) { centroid.x += p.x; centroid.y += p.y; }
-        centroid.x /= n; centroid.y /= n;
+
+    if (true) {
+        auto [index1, index2] = farthest_points(hull);
+        corner_indices.push_back(index1);
+        corner_indices.push_back(point_making_largest_triangle(hull, index1, index2));
+        corner_indices.push_back(index2);
+        corner_indices.push_back(point_making_largest_triangle(hull, index2, index1));
+    } else {
+        int n = hull.size();
         
-        float best_score[4] = {-1e9f, -1e9f, -1e9f, -1e9f};
-        int best_idx[4] = {0, 0, 0, 0};
-        Point2D dirs[4] = {{1, -1}, {1, 1}, {-1, 1}, {-1, -1}};
+        // Find 4 corners with maximum curvature
+        std::vector<std::pair<float, int>> curvatures;
         
         for (int i = 0; i < n; i++) {
-            Point2D delta = hull[i] - centroid;
-            for (int d = 0; d < 4; d++) {
-                float score = delta.dot(dirs[d]);
-                if (score > best_score[d]) {
-                    best_score[d] = score;
-                    best_idx[d] = i;
-                }
-            }
+            Point2D prev = hull[(i - 1 + n) % n];
+            Point2D curr = hull[i];
+            Point2D next = hull[(i + 1) % n];
+            
+            Point2D v1 = (curr - prev).normalized();
+            Point2D v2 = (next - curr).normalized();
+            
+            float angle = std::atan2(std::abs(v1.cross(v2)), v1.dot(v2));
+            curvatures.push_back({angle, i});
         }
         
-        corner_indices.clear();
-        for (int d = 0; d < 4; d++) corner_indices.push_back(best_idx[d]);
+        std::sort(curvatures.begin(), curvatures.end(),
+                [](const auto& a, const auto& b) { return a.first > b.first; });
+        
+        for (int i = 0; i < std::min(4, (int)curvatures.size()); i++) {
+            corner_indices.push_back(curvatures[i].second);
+        }
+        
         std::sort(corner_indices.begin(), corner_indices.end());
+        
+        if (corner_indices.size() < 4) {
+            // Fallback to extreme points
+            Point2D centroid(0, 0);
+            for (const auto& p : hull) { centroid.x += p.x; centroid.y += p.y; }
+            centroid.x /= n; centroid.y /= n;
+            
+            float best_score[4] = {-1e9f, -1e9f, -1e9f, -1e9f};
+            int best_idx[4] = {0, 0, 0, 0};
+            Point2D dirs[4] = {{1, -1}, {1, 1}, {-1, 1}, {-1, -1}};
+            
+            for (int i = 0; i < n; i++) {
+                Point2D delta = hull[i] - centroid;
+                for (int d = 0; d < 4; d++) {
+                    float score = delta.dot(dirs[d]);
+                    if (score > best_score[d]) {
+                        best_score[d] = score;
+                        best_idx[d] = i;
+                    }
+                }
+            }
+            
+            corner_indices.clear();
+            for (int d = 0; d < 4; d++) corner_indices.push_back(best_idx[d]);
+            std::sort(corner_indices.begin(), corner_indices.end());
+        }
     }
     
     for (int i = 0; i < 4; i++) {
