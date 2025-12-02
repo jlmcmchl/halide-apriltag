@@ -127,6 +127,119 @@ std::vector<Point2D> convex_hull(std::vector<Point2D> points) {
 }
 
 // =============================================================================
+// Convex Hull (QuickHull Algorithm)
+// =============================================================================
+
+// Distance from point p to line defined by a and b
+float point_line_distance(const Point2D& p, const Point2D& a, 
+    const Point2D& b) {
+    return std::abs((b - a).cross(p - a));
+}
+
+// Find points on one side of line from a to b
+void partition_points(const std::vector<Point2D>& points,
+  const Point2D& a, const Point2D& b,
+  std::vector<Point2D>& result) {
+    for (const auto& p : points) {
+        float cross = (b - a).cross(p - a);
+        if (cross > 0) {  // Point is on left side of line
+            result.push_back(p);
+        }
+    }
+}
+
+// Recursive function to find hull points on one side
+void quickhull_recursive(const std::vector<Point2D>& points,
+  const Point2D& a, const Point2D& b,
+  std::vector<Point2D>& hull) {
+    if (points.empty()) return;
+
+    // Find farthest point from line ab
+    float max_dist = -1;
+    Point2D farthest;
+
+    for (const auto& p : points) {
+        float dist = point_line_distance(p, a, b);
+        if (dist > max_dist) {
+            max_dist = dist;
+            farthest = p;
+        }
+    }
+
+    // Partition points into two sets relative to lines a-farthest and 
+    // farthest-b
+    std::vector<Point2D> left_set, right_set;
+
+    for (const auto& p : points) {
+        // Skip the farthest point itself
+        if (std::abs(p.x - farthest.x) < 1e-6 && 
+            std::abs(p.y - farthest.y) < 1e-6) {
+            continue;
+        }
+
+        if ((farthest - a).cross(p - a) > 0) {
+            left_set.push_back(p);
+        } else if ((b - farthest).cross(p - farthest) > 0) {
+            right_set.push_back(p);
+        }
+    }
+
+    // Recursively find hull on left side of a-farthest
+    quickhull_recursive(left_set, a, farthest, hull);
+    // Add the farthest point to hull
+    hull.push_back(farthest);
+
+    // Recursively find hull on left side of farthest-b
+    quickhull_recursive(right_set, farthest, b, hull);
+}
+
+std::vector<Point2D> quickhull(std::vector<Point2D> blob) {
+    if (blob.size() < 3) return blob;
+
+    // Find leftmost and rightmost points
+    auto minmax_x = std::minmax_element(blob.begin(), blob.end(),
+        [](const Point2D& a, const Point2D& b) {
+            return a.x < b.x || (a.x == b.x && a.y < b.y);
+        });
+
+    Point2D left = *minmax_x.first;
+    Point2D right = *minmax_x.second;
+
+    // Partition points into upper and lower sets
+    std::vector<Point2D> upper_set, lower_set;
+
+    for (const auto& p : blob) {
+        // Skip left and right points
+        if ((std::abs(p.x - left.x) < 1e-6 && 
+                std::abs(p.y - left.y) < 1e-6) ||
+            (std::abs(p.x - right.x) < 1e-6 && 
+                std::abs(p.y - right.y) < 1e-6)) {
+            continue;
+        }
+
+        float cross = (right - left).cross(p - left);
+        if (cross > 0) {
+            upper_set.push_back(p);
+        } else if (cross < 0) {
+            lower_set.push_back(p);
+        }
+    }
+
+    // Build hull starting from leftmost point
+    std::vector<Point2D> hull;
+    hull.push_back(left);
+
+    // Find upper hull
+    quickhull_recursive(upper_set, left, right, hull);
+    hull.push_back(right);
+
+    // Find lower hull
+    quickhull_recursive(lower_set, right, left, hull);
+    std::reverse(hull.begin(), hull.end());
+    return hull;
+}
+
+// =============================================================================
 // Quad Fitting from Hull
 // =============================================================================
 
@@ -509,7 +622,7 @@ std::vector<Quad> find_quads_fast(const Buffer<uint8_t>& binary, int min_area, i
         }
         if ((max_x - min_x) < 6 || (max_y - min_y) < 6) continue;
 
-        std::vector<Point2D> hull = convex_hull(boundary);
+        std::vector<Point2D> hull = quickhull(boundary);
         if (hull.size() < 4) continue;
 
         Quad quad = fit_quad_to_hull(hull, (float)area * decimation * decimation);
