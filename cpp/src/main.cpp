@@ -618,13 +618,9 @@ struct FindQuadsResult {
                   std::vector<std::vector<Point2D>> clusters,
                   std::vector<std::vector<Point2D>> hulls,
                   std::vector<Quad> quads)
-      : area_counts(area_counts), active_roots(active_roots),
-        clusters(clusters), hulls(hulls), quads(quads) {}
-  FindQuadsResult()
-      : area_counts(std::vector<int>()), active_roots(std::vector<int>()),
-        clusters(std::vector<std::vector<Point2D>>()),
-        hulls(std::vector<std::vector<Point2D>>()), quads(std::vector<Quad>()) {
-  }
+      : area_counts(std::move(area_counts)), active_roots(std::move(active_roots)),
+        clusters(std::move(clusters)), hulls(std::move(hulls)), quads(std::move(quads)) {}
+  FindQuadsResult() = default;
 };
 
 FindQuadsResult
