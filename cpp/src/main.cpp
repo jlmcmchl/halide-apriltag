@@ -679,7 +679,7 @@ find_quads_fast(std::vector<std::pair<std::string, double>> &timings,
 
   // KEY OPTIMIZATION: Flatten all parents for O(1) lookup in pass 2
   stage_start = Clock::now();
-  uf.flatten();
+  // uf.flatten();
   stage_end = Clock::now();
   timings.emplace_back("find_quads_fast_uf_flatten",
                        to_ms(stage_end - stage_start));
@@ -698,7 +698,8 @@ find_quads_fast(std::vector<std::pair<std::string, double>> &timings,
       if (row[x] != 0)
         continue;
 
-      const int root = uf.parent[sy * s_w + sx]; // O(1) - already flattened!
+      // const int root = uf.parent[sy * s_w + sx]; // O(1) - already flattened!
+      const int root = uf.find(sy * s_w + sx);
 
       if (result.area_counts[root] == 0) {
         result.active_roots.push_back(root);
@@ -953,8 +954,7 @@ Buffer<uint8_t> visualize_edges(const Buffer<uint8_t> &edges) {
 // Main
 // =============================================================================
 
-std::tuple<std::vector<Quad>, std::vector<std::vector<Point2D>>,
-           std::vector<std::vector<Point2D>>>
+FindQuadsResult
 run_pipeline(Buffer<uint8_t> &input, Buffer<uint8_t> &binary,
              std::vector<std::pair<std::string, double>> &timings) {
   using Clock = std::chrono::steady_clock;
@@ -1192,19 +1192,19 @@ int main(int argc, char **argv) {
     std::cout << "    Setup:             sum=" << setup_sum
               << ", mean=" << setup_mean << ", stdev=" << setup_stdev
               << std::endl;
-    std::cout << "    UF Pass 1:        sum=" << uf_pass_1_sum
+    std::cout << "    UF Pass 1:          sum=" << uf_pass_1_sum
               << ", mean=" << uf_pass_1_mean << ", stdev=" << uf_pass_1_stdev
               << std::endl;
-    std::cout << "    UF Flatten:       sum=" << uf_flatten_sum
+    std::cout << "    UF Flatten:         sum=" << uf_flatten_sum
               << ", mean=" << uf_flatten_mean << ", stdev=" << uf_flatten_stdev
               << std::endl;
-    std::cout << "    Cluster:          sum=" << cluster_sum
+    std::cout << "    Cluster:            sum=" << cluster_sum
               << ", mean=" << cluster_mean << ", stdev=" << cluster_stdev
               << std::endl;
     std::cout << "    Hull and Fit Quads: sum=" << hull_and_fit_quads_sum
               << ", mean=" << hull_and_fit_quads_mean
               << ", stdev=" << hull_and_fit_quads_stdev << std::endl;
-    std::cout << "    Total:             sum=" << total_sum
+    std::cout << "    Total:               sum=" << total_sum
               << ", mean=" << total_mean << ", stdev=" << total_stdev
               << std::endl;
     return 0;
