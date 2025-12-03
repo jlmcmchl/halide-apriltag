@@ -608,10 +608,35 @@ struct FastUF {
   }
 };
 
-std::tuple<std::vector<Quad>, std::vector<std::vector<Point2D>>,
-           std::vector<std::vector<Point2D>>>
-find_quads_fast(const Buffer<uint8_t> &binary, int min_area, int max_area,
-                int decimation = 1) {
+struct FindQuadsResult {
+  std::vector<int> area_counts;
+  std::vector<int> active_roots;
+  std::vector<std::vector<Point2D>> clusters;
+  std::vector<std::vector<Point2D>> hulls;
+  std::vector<Quad> quads;
+  FindQuadsResult(std::vector<int> area_counts, std::vector<int> active_roots,
+                  std::vector<std::vector<Point2D>> clusters,
+                  std::vector<std::vector<Point2D>> hulls,
+                  std::vector<Quad> quads)
+      : area_counts(area_counts), active_roots(active_roots),
+        clusters(clusters), hulls(hulls), quads(quads) {}
+  FindQuadsResult()
+      : area_counts(std::vector<int>()), active_roots(std::vector<int>()),
+        clusters(std::vector<std::vector<Point2D>>()),
+        hulls(std::vector<std::vector<Point2D>>()), quads(std::vector<Quad>()) {
+  }
+};
+
+FindQuadsResult
+find_quads_fast(std::vector<std::pair<std::string, double>> &timings,
+                const Buffer<uint8_t> &binary, int min_area, int max_area,
+                int decimation = 1, int num_threads = 4) {
+  using Clock = std::chrono::steady_clock;
+  auto to_ms = [](Clock::duration d) {
+    return std::chrono::duration<double, std::milli>(d).count();
+  };
+  auto func_start = Clock::now();
+  auto stage_start = Clock::now();
   const int w = binary.width();
   const int h = binary.height();
   const int s_w = w / decimation;
@@ -619,8 +644,16 @@ find_quads_fast(const Buffer<uint8_t> &binary, int min_area, int max_area,
 
   const uint8_t *__restrict__ ptr = binary.data();
   const int stride = binary.stride(1);
+  auto stage_end = Clock::now();
+  FindQuadsResult result(std::vector<int>(s_w * s_h, 0), std::vector<int>(),
+                         std::vector<std::vector<Point2D>>(s_w * s_h),
+                         std::vector<std::vector<Point2D>>(),
+                         std::vector<Quad>());
+  result.active_roots.reserve(256);
+  timings.emplace_back("find_quads_fast_setup", to_ms(stage_end - stage_start));
 
   // Pass 1: Union-Find on decimated grid
+  stage_start = Clock::now();
   FastUF uf(s_w * s_h);
 
   for (int sy = 0; sy < s_h; sy++) {
@@ -644,17 +677,20 @@ find_quads_fast(const Buffer<uint8_t> &binary, int min_area, int max_area,
       }
     }
   }
+  stage_end = Clock::now();
+  timings.emplace_back("find_quads_fast_uf_pass_1",
+                       to_ms(stage_end - stage_start));
 
   // KEY OPTIMIZATION: Flatten all parents for O(1) lookup in pass 2
+  stage_start = Clock::now();
   uf.flatten();
+  stage_end = Clock::now();
+  timings.emplace_back("find_quads_fast_uf_flatten",
+                       to_ms(stage_end - stage_start));
 
+  stage_start = Clock::now();
   // Pass 2: Collect boundary points + count area
   // Use vectors indexed by root (sparse, but fast)
-  std::vector<std::vector<Point2D>> clusters(s_w * s_h);
-  std::vector<int> area_counts(s_w * s_h, 0);
-  std::vector<int> active_roots;
-  active_roots.reserve(256);
-
   for (int sy = 1; sy < s_h - 1; sy++) {
     const int y = sy * decimation;
     const uint8_t *row = ptr + y * stride;
@@ -668,34 +704,36 @@ find_quads_fast(const Buffer<uint8_t> &binary, int min_area, int max_area,
 
       const int root = uf.parent[sy * s_w + sx]; // O(1) - already flattened!
 
-      if (area_counts[root] == 0) {
-        active_roots.push_back(root);
+      if (result.area_counts[root] == 0) {
+        result.active_roots.push_back(root);
       }
-      area_counts[root]++;
+      result.area_counts[root]++;
 
       // Boundary check
       if ((row[x - decimation] == 255) | (row[x + decimation] == 255) |
           (row_up[x] == 255) | (row_down[x] == 255)) {
-        clusters[root].emplace_back((float)x, (float)y);
+        result.clusters[root].emplace_back((float)x, (float)y);
       }
     }
   }
+  stage_end = Clock::now();
+  timings.emplace_back("find_quads_fast_cluster",
+                       to_ms(stage_end - stage_start));
 
   // Pass 3: Fit quads
+  stage_start = Clock::now();
   const int scaled_min_area = min_area / (decimation * decimation);
   const int scaled_max_area = max_area / (decimation * decimation);
 
-  std::vector<Quad> quads;
-  std::vector<std::vector<Point2D>> hulls;
-  quads.reserve(active_roots.size());
-  hulls.reserve(active_roots.size());
+  result.quads.reserve(result.active_roots.size());
+  result.hulls.reserve(result.active_roots.size());
 
-  for (int root : active_roots) {
-    const int area = area_counts[root];
+  for (int root : result.active_roots) {
+    const int area = result.area_counts[root];
     if (area < scaled_min_area || area > scaled_max_area)
       continue;
 
-    std::vector<Point2D> &boundary = clusters[root];
+    std::vector<Point2D> &boundary = result.clusters[root];
     if (boundary.size() < 10)
       continue;
 
@@ -714,12 +752,17 @@ find_quads_fast(const Buffer<uint8_t> &binary, int min_area, int max_area,
     if (hull.size() < 4)
       continue;
 
-    hulls.push_back(hull);
     Quad quad = fit_quad_to_hull(hull, (float)area * decimation * decimation);
+
+    result.hulls.push_back(hull);
     // if (quad.is_valid()) {
-    quads.push_back(quad);
+    result.quads.push_back(quad);
     // }
   }
+  stage_end = Clock::now();
+  timings.emplace_back("find_quads_fast_hull_and_fit_quads",
+                       to_ms(stage_end - stage_start));
+  timings.emplace_back("find_quads_fast_total", to_ms(stage_end - func_start));
 
   // std::sort(quads.begin(), quads.end(), [](const Quad& a, const Quad& b) {
   //     return a.confidence > b.confidence;
@@ -727,7 +770,7 @@ find_quads_fast(const Buffer<uint8_t> &binary, int min_area, int max_area,
 
   // return quads;
 
-  return std::make_tuple(quads, hulls, clusters);
+  return result;
 }
 
 // =============================================================================
@@ -957,7 +1000,7 @@ run_pipeline(Buffer<uint8_t> &input, Buffer<uint8_t> &binary,
   int max_area = img_area / 8;     // Tags should be at most 25% of image
 
   stage_start = Clock::now();
-  auto retval = find_quads_fast(binary, min_area, max_area, 1);
+  auto retval = find_quads_fast(timings, binary, min_area, max_area, 1, 4);
   stage_end = Clock::now();
   timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
 
@@ -995,23 +1038,18 @@ int main(int argc, char **argv) {
 
     timings.clear();
 
-    std::vector<Quad> quads;
-    std::vector<std::vector<Point2D>> clusters;
-    std::vector<std::vector<Point2D>> hulls;
+    FindQuadsResult quads;
     for (int i = 0; i < 100; i++) {
-      auto [_quads, _clusters, _hulls] = run_pipeline(input, binary, timings);
-      quads = _quads;
-      clusters = _clusters;
-      hulls = _hulls;
+      quads = run_pipeline(input, binary, timings);
     }
 
-    std::cout << "Found " << quads.size() << " quads" << std::endl;
+    std::cout << "Found " << quads.quads.size() << " quads" << std::endl;
 
     // =================================================================
     // Output
     // =================================================================
-    for (size_t i = 0; i < quads.size(); ++i) {
-      const auto &q = quads[i];
+    for (size_t i = 0; i < quads.quads.size(); ++i) {
+      const auto &q = quads.quads[i];
       if (!q.is_valid())
         continue;
       std::cout << "Quad " << i << ": [";
@@ -1027,8 +1065,8 @@ int main(int argc, char **argv) {
                 << " parallelness=" << q.parallelness() << std::endl;
     }
 
-    for (size_t i = 0; i < quads.size(); ++i) {
-      const auto &q = quads[i];
+    for (size_t i = 0; i < quads.quads.size(); ++i) {
+      const auto &q = quads.quads[i];
       if (q.is_valid())
         continue;
       if (q.parallelness() > 0.7f)
@@ -1056,7 +1094,7 @@ int main(int argc, char **argv) {
 
     // Visualize clusters
     stage_start = Clock::now();
-    Buffer<uint8_t> clusters_vis = visualize_clusters(input, clusters);
+    Buffer<uint8_t> clusters_vis = visualize_clusters(input, quads.clusters);
     save_image(clusters_vis, "clusters_output.png");
     stage_end = Clock::now();
     timings.emplace_back("save_clusters_output",
@@ -1065,7 +1103,7 @@ int main(int argc, char **argv) {
 
     // Visualize hulls
     stage_start = Clock::now();
-    Buffer<uint8_t> hulls_vis = visualize_hulls(input, hulls);
+    Buffer<uint8_t> hulls_vis = visualize_hulls(input, quads.hulls);
     save_image(hulls_vis, "hulls_output.png");
     stage_end = Clock::now();
     timings.emplace_back("save_hulls_output", to_ms(stage_end - stage_start));
@@ -1073,7 +1111,7 @@ int main(int argc, char **argv) {
 
     // Visualize quads
     stage_start = Clock::now();
-    Buffer<uint8_t> quads_vis = visualize_quads(input, quads);
+    Buffer<uint8_t> quads_vis = visualize_quads(input, quads.quads);
     save_image(quads_vis, "quads_output.png");
     stage_end = Clock::now();
     timings.emplace_back("save_quads_output", to_ms(stage_end - stage_start));
@@ -1081,7 +1119,8 @@ int main(int argc, char **argv) {
 
     // Visualize quads
     stage_start = Clock::now();
-    Buffer<uint8_t> invalid_quads_vis = visualize_quads(input, quads, false);
+    Buffer<uint8_t> invalid_quads_vis =
+        visualize_quads(input, quads.quads, false);
     save_image(invalid_quads_vis, "quads_output_invalid.png");
     stage_end = Clock::now();
     timings.emplace_back("save_quads_output_invalid",
@@ -1133,6 +1172,19 @@ int main(int argc, char **argv) {
         compute_sum_mean_stdev(timings, "copy_to_host");
     auto [quad_sum, quad_mean, quad_stdev] =
         compute_sum_mean_stdev(timings, "quad_detect (CPU)");
+    auto [setup_sum, setup_mean, setup_stdev] =
+        compute_sum_mean_stdev(timings, "find_quads_fast_setup");
+    auto [uf_pass_1_sum, uf_pass_1_mean, uf_pass_1_stdev] =
+        compute_sum_mean_stdev(timings, "find_quads_fast_uf_pass_1");
+    auto [uf_flatten_sum, uf_flatten_mean, uf_flatten_stdev] =
+        compute_sum_mean_stdev(timings, "find_quads_fast_uf_flatten");
+    auto [cluster_sum, cluster_mean, cluster_stdev] =
+        compute_sum_mean_stdev(timings, "find_quads_fast_cluster");
+    auto [hull_and_fit_quads_sum, hull_and_fit_quads_mean,
+          hull_and_fit_quads_stdev] =
+        compute_sum_mean_stdev(timings, "find_quads_fast_hull_and_fit_quads");
+    auto [total_sum, total_mean, total_stdev] =
+        compute_sum_mean_stdev(timings, "find_quads_fast_total");
 
     std::cout << "GPU warm (cached): sum=" << grayscale_sum
               << ", mean=" << grayscale_mean << ", stdev=" << grayscale_stdev
@@ -1141,7 +1193,24 @@ int main(int argc, char **argv) {
               << ", stdev=" << edge_stdev << std::endl;
     std::cout << "Quad:              sum=" << quad_sum << ", mean=" << quad_mean
               << ", stdev=" << quad_stdev << std::endl;
-
+    std::cout << "    Setup:             sum=" << setup_sum
+              << ", mean=" << setup_mean << ", stdev=" << setup_stdev
+              << std::endl;
+    std::cout << "    UF Pass 1:        sum=" << uf_pass_1_sum
+              << ", mean=" << uf_pass_1_mean << ", stdev=" << uf_pass_1_stdev
+              << std::endl;
+    std::cout << "    UF Flatten:       sum=" << uf_flatten_sum
+              << ", mean=" << uf_flatten_mean << ", stdev=" << uf_flatten_stdev
+              << std::endl;
+    std::cout << "    Cluster:          sum=" << cluster_sum
+              << ", mean=" << cluster_mean << ", stdev=" << cluster_stdev
+              << std::endl;
+    std::cout << "    Hull and Fit Quads: sum=" << hull_and_fit_quads_sum
+              << ", mean=" << hull_and_fit_quads_mean
+              << ", stdev=" << hull_and_fit_quads_stdev << std::endl;
+    std::cout << "    Total:             sum=" << total_sum
+              << ", mean=" << total_mean << ", stdev=" << total_stdev
+              << std::endl;
     return 0;
   } catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
