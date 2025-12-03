@@ -914,7 +914,8 @@ Buffer<uint8_t> visualize_edges(const Buffer<uint8_t> &edges) {
 // Main
 // =============================================================================
 
-std::vector<Quad>
+std::tuple<std::vector<Quad>, std::vector<std::vector<Point2D>>,
+           std::vector<std::vector<Point2D>>>
 run_pipeline(Buffer<uint8_t> &input, Buffer<uint8_t> &binary,
              std::vector<std::pair<std::string, double>> &timings) {
   using Clock = std::chrono::steady_clock;
@@ -956,11 +957,11 @@ run_pipeline(Buffer<uint8_t> &input, Buffer<uint8_t> &binary,
   int max_area = img_area / 8;     // Tags should be at most 25% of image
 
   stage_start = Clock::now();
-  std::vector<Quad> quads = find_quads_fast(binary, min_area, max_area, 1);
+  auto retval = find_quads_fast(binary, min_area, max_area, 1);
   stage_end = Clock::now();
   timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
 
-  return quads;
+  return retval;
 }
 
 int main(int argc, char **argv) {
@@ -995,8 +996,13 @@ int main(int argc, char **argv) {
     timings.clear();
 
     std::vector<Quad> quads;
+    std::vector<std::vector<Point2D>> clusters;
+    std::vector<std::vector<Point2D>> hulls;
     for (int i = 0; i < 100; i++) {
-      quads = run_pipeline(input, binary, timings);
+      auto [_quads, _clusters, _hulls] = run_pipeline(input, binary, timings);
+      quads = _quads;
+      clusters = _clusters;
+      hulls = _hulls;
     }
 
     std::cout << "Found " << quads.size() << " quads" << std::endl;
