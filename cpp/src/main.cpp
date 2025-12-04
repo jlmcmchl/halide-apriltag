@@ -624,10 +624,10 @@ struct FindQuadsResult {
   FindQuadsResult() = default;
 };
 
-FindQuadsResult
+void
 find_quads_fast(std::vector<std::pair<std::string, double>> &timings,
                 const Buffer<uint8_t> &binary, int min_area, int max_area,
-                int decimation = 1) {
+                FindQuadsResult &result, int decimation = 1) {
   using Clock = std::chrono::steady_clock;
   auto to_ms = [](Clock::duration d) {
     return std::chrono::duration<double, std::milli>(d).count();
@@ -641,12 +641,22 @@ find_quads_fast(std::vector<std::pair<std::string, double>> &timings,
 
   const uint8_t *__restrict__ ptr = binary.data();
   const int stride = binary.stride(1);
+
+  result.area_counts.assign(s_w * s_h, 0);
+  result.clusters.assign(s_w * s_h, std::vector<Point2D>());
+  result.clusters.resize(s_w * s_h);
+
+  result.active_roots.clear();
+  result.hulls.clear();
+  result.quads.clear();
+
+  // FindQuadsResult quads(std::vector<int>(input.width() * input.height(), 0), std::vector<int>(),
+  //                        std::vector<std::vector<Point2D>>(input.width() * input.height()),
+  //                        std::vector<std::vector<Point2D>>(),
+  //                        std::vector<Quad>());
+  // quads.active_roots.reserve(256);
+
   auto stage_end = Clock::now();
-  FindQuadsResult result(std::vector<int>(s_w * s_h, 0), std::vector<int>(),
-                         std::vector<std::vector<Point2D>>(s_w * s_h),
-                         std::vector<std::vector<Point2D>>(),
-                         std::vector<Quad>());
-  result.active_roots.reserve(256);
   timings.emplace_back("find_quads_fast_setup", to_ms(stage_end - stage_start));
 
   // Pass 1: Union-Find on decimated grid
@@ -767,8 +777,6 @@ find_quads_fast(std::vector<std::pair<std::string, double>> &timings,
   // });
 
   // return quads;
-
-  return result;
 }
 
 // =============================================================================
@@ -955,8 +963,10 @@ Buffer<uint8_t> visualize_edges(const Buffer<uint8_t> &edges) {
 // Main
 // =============================================================================
 
-FindQuadsResult
-run_pipeline(Buffer<uint8_t> &input, Buffer<uint8_t> &binary,
+#define DECIMATION 1
+
+void
+run_pipeline(Buffer<uint8_t> &input, Buffer<uint8_t> &binary, FindQuadsResult &retval,
              std::vector<std::pair<std::string, double>> &timings) {
   using Clock = std::chrono::steady_clock;
   auto to_ms = [](Clock::duration d) {
@@ -997,11 +1007,9 @@ run_pipeline(Buffer<uint8_t> &input, Buffer<uint8_t> &binary,
   int max_area = img_area / 8;     // Tags should be at most 25% of image
 
   stage_start = Clock::now();
-  auto retval = find_quads_fast(timings, binary, min_area, max_area, 1);
+  find_quads_fast(timings, binary, min_area, max_area, retval, DECIMATION);
   stage_end = Clock::now();
   timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
-
-  return retval;
 }
 
 int main(int argc, char **argv) {
@@ -1029,15 +1037,20 @@ int main(int argc, char **argv) {
               << "x" << input.channels() << std::endl;
 
     Buffer<uint8_t> binary(input.width(), input.height());
+    FindQuadsResult quads(std::vector<int>(input.width() * input.height() / (DECIMATION * DECIMATION), 0), std::vector<int>(),
+                         std::vector<std::vector<Point2D>>(input.width() * input.height() / (DECIMATION * DECIMATION)),
+                         std::vector<std::vector<Point2D>>(),
+                         std::vector<Quad>());
+    quads.active_roots.reserve(256);
+
     for (int i = 0; i < 10; i++) {
-      run_pipeline(input, binary, timings);
+      run_pipeline(input, binary, quads, timings);
     }
 
     timings.clear();
 
-    FindQuadsResult quads;
     for (int i = 0; i < 100; i++) {
-      quads = run_pipeline(input, binary, timings);
+      run_pipeline(input, binary, quads, timings);
     }
 
     std::cout << "Found " << quads.quads.size() << " quads" << std::endl;
