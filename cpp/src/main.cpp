@@ -618,15 +618,16 @@ struct FindQuadsResult {
                   std::vector<std::vector<Point2D>> clusters,
                   std::vector<std::vector<Point2D>> hulls,
                   std::vector<Quad> quads)
-      : area_counts(std::move(area_counts)), active_roots(std::move(active_roots)),
-        clusters(std::move(clusters)), hulls(std::move(hulls)), quads(std::move(quads)) {}
+      : area_counts(std::move(area_counts)),
+        active_roots(std::move(active_roots)), clusters(std::move(clusters)),
+        hulls(std::move(hulls)), quads(std::move(quads)) {}
   FindQuadsResult() = default;
 };
 
 FindQuadsResult
 find_quads_fast(std::vector<std::pair<std::string, double>> &timings,
                 const Buffer<uint8_t> &binary, int min_area, int max_area,
-                int decimation = 1, int num_threads = 4) {
+                int decimation = 1) {
   using Clock = std::chrono::steady_clock;
   auto to_ms = [](Clock::duration d) {
     return std::chrono::duration<double, std::milli>(d).count();
@@ -996,7 +997,7 @@ run_pipeline(Buffer<uint8_t> &input, Buffer<uint8_t> &binary,
   int max_area = img_area / 8;     // Tags should be at most 25% of image
 
   stage_start = Clock::now();
-  auto retval = find_quads_fast(timings, binary, min_area, max_area, 1, 4);
+  auto retval = find_quads_fast(timings, binary, min_area, max_area, 1);
   stage_end = Clock::now();
   timings.emplace_back("quad_detect (CPU)", to_ms(stage_end - stage_start));
 
