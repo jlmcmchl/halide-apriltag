@@ -982,6 +982,7 @@ run_pipeline(Buffer<uint8_t> &input, Buffer<uint8_t> &binary, FindQuadsResult &r
 
   // Warm call - shaders cached, context ready
   auto stage_start = Clock::now();
+  input.set_host_dirty();
   int result = greyscale_and_adaptive_threshold(input, 4, 60.0f, binary);
   auto stage_end = Clock::now();
   double warm_time = to_ms(stage_end - stage_start);
