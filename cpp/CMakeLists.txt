@@ -20,23 +20,19 @@ find_package(Halide REQUIRED)
 find_package(PNG REQUIRED)
 find_package(JPEG REQUIRED)
 
-# Find OpenCV
-find_package(OpenCV REQUIRED)
+add_halide_generator(threshold.generator SOURCES src/apriltag_halide_generator.cpp)
+
+add_halide_library(greyscale_and_adaptive_threshold FROM threshold.generator
+                    TARGETS host
+#                    AUTOSCHEDULER Halide::Adams2019
+#                    AUTOSCHEDULER Halide::Anderson2021
+                    GENERATOR greyscale_and_adaptive_threshold_gen
+                    FEATURES opencl
+                    )
 
 
 add_executable(apriltag_runner src/main.cpp)
 target_include_directories(apriltag_runner PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-
-
-add_executable(apriltag_gen src/apriltag_halide_generator.cpp)
-target_link_libraries(apriltag_gen PRIVATE Halide::Generator)
-
-
-add_halide_library(greyscale_and_adaptive_threshold FROM apriltag_gen
-                    TARGETS host
-                    AUTOSCHEDULER Halide::Adams2019
-#                    AUTOSCHEDULER Halide::Anderson2021
-                    GENERATOR greyscale_and_adaptive_threshold_gen)
 
 # Link against the Halide runtime, generated pipelines, and image IO helpers.
 # Link libraries directly to avoid duplicate symbol issues
@@ -47,10 +43,13 @@ target_link_libraries(apriltag_runner PRIVATE
     Halide::ImageIO
     PNG::PNG
     JPEG::JPEG
-#    ${METAL_LIBRARY}
-#    ${FOUNDATION_LIBRARY}
 )
 
-if (NOT DEFINED CMAKE_BUILD_TYPE)
-    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY VALUE "Release")
+find_package(OpenCL)
+
+if (OpenCL_FOUND)
+    target_link_libraries(apriltag_runner PRIVATE OpenCL::OpenCL)
+    target_include_directories(apriltag_runner PRIVATE ${OpenCL_INCLUDE_DIR})
+    target_compile_definitions(apriltag_runner PRIVATE -DUSE_OPENCL)
+    
 endif()
