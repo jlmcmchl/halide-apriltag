@@ -46,7 +46,6 @@ public:
     Expr tile_y = clamp(y / tile_size, 0, tiles_y - 1);
 
     // Sample 3x3 neighborhood of tiles for smoother thresholding
-    Func local_min("local_min"), local_max("local_max");
     Expr lmin = cast<float>(255.0f);
     Expr lmax = cast<float>(0.0f);
 
@@ -104,15 +103,159 @@ public:
       // schedule will be.
 
     } else {
-
-      grey.compute_root().gpu_tile(x, y, xo, yo, xi, yi, 16, 16);
-
-      tile_min.compute_root().gpu_tile(tx, ty, xo, yo, xi, yi, 16, 16);
-      tile_min.update().unscheduled();
-      tile_max.compute_root().gpu_tile(tx, ty, xo, yo, xi, yi, 16, 16);
-      tile_max.update().unscheduled();
-
-      binary.compute_root().gpu_tile(x, y, xo, yo, xi, yi, 16, 16);
+      if (get_target().has_gpu_feature()) {
+        Var tx(tile_min.get_schedule().dims()[0].var);
+        Var txi("txi");
+        Var ty(tile_min.get_schedule().dims()[1].var);
+        Var x(binary.get_schedule().dims()[0].var);
+        Var xi("xi");
+        Var xii("xii");
+        Var y(binary.get_schedule().dims()[1].var);
+        Var yi("yi");
+        Var yii("yii");
+        RVar tile_minmax_x(tile_min.update(0).get_schedule().dims()[0].var);
+        RVar tile_minmax_y(tile_min.update(0).get_schedule().dims()[1].var);
+        Var ty_serial_outer("ty_serial_outer");
+        Var tx_serial_outer("tx_serial_outer");
+        Var yi_serial_outer("yi_serial_outer");
+        Var xi_serial_outer("xi_serial_outer");
+        output
+            .split(x, x, xi, 128, TailStrategy::ShiftInwards)
+            .split(y, y, yi, 128, TailStrategy::ShiftInwards)
+            .split(xi, xi, xii, 2, TailStrategy::ShiftInwards)
+            .split(yi, yi, yii, 8, TailStrategy::ShiftInwards)
+            .unroll(xii)
+            .unroll(yii)
+            .compute_root()
+            .reorder(xii, yii, xi, yi, x, y)
+            .gpu_blocks(x)
+            .gpu_blocks(y)
+            .split(xi, xi_serial_outer, xi, 16, TailStrategy::GuardWithIf)
+            .gpu_threads(xi)
+            .split(yi, yi_serial_outer, yi, 8, TailStrategy::GuardWithIf)
+            .gpu_threads(yi);
+        tile_min
+            .split(tx, tx, txi, 3, TailStrategy::RoundUp)
+            .unroll(txi)
+            .compute_at(output, x)
+            .reorder(txi, tx, ty)
+            .split(tx, tx_serial_outer, tx, 16, TailStrategy::GuardWithIf)
+            .gpu_threads(tx)
+            .split(ty, ty_serial_outer, ty, 2, TailStrategy::GuardWithIf)
+            .gpu_threads(ty);
+        tile_min.update(0)
+            .split(tx, tx, txi, 3, TailStrategy::RoundUp)
+            .unroll(txi)
+            .reorder(txi, tile_minmax_x, tile_minmax_y, tx, ty)
+            .split(tx, tx_serial_outer, tx, 16, TailStrategy::GuardWithIf)
+            .gpu_threads(tx)
+            .split(ty, ty_serial_outer, ty, 2, TailStrategy::GuardWithIf)
+            .gpu_threads(ty);
+        tile_max
+            .split(tx, tx, txi, 3, TailStrategy::RoundUp)
+            .unroll(txi)
+            .compute_at(output, x)
+            .reorder(txi, tx, ty)
+            .split(tx, tx_serial_outer, tx, 16, TailStrategy::GuardWithIf)
+            .gpu_threads(tx)
+            .split(ty, ty_serial_outer, ty, 2, TailStrategy::GuardWithIf)
+            .gpu_threads(ty);
+        tile_max.update(0)
+            .split(tx, tx, txi, 3, TailStrategy::RoundUp)
+            .unroll(txi)
+            .reorder(txi, tile_minmax_x, tile_minmax_y, tx, ty)
+            .split(tx, tx_serial_outer, tx, 16, TailStrategy::GuardWithIf)
+            .gpu_threads(tx)
+            .split(ty, ty_serial_outer, ty, 2, TailStrategy::GuardWithIf)
+            .gpu_threads(ty);
+        grey
+            .split(x, x, xi, 32, TailStrategy::ShiftInwards)
+            .split(y, y, yi, 8, TailStrategy::ShiftInwards)
+            .split(yi, yi, yii, 8, TailStrategy::ShiftInwards)
+            .unroll(yii)
+            .compute_root()
+            .reorder(yii, xi, yi, x, y)
+            .gpu_blocks(x)
+            .gpu_blocks(y)
+            .split(xi, xi_serial_outer, xi, 32, TailStrategy::GuardWithIf)
+            .gpu_threads(xi);
+      } else {
+        Var tx(tile_min.get_schedule().dims()[0].var);
+        Var ty(tile_min.get_schedule().dims()[1].var);
+        Var tyi("tyi");
+        Var x(binary.get_schedule().dims()[0].var);
+        Var xi("xi");
+        Var xii("xii");
+        Var xiii("xiii");
+        Var y(binary.get_schedule().dims()[1].var);
+        Var yi("yi");
+        Var yii("yii");
+        RVar tile_minmax_x(tile_min.update(0).get_schedule().dims()[0].var);
+        RVar tile_minmax_y(tile_min.update(0).get_schedule().dims()[1].var);
+        output
+            .split(x, x, xi, 256, TailStrategy::ShiftInwards)
+            .split(y, y, yi, 64, TailStrategy::ShiftInwards)
+            .split(xi, xi, xii, 128, TailStrategy::ShiftInwards)
+            .split(yi, yi, yii, 2, TailStrategy::ShiftInwards)
+            .split(xii, xii, xiii, 16, TailStrategy::ShiftInwards)
+            .unroll(xii)
+            .vectorize(xiii)
+            .compute_root()
+            .reorder({xiii, xii, yii, yi, xi, x, y})
+            .fuse(x, y, x)
+            .parallel(x);
+        binary
+            .store_in(MemoryType::Stack)
+            .split(x, x, xi, 16, TailStrategy::RoundUp)
+            .unroll(x)
+            .vectorize(xi)
+            .compute_at(output, yii)
+            .store_at(output, yi)
+            .reorder({xi, x, y});
+        local_min
+            .store_in(MemoryType::Stack)
+            .split(x, x, xi, 4, TailStrategy::RoundUp)
+            .vectorize(xi)
+            .compute_at(output, yii)
+            .store_at(output, yi)
+            .reorder({xi, x, y});
+        tile_min
+            .store_in(MemoryType::Stack)
+            .split(ty, ty, tyi, 4, TailStrategy::RoundUp)
+            .vectorize(tyi)
+            .compute_at(output, xi)
+            .reorder({tyi, ty, tx})
+            .reorder_storage(ty, tx);
+        tile_min.update(0)
+            .split(ty, ty, tyi, 4, TailStrategy::RoundUp)
+            .vectorize(tyi)
+            .reorder({tyi, tile_minmax_x, tile_minmax_y, ty, tx});
+        local_max
+            .store_in(MemoryType::Stack)
+            .split(x, x, xi, 4, TailStrategy::RoundUp)
+            .vectorize(xi)
+            .compute_at(output, yii)
+            .store_at(output, yi)
+            .reorder({xi, x, y});
+        tile_max
+            .store_in(MemoryType::Stack)
+            .split(ty, ty, tyi, 4, TailStrategy::RoundUp)
+            .vectorize(tyi)
+            .compute_at(output, xi)
+            .reorder({tyi, ty, tx})
+            .reorder_storage(ty, tx);
+        tile_max.update(0)
+            .split(ty, ty, tyi, 4, TailStrategy::RoundUp)
+            .vectorize(tyi)
+            .reorder({tyi, tile_minmax_x, tile_minmax_y, ty, tx});
+        grey
+            .store_in(MemoryType::Stack)
+            .split(y, y, yi, 16, TailStrategy::GuardWithIf)
+            .vectorize(yi)
+            .compute_at(output, xi)
+            .reorder({yi, y, x})
+            .reorder_storage(y, x);
+      }
     }
   }
 
@@ -121,7 +264,7 @@ private:
       ty{"ty"};
 
   Func tile_min{"tile_min"}, tile_max{"tile_max"}, binary{"binary"},
-      grey{"grey"};
+      grey{"grey"}, local_min{"local_min"}, local_max{"local_max"};
 };
 
 HALIDE_REGISTER_GENERATOR(GreyscaleAndAdaptiveThreshold,
