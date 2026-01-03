@@ -1,6 +1,7 @@
 #include <chrono>
 #include <cstdio>
 #include <cstring>
+#include <functional>
 #include <memory.h>
 #include <vector>
 
