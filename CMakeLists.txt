@@ -19,6 +19,7 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(USE_HALIDE "Build the Halide-backed threshold pipeline" ON)
+option(USE_CUDA "Build the CUDA-backed threshold pipeline" OFF)
 
 set(APRILTAG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/apriltag)
 set(APRILTAG_COMMON_DIR ${APRILTAG_DIR}/common)
@@ -114,9 +115,9 @@ if (USE_HALIDE)
 endif()
 
 # Find CUDA toolkit for CUDA headers and libraries
-find_package(CUDAToolkit)
+if (USE_CUDA)
+    find_package(CUDAToolkit REQUIRED)
 
-if (CUDAToolkit_FOUND)
     message(STATUS "CUDA toolkit found: ${CUDAToolkit_VERSION}")
     # Add CUDA include directories for C++ files that include CUDA headers
     target_include_directories(apriltag_timing PRIVATE ${CUDAToolkit_INCLUDE_DIRS})
@@ -125,9 +126,7 @@ if (CUDAToolkit_FOUND)
     # CUDA::cuda_driver for CUDA driver API (cuMemHostAlloc, cuMemHostGetDevicePointer_v2, etc.)
     target_link_libraries(apriltag_timing PRIVATE CUDA::cudart CUDA::cuda_driver)
     target_compile_definitions(apriltag_timing PRIVATE APRILTAG_HAVE_CUDA=1)
-else()
-    message(WARNING "CUDA toolkit not found. CUDA support will be disabled.")
-endif()
+endif() 
 
 # target_compile_options(apriltag_timing PRIVATE -g -pg)
 # target_link_options(apriltag_timing PRIVATE -pg)
