@@ -1,14 +1,14 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.28)
 
 project(apriltags_halide
         DESCRIPTION "AprilTag timing harness with optional Halide acceleration"
         LANGUAGES C CXX)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
+set(CMAKE_C_EXTENSIONS ON)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # Set default build type to Release with debug info if not specified
@@ -68,7 +68,13 @@ add_executable(apriltag_timing
     ${APRILTAG_COMMON_SOURCES}
 )
 
-target_compile_definitions(apriltag_timing PRIVATE _GNU_SOURCE)
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_ok OUTPUT ipo_err)
+if (ipo_ok)
+    set_property(TARGET apriltag_timing PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+else()
+    message(STATUS "IPO/LTO not supported: ${ipo_err}")
+  endif()
 
 target_include_directories(apriltag_timing
     PRIVATE
@@ -92,20 +98,19 @@ if (MATH_LIBRARY)
 endif()
 
 if (USE_HALIDE)
-    if (CMAKE_VERSION VERSION_LESS 3.28)
-        message(WARNING "Halide CMake package requires CMake >= 3.28. Disabling Halide support.")
-    else()
-        find_package(Halide CONFIG)
+    find_package(Halide REQUIRED)
 
-        if (Halide_FOUND)
-            target_sources(apriltag_timing PRIVATE halide_threshold.cpp)
-            target_link_libraries(apriltag_timing PRIVATE Halide::Halide)
-            target_compile_definitions(apriltag_timing PRIVATE APRILTAG_HAVE_HALIDE=1)
-            message(STATUS "Halide found - hybrid detector enabled")
-        else()
-            message(WARNING "Halide package not found. Re-run CMake with USE_HALIDE=OFF or provide Halide_DIR.")
-        endif()
-    endif()
+    add_halide_generator(threshold.generator threshold_generator.cpp)
+    add_halide_library(adaptive_threshold FROM threshold.generator
+        TARGETS cmake
+        GENERATOR adaptive_threshold_gen
+    )
+
+    target_include_directories(apriltag_timing PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+    target_sources(apriltag_timing PRIVATE halide_threshold.cpp)
+    target_link_libraries(apriltag_timing PRIVATE Halide::Runtime adaptive_threshold)
+    target_compile_definitions(apriltag_timing PRIVATE APRILTAG_HAVE_HALIDE=1)
+    message(STATUS "Halide found - hybrid detector enabled")
 endif()
 
 # Find CUDA toolkit for CUDA headers and libraries
