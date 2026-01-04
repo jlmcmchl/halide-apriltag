@@ -64,6 +64,10 @@ public:
   }
 
   void schedule() {
+    if (get_target().has_feature(Target::Feature::HVX)) {
+        output.hexagon();
+    }
+    
     if (using_autoscheduler()) {
       // The autoscheduler requires estimates on all the input/output
       // sizes and parameter values in order to compare different

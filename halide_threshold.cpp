@@ -15,6 +15,10 @@
 #include "HalideRuntimeCuda.h"
 #endif
 
+#ifdef USE_HEXAGON
+#include "HalideRuntimeHexagonHost.h"
+#endif
+
 extern "C" {
 #include "apriltag/apriltag.h"
 #include "apriltag/common/image_u8.h"
@@ -62,13 +66,35 @@ void ThresholdPipeline::ensure_buffer_size(
   auto raw = buffer.raw_buffer();
   if (raw == nullptr || buffer.width() != width ||
       buffer.height() != height) {
-    // Recreate buffer with new size
+#ifdef USE_HEXAGON
+    // For Hexagon, use zero-copy buffers with aligned stride
+    const int VLEN = 128;
+    int stride_y = (width + (VLEN) - 1) & (-(VLEN));
+    
+    // Define the dimensions with aligned stride
+    halide_dimension_t x_dim{0, width, 1};
+    halide_dimension_t y_dim{0, height, stride_y};
+    halide_dimension_t io_shape[2] = {x_dim, y_dim};
+    
+    // Allocate zero-copy buffer using ION memory
+    // nullptr as first argument means device_malloc will allocate ION memory
+    // that is visible to both host CPU and Hexagon DSP
+    buffer = Halide::Runtime::Buffer<uint8_t>(nullptr, 2, io_shape);
+    buffer.device_malloc(halide_hexagon_device_interface());
+#else
+    // Recreate buffer with new size for other backends
     buffer = Halide::Runtime::Buffer<uint8_t, 2>(width, height);
+#endif
   }
 }
 
 void ThresholdPipeline::run(int min_white_black_diff, int tile_size,
                             image_u8_t *input_im, image_u8_t *output_im) {
+#ifdef USE_HEXAGON
+  // TODO: we should to turn this off when we're done, but that isn't happening rn
+  halide_hexagon_power_hvx_on(nullptr);
+  halide_hexagon_set_performance_mode(nullptr, halide_hexagon_power_max);
+#endif
   // Resize buffers to match image dimensions if necessary
   ensure_buffer_size(input_buf_, input_im->width, input_im->height);
   ensure_buffer_size(output_buf_, output_im->width, output_im->height);
@@ -149,11 +175,19 @@ void ThresholdPipeline::copy_image_to_buffer(
         src += image_stride;
       }
     }
+#ifdef USE_HEXAGON
+    // TODO: Is this correct? Difficult to find documentation of memcopying to/from hexagon dma buffers
+    // For Hexagon zero-copy buffers, no explicit copy needed
+    // The buffer is already in ION memory visible to both CPU and DSP
+    // Just mark device dirty so Halide knows to use device memory
+    buffer.set_device_dirty();
+#else
     buffer.set_host_dirty();
 #ifdef USE_OPENCL
     buffer.copy_to_device(halide_opencl_device_interface());
 #elif USE_CUDA
-    buffer.copy_to_device(halide_cuda_device_interface());
+    buffer.copy_to_device(halide_cuda_device_interface());    
+#endif
 #endif
   });
 }
@@ -165,6 +199,12 @@ void ThresholdPipeline::copy_buffer_to_image(
     buffer.copy_to_host();
 #elif USE_CUDA
     buffer.copy_to_host();
+#elif USE_HEXAGON
+    // TODO: Is this correct? Difficult to find documentation of memcopying to/from hexagon dma buffers
+    // For Hexagon zero-copy buffers, no explicit copy needed
+    // The buffer is already in ION memory visible to both CPU and DSP
+    // Just ensure device operations are complete
+    // buffer.device_sync();
 #endif
     auto raw_buffer = buffer.raw_buffer();
     const int width = image->width;
@@ -203,6 +243,9 @@ void ThresholdPipeline::run_pipeline(
 #ifdef USE_OPENCL
       output_buf.device_sync();
 #elif USE_CUDA
+      output_buf.device_sync();
+#elif USE_HEXAGON
+    // TODO: Is this correct? Difficult to find documentation of memcopying to/from hexagon dma buffers
       output_buf.device_sync();
 #endif
     }
