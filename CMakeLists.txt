@@ -19,7 +19,9 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(USE_HALIDE "Build the Halide-backed threshold pipeline" ON)
-option(USE_CUDA "Build the CUDA-backed threshold pipeline" OFF)
+set(HALIDE_BACKEND "cpu" CACHE STRING "Halide backend to use (cpu, opencl, cuda)")
+set_property(CACHE HALIDE_BACKEND PROPERTY STRINGS cpu opencl cuda)
+
 
 set(APRILTAG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/apriltag)
 set(APRILTAG_COMMON_DIR ${APRILTAG_DIR}/common)
@@ -101,21 +103,38 @@ endif()
 if (USE_HALIDE)
     find_package(Halide REQUIRED)
 
+    # Set backend-specific preprocessor variables and features
+    if (HALIDE_BACKEND STREQUAL "cuda")
+        set(HALIDE_BACKEND_FEATURES cuda cuda_capability86)
+        set(HALIDE_BACKEND_DEFINE USE_CUDA=1)
+        # CUDA capability feature will be set after CUDA toolkit is found
+    elseif (HALIDE_BACKEND STREQUAL "opencl")
+        set(HALIDE_BACKEND_FEATURES opencl)
+        set(HALIDE_BACKEND_DEFINE USE_OPENCL=1)
+    else()
+        set(HALIDE_BACKEND_FEATURES "")
+        set(HALIDE_BACKEND_DEFINE "USE_CPU=1")
+    endif()
+
     add_halide_generator(threshold.generator threshold_generator.cpp)
     add_halide_library(adaptive_threshold FROM threshold.generator
         TARGETS cmake
         GENERATOR adaptive_threshold_gen
+        FEATURES ${HALIDE_BACKEND_FEATURES}
     )
 
     target_include_directories(apriltag_timing PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
     target_sources(apriltag_timing PRIVATE halide_threshold.cpp)
     target_link_libraries(apriltag_timing PRIVATE Halide::Runtime adaptive_threshold)
     target_compile_definitions(apriltag_timing PRIVATE APRILTAG_HAVE_HALIDE=1)
-    message(STATUS "Halide found - hybrid detector enabled")
+    if (HALIDE_BACKEND_DEFINE)
+        target_compile_definitions(apriltag_timing PRIVATE ${HALIDE_BACKEND_DEFINE})
+    endif()
+    message(STATUS "Halide found - hybrid detector enabled (backend: ${HALIDE_BACKEND})")
 endif()
 
 # Find CUDA toolkit for CUDA headers and libraries
-if (USE_CUDA)
+if (HALIDE_BACKEND STREQUAL "cuda")
     find_package(CUDAToolkit REQUIRED)
 
     message(STATUS "CUDA toolkit found: ${CUDAToolkit_VERSION}")

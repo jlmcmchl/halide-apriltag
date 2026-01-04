@@ -6,10 +6,13 @@
 #include <vector>
 
 #include "HalideRuntime.h"
+#ifdef USE_OPENCL
 #include "HalideRuntimeOpenCL.h"
+#endif
 
-#ifdef APRILTAG_HAVE_CUDA
+#ifdef USE_CUDA
 #include <cuda.h>
+#include "HalideRuntimeCuda.h"
 #endif
 
 extern "C" {
@@ -147,20 +150,22 @@ void ThresholdPipeline::copy_image_to_buffer(
       }
     }
     buffer.set_host_dirty();
-    if (buffer.has_device_allocation()) {
-      // Explicitly copy to device before pipeline runs to avoid synchronous
-      // transfer overhead during pipeline execution
-      buffer.copy_to_device(halide_opencl_device_interface());
-    }
+#ifdef USE_OPENCL
+    buffer.copy_to_device(halide_opencl_device_interface());
+#elif USE_CUDA
+    buffer.copy_to_device(halide_cuda_device_interface());
+#endif
   });
 }
 
 void ThresholdPipeline::copy_buffer_to_image(
     Halide::Runtime::Buffer<uint8_t, 2> &buffer, image_u8_t *image) {
   benchmark(copy_to_host_times_, [&]() {
-    if (buffer.has_device_allocation()) {
-      buffer.copy_to_host();
-    }
+#ifdef USE_OPENCL
+    buffer.copy_to_host();
+#elif USE_CUDA
+    buffer.copy_to_host();
+#endif
     auto raw_buffer = buffer.raw_buffer();
     const int width = image->width;
     const int height = image->height;
@@ -194,8 +199,12 @@ void ThresholdPipeline::run_pipeline(
                                  output_buf);
     // For integrated GPUs: ensure pipeline completes synchronously
     // This prevents copy_to_host() from having to wait
-    if (ret == halide_error_code_success && output_buf.has_device_allocation()) {
+    if (ret == halide_error_code_success) {
+#ifdef USE_OPENCL
       output_buf.device_sync();
+#elif USE_CUDA
+      output_buf.device_sync();
+#endif
     }
     return ret;
   });
