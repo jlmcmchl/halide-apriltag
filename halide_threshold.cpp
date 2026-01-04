@@ -5,14 +5,13 @@
 #include <memory.h>
 #include <vector>
 
-#include "HalideRuntime.h"
 #ifdef USE_OPENCL
 #include "HalideRuntimeOpenCL.h"
 #endif
 
 #ifdef USE_CUDA
-#include <cuda.h>
 #include "HalideRuntimeCuda.h"
+#include <cuda.h>
 #endif
 
 #ifdef USE_HEXAGON
@@ -64,23 +63,41 @@ void ThresholdPipeline::ensure_buffer_size(
   // Check if buffer needs to be resized
   // Check if buffer is uninitialized (no raw_buffer) or size mismatch
   auto raw = buffer.raw_buffer();
-  if (raw == nullptr || buffer.width() != width ||
-      buffer.height() != height) {
+  if (raw == nullptr || buffer.width() != width || buffer.height() != height) {
 #ifdef USE_HEXAGON
     // For Hexagon, use zero-copy buffers with aligned stride
     const int VLEN = 128;
-    int stride_y = (width + (VLEN) - 1) & (-(VLEN));
-    
+    int stride_y = (width + (VLEN)-1) & (-(VLEN));
+
     // Define the dimensions with aligned stride
     halide_dimension_t x_dim{0, width, 1};
     halide_dimension_t y_dim{0, height, stride_y};
     halide_dimension_t io_shape[2] = {x_dim, y_dim};
-    
+
     // Allocate zero-copy buffer using ION memory
     // nullptr as first argument means device_malloc will allocate ION memory
     // that is visible to both host CPU and Hexagon DSP
     buffer = Halide::Runtime::Buffer<uint8_t>(nullptr, 2, io_shape);
     buffer.device_malloc(halide_hexagon_device_interface());
+#elif USE_CUDA
+    uint8_t *buf_ptr;
+    size_t buf_size = sizeof(uint8_t) * width * height;
+    auto result =
+        cuMemHostAlloc((void **)&buf_ptr, buf_size, CU_MEMHOSTALLOC_DEVICEMAP);
+    if (result != CUDA_SUCCESS) {
+      fprintf(stderr, "cuMemHostAlloc failed: %d\n", result);
+      throw std::runtime_error("cuMemHostAlloc failed");
+    }
+
+    CUdeviceptr gpu_buf_ptr;
+    result = cuMemHostGetDevicePointer(&gpu_buf_ptr, buf_ptr, 0);
+    if (result != CUDA_SUCCESS) {
+      fprintf(stderr, "cuMemHostGetDevicePointer failed: %d\n", result);
+      throw std::runtime_error("cuMemHostGetDevicePointer failed");
+    }
+
+    buffer = Halide::Runtime::Buffer<uint8_t>(buf_ptr, width, height);
+    buffer.device_wrap_native(halide_cuda_device_interface(), gpu_buf_ptr);
 #else
     // Recreate buffer with new size for other backends
     buffer = Halide::Runtime::Buffer<uint8_t, 2>(width, height);
@@ -91,7 +108,8 @@ void ThresholdPipeline::ensure_buffer_size(
 void ThresholdPipeline::run(int min_white_black_diff, int tile_size,
                             image_u8_t *input_im, image_u8_t *output_im) {
 #ifdef USE_HEXAGON
-  // TODO: we should to turn this off when we're done, but that isn't happening rn
+  // TODO: we should to turn this off when we're done, but that isn't happening
+  // rn
   halide_hexagon_power_hvx_on(nullptr);
   halide_hexagon_set_performance_mode(nullptr, halide_hexagon_power_max);
 #endif
@@ -103,54 +121,6 @@ void ThresholdPipeline::run(int min_white_black_diff, int tile_size,
   run_pipeline(min_white_black_diff, tile_size, input_buf_, output_buf_);
   copy_buffer_to_image(output_buf_, output_im);
 }
-
-/*
-void ThresholdPipeline::create_input_buffer(int width, int height) {
-#ifdef APRILTAG_HAVE_CUDA
-    uint8_t *buf_ptr;
-    size_t buf_size = sizeof(uint8_t) * width * height;
-    auto result = cuMemHostAlloc((void**)&buf_ptr, buf_size,
-CU_MEMHOSTALLOC_DEVICEMAP); if (result != CUDA_SUCCESS) { fprintf(stderr,
-"cuMemHostAlloc failed: %d\n", result); throw std::runtime_error("cuMemHostAlloc
-failed");
-    }
-
-    CUdeviceptr gpu_buf_ptr;
-    result = cuMemHostGetDevicePointer(&gpu_buf_ptr, buf_ptr, 0);
-    if (result != CUDA_SUCCESS) {
-        fprintf(stderr, "cuMemHostGetDevicePointer failed: %d\n", result);
-        throw std::runtime_error("cuMemHostGetDevicePointer failed");
-    }
-
-    input_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(buf_ptr,width,
-height, "input_buffer"); input_buf_->device_wrap_native(Halide::DeviceAPI::CUDA,
-gpu_buf_ptr, target_); #else input_buf_.allocate() #endif
-
-}
-
-void ThresholdPipeline::create_output_buffer(int width, int height) {
-#ifdef APRILTAG_HAVE_CUDA
-    uint8_t *buf_ptr;
-    size_t buf_size = sizeof(uint8_t) * width * height;
-    auto result = cuMemHostAlloc((void**)&buf_ptr, buf_size,
-CU_MEMHOSTALLOC_DEVICEMAP); if (result != CUDA_SUCCESS) { fprintf(stderr,
-"cuMemHostAlloc failed: %d\n", result); throw std::runtime_error("cuMemHostAlloc
-failed");
-    }
-
-    CUdeviceptr gpu_buf_ptr;
-    result = cuMemHostGetDevicePointer(&gpu_buf_ptr, buf_ptr, 0);
-    if (result != CUDA_SUCCESS) {
-        fprintf(stderr, "cuMemHostGetDevicePointer failed: %d\n", result);
-        throw std::runtime_error("cuMemHostGetDevicePointer failed");
-    }
-    output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(buf_ptr,width,
-height, "output_buffer");
-    output_buf_->device_wrap_native(Halide::DeviceAPI::CUDA, gpu_buf_ptr,
-target_); #else output_buf_ = std::make_unique<Halide::Buffer<uint8_t>>(width,
-height); #endif
-}
-*/
 
 void ThresholdPipeline::copy_image_to_buffer(
     image_u8_t *image, Halide::Runtime::Buffer<uint8_t, 2> &buffer) {
@@ -176,17 +146,18 @@ void ThresholdPipeline::copy_image_to_buffer(
       }
     }
 #ifdef USE_HEXAGON
-    // TODO: Is this correct? Difficult to find documentation of memcopying to/from hexagon dma buffers
-    // For Hexagon zero-copy buffers, no explicit copy needed
-    // The buffer is already in ION memory visible to both CPU and DSP
-    // Just mark device dirty so Halide knows to use device memory
+    // TODO: Is this correct? Difficult to find documentation of memcopying
+    // to/from hexagon dma buffers.
+    // For Hexagon zero-copy buffers, no explicit
+    // copy needed The buffer is already in ION memory visible to both CPU and
+    // DSP Just mark device dirty so Halide knows to use device memory
     buffer.set_device_dirty();
 #else
     buffer.set_host_dirty();
 #ifdef USE_OPENCL
     buffer.copy_to_device(halide_opencl_device_interface());
 #elif USE_CUDA
-    buffer.copy_to_device(halide_cuda_device_interface());    
+    buffer.copy_to_device(halide_cuda_device_interface());
 #endif
 #endif
   });
@@ -200,11 +171,11 @@ void ThresholdPipeline::copy_buffer_to_image(
 #elif USE_CUDA
     buffer.copy_to_host();
 #elif USE_HEXAGON
-    // TODO: Is this correct? Difficult to find documentation of memcopying to/from hexagon dma buffers
-    // For Hexagon zero-copy buffers, no explicit copy needed
-    // The buffer is already in ION memory visible to both CPU and DSP
-    // Just ensure device operations are complete
-    // buffer.device_sync();
+  // TODO: Is this correct? Difficult to find documentation of memcopying
+  // to/from hexagon dma buffers.
+  // For Hexagon zero-copy buffers, no explicit copy
+  // needed The buffer is already in ION memory visible to both CPU and DSP Just
+  // ensure device operations are complete buffer.device_sync();
 #endif
     auto raw_buffer = buffer.raw_buffer();
     const int width = image->width;
