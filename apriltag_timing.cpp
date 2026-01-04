@@ -20,6 +20,7 @@ extern "C" {
 #include "apriltag/common/image_u8.h"
 #include "apriltag/common/pjpeg.h"
 #include "apriltag/common/string_util.h"
+#include "apriltag/common/timeprofile.h"
 #include "apriltag/common/zarray.h"
 #include "apriltag/tag16h5.h"
 #include "apriltag/tag25h9.h"
@@ -246,6 +247,12 @@ struct DetectionSummary {
   std::array<std::array<double, 2>, 4> corners{};
 };
 
+struct TimeProfileEntry {
+  std::string name;
+  double part_time_ms = 0.0;
+  double cum_time_ms = 0.0;
+};
+
 struct DetectorRun {
   bool use_halide = false;
   double detect_time_ms = 0.0;
@@ -256,11 +263,13 @@ struct DetectorRun {
   float quad_sigma = 0.0f;
   int threads = 1;
   std::vector<DetectionSummary> detections;
+  std::vector<TimeProfileEntry> timeprofile;
 };
 
 struct TimingStats {
   double mean = 0.0;
   double stddev = 0.0;
+  double median = 0.0;
 };
 
 static std::vector<DetectionSummary> snapshot_detections(zarray_t *detections) {
@@ -289,6 +298,36 @@ static std::vector<DetectionSummary> snapshot_detections(zarray_t *detections) {
   }
 
   return out;
+}
+
+static std::vector<TimeProfileEntry> extract_timeprofile(apriltag_detector_t *td) {
+  std::vector<TimeProfileEntry> entries;
+  if (!td || !td->tp) {
+    return entries;
+  }
+
+  timeprofile_t *tp = td->tp;
+  int64_t lastutime = tp->utime;
+  const int n = zarray_size(tp->stamps);
+  entries.reserve(n);
+
+  for (int i = 0; i < n; i++) {
+    struct timeprofile_entry *stamp;
+    zarray_get_volatile(tp->stamps, i, &stamp);
+
+    double cumtime = (stamp->utime - tp->utime) / 1000000.0;
+    double parttime = (stamp->utime - lastutime) / 1000000.0;
+
+    TimeProfileEntry entry;
+    entry.name = std::string(stamp->name);
+    entry.part_time_ms = parttime * 1000.0;
+    entry.cum_time_ms = cumtime * 1000.0;
+    entries.push_back(entry);
+
+    lastutime = stamp->utime;
+  }
+
+  return entries;
 }
 
 static DetectorRun run_detector(apriltag_family_t *tf, image_u8_t *im,
@@ -329,7 +368,8 @@ static DetectorRun run_detector(apriltag_family_t *tf, image_u8_t *im,
   run.quad_sigma = td->quad_sigma;
   run.threads = td->nthreads;
 
-  // timeprofile_display(td->tp);
+  // Collect timeprofile measurements
+  run.timeprofile = extract_timeprofile(td);
 
   apriltag_detections_destroy(detections);
   apriltag_detector_destroy(td);
@@ -380,7 +420,65 @@ static TimingStats compute_stats(const std::vector<double> &values) {
     stats.stddev = std::sqrt(variance);
   }
 
+  // Compute median
+  std::vector<double> sorted_values = values;
+  std::sort(sorted_values.begin(), sorted_values.end());
+  const size_t n = sorted_values.size();
+  if (n % 2 == 0) {
+    stats.median = (sorted_values[n / 2 - 1] + sorted_values[n / 2]) / 2.0;
+  } else {
+    stats.median = sorted_values[n / 2];
+  }
+
   return stats;
+}
+
+static void print_timeprofile_stats(
+    const char *label,
+    const std::vector<std::vector<TimeProfileEntry>> &timeprofiles) {
+  if (timeprofiles.empty()) {
+    return;
+  }
+
+  // Collect all step names and their measurements
+  std::unordered_map<std::string, std::vector<double>> step_measurements;
+  
+  // Use the order from the first timeprofile to ensure consistent ordering
+  std::vector<std::string> step_order;
+  if (!timeprofiles.empty() && !timeprofiles[0].empty()) {
+    for (const auto &entry : timeprofiles[0]) {
+      step_order.push_back(entry.name);
+    }
+  }
+
+  // Collect measurements from all runs
+  for (const auto &profile : timeprofiles) {
+    for (const auto &entry : profile) {
+      step_measurements[entry.name].push_back(entry.part_time_ms);
+    }
+  }
+
+  if (step_measurements.empty()) {
+    return;
+  }
+
+  printf("\n========== %s TIMEPROFILE STATISTICS ==========\n", label);
+  printf("%2s %-30s %12s %12s %12s\n", "#", "Step", "Mean (ms)", "Median (ms)",
+         "StdDev (ms)");
+  printf("%2s %-30s %12s %12s %12s\n", "--", "----", "---------", "-----------",
+         "----------");
+
+  // Display in the order they appear in the timeprofile
+  for (size_t i = 0; i < step_order.size(); i++) {
+    const std::string &step_name = step_order[i];
+    auto it = step_measurements.find(step_name);
+    if (it != step_measurements.end()) {
+      const auto &measurements = it->second;
+      const TimingStats stats = compute_stats(measurements);
+      printf("%2zu %-30s %12.3f %12.3f %12.3f\n", i, step_name.c_str(),
+             stats.mean, stats.median, stats.stddev);
+    }
+  }
 }
 
 static std::unordered_map<int, std::vector<const DetectionSummary *>>
@@ -671,19 +769,32 @@ int main(int argc, char *argv[]) {
   bool halide_valid = false;
   std::vector<double> baseline_times;
   std::vector<double> halide_times;
+  std::vector<std::vector<TimeProfileEntry>> baseline_timeprofiles;
+  std::vector<std::vector<TimeProfileEntry>> halide_timeprofiles;
   if (run_baseline) {
     baseline_times.reserve(runs);
+    baseline_timeprofiles.reserve(runs);
   }
   if (run_halide) {
     halide_times.reserve(runs);
+    halide_timeprofiles.reserve(runs);
   }
 
   if (run_baseline) {
+    // Clear timeprofile buffer before benchmarks
+    // This ensures the first benchmark run starts with a clean timeprofile
+    apriltag_detector_t *td = apriltag_detector_create();
+    if (td && td->tp) {
+      timeprofile_clear(td->tp);
+    }
+    apriltag_detector_destroy(td);
+    
     printf("[INFO] Running baseline AprilTag detection...\n");
     for (int i = 0; i < runs; i++) {
       DetectorRun run =
           run_detector(tf, im, decimate, blur, num_threads, false);
       baseline_times.push_back(run.detect_time_ms);
+      baseline_timeprofiles.push_back(run.timeprofile);
       baseline_run = std::move(run);
     }
     baseline_valid = true;
@@ -697,10 +808,19 @@ int main(int argc, char *argv[]) {
   }
 
   if (run_halide) {
+    // Clear timeprofile buffer after warmup, before benchmarks
+    // This ensures the first benchmark run starts with a clean timeprofile
+    apriltag_detector_t *td = apriltag_detector_create();
+    if (td && td->tp) {
+      timeprofile_clear(td->tp);
+    }
+    apriltag_detector_destroy(td);
+    
     printf("[INFO] Running Halide-accelerated AprilTag detection...\n");
     for (int i = 0; i < runs; i++) {
       DetectorRun run = run_detector(tf, im, decimate, blur, num_threads, true);
       halide_times.push_back(run.detect_time_ms);
+      halide_timeprofiles.push_back(run.timeprofile);
       halide_run = std::move(run);
     }
     halide_valid = true;
@@ -769,6 +889,16 @@ int main(int argc, char *argv[]) {
     printf("Copy to host:       mean %.3f ms, std %.3f ms over %zu run(s)\n",
            copy_out_stats.mean, copy_out_stats.stddev,
            threshold.copy_to_host_times_.size());
+  }
+#endif
+
+  // Print timeprofile statistics
+  if (baseline_valid && !baseline_timeprofiles.empty()) {
+    print_timeprofile_stats("BASELINE", baseline_timeprofiles);
+  }
+#ifdef APRILTAG_HAVE_HALIDE
+  if (halide_valid && !halide_timeprofiles.empty()) {
+    print_timeprofile_stats("HALIDE", halide_timeprofiles);
   }
 #endif
 
