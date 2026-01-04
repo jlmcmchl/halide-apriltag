@@ -1,4 +1,4 @@
-build/
+build*/
 .cache/
 *.pgm
 compile_commands.json
