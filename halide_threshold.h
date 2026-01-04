@@ -27,6 +27,8 @@ public:
            image_u8_t *output_im);
 
 private:
+  void ensure_buffer_size(Halide::Runtime::Buffer<uint8_t, 2> &buffer,
+                          int width, int height);
   void copy_image_to_buffer(image_u8_t *image,
                             Halide::Runtime::Buffer<uint8_t, 2> &buffer);
   void copy_buffer_to_image(Halide::Runtime::Buffer<uint8_t, 2> &buffer,
@@ -34,8 +36,8 @@ private:
   void run_pipeline(int min_white_black_diff, int tile_size,
                     Halide::Runtime::Buffer<uint8_t, 2> &input_buf,
                     Halide::Runtime::Buffer<uint8_t, 2> &output_buf);
-  Halide::Runtime::Buffer<uint8_t, 2> input_buf_{4096, 4096};
-  Halide::Runtime::Buffer<uint8_t, 2> output_buf_{4096, 4096};
+  Halide::Runtime::Buffer<uint8_t, 2> input_buf_;
+  Halide::Runtime::Buffer<uint8_t, 2> output_buf_;
 };
 
 // C++ interface - get the pipeline singleton

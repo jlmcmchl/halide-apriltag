@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "HalideRuntime.h"
+#include "HalideRuntimeOpenCL.h"
 
 #ifdef APRILTAG_HAVE_CUDA
 #include <cuda.h>
@@ -51,17 +52,27 @@ void ThresholdPipeline::reset_stats() {
   copy_to_host_times_.clear();
 }
 
+void ThresholdPipeline::ensure_buffer_size(
+    Halide::Runtime::Buffer<uint8_t, 2> &buffer, int width, int height) {
+  // Check if buffer needs to be resized
+  // Check if buffer is uninitialized (no raw_buffer) or size mismatch
+  auto raw = buffer.raw_buffer();
+  if (raw == nullptr || buffer.width() != width ||
+      buffer.height() != height) {
+    // Recreate buffer with new size
+    buffer = Halide::Runtime::Buffer<uint8_t, 2>(width, height);
+  }
+}
+
 void ThresholdPipeline::run(int min_white_black_diff, int tile_size,
                             image_u8_t *input_im, image_u8_t *output_im) {
+  // Resize buffers to match image dimensions if necessary
+  ensure_buffer_size(input_buf_, input_im->width, input_im->height);
+  ensure_buffer_size(output_buf_, output_im->width, output_im->height);
 
-  auto input =
-      input_buf_.cropped({{0, input_im->width}, {0, input_im->height}});
-  auto output =
-      output_buf_.cropped({{0, output_im->width}, {0, output_im->height}});
-
-  copy_image_to_buffer(input_im, input);
-  run_pipeline(min_white_black_diff, tile_size, input, output);
-  copy_buffer_to_image(output, output_im);
+  copy_image_to_buffer(input_im, input_buf_);
+  run_pipeline(min_white_black_diff, tile_size, input_buf_, output_buf_);
+  copy_buffer_to_image(output_buf_, output_im);
 }
 
 /*
@@ -114,37 +125,61 @@ height); #endif
 
 void ThresholdPipeline::copy_image_to_buffer(
     image_u8_t *image, Halide::Runtime::Buffer<uint8_t, 2> &buffer) {
-  if (!input_buf_) {
-    return;
-  }
-
   benchmark(copy_to_device_times_, [&]() {
     auto raw_buffer = buffer.raw_buffer();
-    for (int y = 0; y < image->height; y++) {
-      std::memcpy(raw_buffer->host + y * raw_buffer->dim[1].stride,
-                  image->buf + y * image->stride,
-                  image->width * sizeof(uint8_t));
+    const int width = image->width;
+    const int height = image->height;
+    const int buffer_stride = raw_buffer->dim[1].stride;
+    const int image_stride = image->stride;
+
+    // Optimize: if strides match, do a single contiguous copy
+    if (buffer_stride == image_stride && buffer_stride == width) {
+      std::memcpy(raw_buffer->host, image->buf,
+                  width * height * sizeof(uint8_t));
+    } else {
+      // Row-by-row copy with optimized pattern
+      uint8_t *dst = raw_buffer->host;
+      uint8_t *src = image->buf;
+      for (int y = 0; y < height; y++) {
+        std::memcpy(dst, src, width * sizeof(uint8_t));
+        dst += buffer_stride;
+        src += image_stride;
+      }
     }
     buffer.set_host_dirty();
+    if (buffer.has_device_allocation()) {
+      // Explicitly copy to device before pipeline runs to avoid synchronous
+      // transfer overhead during pipeline execution
+      buffer.copy_to_device(halide_opencl_device_interface());
+    }
   });
 }
 
 void ThresholdPipeline::copy_buffer_to_image(
     Halide::Runtime::Buffer<uint8_t, 2> &buffer, image_u8_t *image) {
-  if (!output_buf_) {
-    return;
-  }
-
   benchmark(copy_to_host_times_, [&]() {
     if (buffer.has_device_allocation()) {
-      buffer.set_device_dirty();
       buffer.copy_to_host();
     }
     auto raw_buffer = buffer.raw_buffer();
-    for (int y = 0; y < image->height; y++) {
-      std::memcpy(image->buf + y * image->stride,
-                  raw_buffer->host + y * raw_buffer->dim[1].stride,
-                  image->width * sizeof(uint8_t));
+    const int width = image->width;
+    const int height = image->height;
+    const int buffer_stride = raw_buffer->dim[1].stride;
+    const int image_stride = image->stride;
+
+    // Optimize: if strides match, do a single contiguous copy
+    if (buffer_stride == image_stride && buffer_stride == width) {
+      std::memcpy(image->buf, raw_buffer->host,
+                  width * height * sizeof(uint8_t));
+    } else {
+      // Row-by-row copy with optimized pattern
+      uint8_t *dst = image->buf;
+      uint8_t *src = raw_buffer->host;
+      for (int y = 0; y < height; y++) {
+        std::memcpy(dst, src, width * sizeof(uint8_t));
+        dst += image_stride;
+        src += buffer_stride;
+      }
     }
   });
 }
@@ -155,8 +190,14 @@ void ThresholdPipeline::run_pipeline(
     Halide::Runtime::Buffer<uint8_t, 2> &output_buf) {
 
   auto result = benchmark_with_return(pipeline_times_, [&]() {
-    return adaptive_threshold(input_buf, min_white_black_diff, tile_size,
-                              output_buf);
+    int ret = adaptive_threshold(input_buf, min_white_black_diff, tile_size,
+                                 output_buf);
+    // For integrated GPUs: ensure pipeline completes synchronously
+    // This prevents copy_to_host() from having to wait
+    if (ret == halide_error_code_success && output_buf.has_device_allocation()) {
+      output_buf.device_sync();
+    }
+    return ret;
   });
 
   if (result != halide_error_code_success) {
